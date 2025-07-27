@@ -6,26 +6,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "cart_items")
+@Table(name = "carts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItem {
+public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int quantity;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private Double price; // Giá tại thời điểm thêm vào giỏ
-
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items = new ArrayList<>();
 }

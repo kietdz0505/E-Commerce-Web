@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "promotions")
@@ -20,10 +21,31 @@ public class Promotion {
     private Long id;
 
     private String code;
-    private String description;
-    private Double discountPercent;
-    private int quantity;
-    private LocalDateTime validFrom;
-    private LocalDateTime validTo;
-}
 
+    private String description;
+
+    private BigDecimal discountPercent;
+
+    private Integer usageLimit;
+
+    private LocalDateTime validFrom;
+
+    private LocalDateTime validTo;
+
+    @ManyToMany
+    @JoinTable(
+            name = "promotion_products",
+            joinColumns = @JoinColumn(name = "promotion_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products;
+
+
+    @OneToMany(mappedBy = "promotion")
+    private List<Order> orders;
+
+    public boolean isActive() {
+        LocalDateTime now = LocalDateTime.now();
+        return validFrom.isBefore(now) && validTo.isAfter(now);
+    }
+}
