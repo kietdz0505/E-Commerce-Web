@@ -1,6 +1,7 @@
 package com.example.ecommerce_web.config;
 
 import com.example.ecommerce_web.security.JwtAuthenticationFilter;
+import com.example.ecommerce_web.security.OAuth2LoginSuccessHandler;
 import com.example.ecommerce_web.service.CustomOAuth2UserService;
 import com.example.ecommerce_web.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ public class SecurityConfig {
 
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
-
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -40,7 +42,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // CHÚ Ý DÒNG NÀY!!!
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // CHÚ Ý DÒNG NÀY!!!
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/auth/**", "/oauth2/**", "/api/dashboard/stats","/api/products","/api/categories").permitAll()
                         .requestMatchers("/api/**").authenticated()
@@ -48,7 +50,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("http://localhost:3000/home", true)
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")

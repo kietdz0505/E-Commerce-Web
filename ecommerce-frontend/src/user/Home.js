@@ -5,9 +5,10 @@ import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaShoppingCart, FaGift, FaStore, FaGoogle, FaFacebookF } from "react-icons/fa";
 import { getAllCategories } from "../api/categoryApi";
+import { getOAuthUrl, getApiUrl } from '../config/apiConfig';
 
 
-function LoginPopup({ open, onClose }) {
+function LoginPopup({ open, onClose, onSwitchToRegister, onFacebookLogin }) {
   if (!open) return null;
   return (
     <div className="modal show fade" tabIndex="-1" style={{ display: "block", background: "rgba(0,0,0,0.35)" }} onClick={onClose}>
@@ -19,18 +20,103 @@ function LoginPopup({ open, onClose }) {
           </div>
           <div className="modal-body pt-2">
             <form className="d-flex flex-column gap-3 mb-3">
-              <input type="email" className="form-control rounded-pill px-4" placeholder="Email" required />
+              <input type="username" className="form-control rounded-pill px-4" placeholder="Tên đăng nhập" required />
               <input type="password" className="form-control rounded-pill px-4" placeholder="Mật khẩu" required />
               <button type="submit" className="btn btn-primary rounded-pill fw-bold py-2">Đăng nhập</button>
             </form>
+            <div className="text-center mb-3">
+              <small className="text-secondary">Chưa có tài khoản? </small>
+              <button type="button" className="btn btn-link text-primary p-0 ms-1 fw-bold" style={{ textDecoration: 'none' }} onClick={onSwitchToRegister}>
+                Đăng ký ngay
+              </button>
+            </div>
             <div className="text-center my-2 text-secondary">Hoặc đăng nhập bằng</div>
             <div className="d-flex gap-3 justify-content-center">
-              <button className="btn btn-outline-danger rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold">
+              <a href={getOAuthUrl('google')} className="btn btn-outline-danger rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold text-decoration-none">
                 <FaGoogle className="fs-5" /> Google
-              </button>
-              <button className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold">
+              </a>
+              <a href={getOAuthUrl('facebook')} className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold text-decoration-none">
                 <FaFacebookF className="fs-5" /> Facebook
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegisterPopup({ open, onClose, onSwitchToLogin }) {
+  if (!open) return null;
+  return (
+    <div className="modal show fade" tabIndex="-1" style={{ display: "block", background: "rgba(0,0,0,0.35)" }} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+        <div className="modal-content rounded-4 shadow">
+          <div className="modal-header border-0 pb-0">
+            <h5 className="modal-title w-100 text-center fw-bold">Đăng ký tài khoản</h5>
+            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+          </div>
+          <div className="modal-body pt-2">
+            <form className="d-flex flex-column gap-3 mb-3">
+              <input type="text" className="form-control rounded-pill px-4" placeholder="Họ và tên" required />
+              <input type="username" className="form-control rounded-pill px-4" placeholder="Tên đăng nhập" required />
+              <input type="email" className="form-control rounded-pill px-4" placeholder="Email" required />
+              <input type="tel" className="form-control rounded-pill px-4" placeholder="Số điện thoại" required />
+              <input type="password" className="form-control rounded-pill px-4" placeholder="Mật khẩu" required />
+              <input type="password" className="form-control rounded-pill px-4" placeholder="Xác nhận mật khẩu" required />
+              <button type="submit" className="btn btn-success rounded-pill fw-bold py-2">Đăng ký</button>
+            </form>
+            <div className="text-center mb-3">
+              <small className="text-secondary">Đã có tài khoản? </small>
+              <button type="button" className="btn btn-link text-primary p-0 ms-1 fw-bold" style={{ textDecoration: 'none' }} onClick={onSwitchToLogin}>
+                Đăng nhập ngay
               </button>
+            </div>
+            <div className="text-center my-2 text-secondary">Hoặc đăng ký bằng</div>
+            <div className="d-flex gap-3 justify-content-center">
+              <a href={getOAuthUrl('google')} className="btn btn-outline-danger rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold text-decoration-none">
+                <FaGoogle className="fs-5" /> Google
+              </a>
+              <a href={getOAuthUrl('facebook')} className="btn btn-outline-primary rounded-pill d-flex align-items-center gap-2 px-4 py-2 fw-bold text-decoration-none">
+                <FaFacebookF className="fs-5" /> Facebook
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FacebookLoginPopup({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="modal show fade" tabIndex="-1" style={{ display: "block", background: "rgba(0,0,0,0.35)" }} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+        <div className="modal-content rounded-4 shadow">
+          <div className="modal-header border-0 pb-0">
+            <h5 className="modal-title w-100 text-center fw-bold">Đăng nhập bằng Facebook</h5>
+            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+          </div>
+          <div className="modal-body pt-2 text-center">
+            <div className="mb-4">
+              <FaFacebookF className="fs-1 text-primary mb-3" />
+              <p className="text-secondary">Bạn sẽ được chuyển hướng đến Facebook để đăng nhập</p>
+            </div>
+            <div className="d-flex flex-column gap-3">
+              <a href={getOAuthUrl('facebook')} className="btn btn-primary rounded-pill fw-bold py-3 d-flex align-items-center justify-content-center gap-3 text-decoration-none">
+                <FaFacebookF className="fs-5" />
+                Tiếp tục với Facebook
+              </a>
+              <button className="btn btn-outline-secondary rounded-pill py-2" onClick={onClose}>
+                Hủy
+              </button>
+            </div>
+            <div className="mt-4 p-3 bg-light rounded-3">
+              <small className="text-secondary">
+                <strong>Lưu ý:</strong> Chúng tôi chỉ sử dụng thông tin cơ bản từ tài khoản Facebook của bạn để tạo tài khoản AZStore.
+                Chúng tôi không đăng bài hoặc thay đổi thông tin cá nhân của bạn.
+              </small>
             </div>
           </div>
         </div>
@@ -42,10 +128,52 @@ function LoginPopup({ open, onClose }) {
 function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showFacebookLogin, setShowFacebookLogin] = useState(false);
+
+  const handleSwitchToRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegister(false);
+    setShowLogin(true);
+  };
+
+  const handleFacebookLogin = () => {
+    setShowLogin(false);
+    setShowFacebookLogin(true);
+  };
+
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch(getApiUrl('profile'), {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('Current User:', data);
+          setCurrentUser(data);
+        })
+        .catch(err => console.error('Failed to fetch user', err));
+    }
+  }, []);
+
+  const closeModals = () => {
+    setShowLogin(false);
+    setShowRegister(false);
+    setShowFacebookLogin(false);
+  };
   useEffect(() => {
     getAllCategories()
       .then((res) => {
@@ -78,20 +206,45 @@ function Home() {
 
   return (
     <div className="homepage bg-light" style={{ minHeight: "100vh", paddingTop: 64 }}>
-      <LoginPopup open={showLogin} onClose={() => setShowLogin(false)} />
+      <LoginPopup
+        open={showLogin}
+        onClose={closeModals}
+        onSwitchToRegister={handleSwitchToRegister}
+        onFacebookLogin={handleFacebookLogin}
+      />
+      <RegisterPopup
+        open={showRegister}
+        onClose={closeModals}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
+      <FacebookLoginPopup
+        open={showFacebookLogin}
+        onClose={closeModals}
+      />
       {/* Header */}
-      <Header onLoginClick={() => setShowLogin(true)} />
+      <Header
+        onLoginClick={() => setShowLogin(true)}
+        currentUser={currentUser}
+      />
 
       {/* Hero Banner */}
-      <section className="py-5 text-white text-center" style={{background: "linear-gradient(120deg, #1976d2 60%, #42a5f5 100%)"}}>
+      <section className="py-5 text-white text-center" style={{ background: "linear-gradient(120deg, #1976d2 60%, #42a5f5 100%)" }}>
         <div className="container">
-          <h1 className="display-3 fw-bold mb-3 text-shadow">Chào mừng đến với AZStore</h1>
+          <h1 className="display-3 fw-bold mb-3 text-shadow">
+            {currentUser ? (
+              <>
+                Chào mừng <span className="text-warning fw-bolder">{currentUser.name}</span> đến với AZStore
+              </>
+            ) : 'Chào mừng đến với AZStore'}
+          </h1>
+
           <p className="lead mb-4 fs-4">Siêu thị điện tử - Giá tốt mỗi ngày!</p>
           <button className="btn btn-warning btn-lg fw-bold shadow">
             <FaShoppingCart className="me-2 mb-1" />Mua ngay
           </button>
         </div>
       </section>
+
 
       {/* Danh mục sản phẩm */}
       <section className="py-4 bg-white">
@@ -128,7 +281,7 @@ function Home() {
                       <img src={prod.imageUrl || "https://via.placeholder.com/200x200?text=No+Image"} alt={prod.name} className="card-img-top p-3 rounded-4 product-img-hover" style={{ height: 180, objectFit: "contain", background: "#f8f9fa" }} />
                       <div className="card-body d-flex flex-column">
                         <h5 className="card-title">{prod.name}</h5>
-                        {prod.description && <p className="card-text small text-secondary mb-2" style={{minHeight: 36}}>{prod.description.slice(0, 40)}{prod.description.length > 40 ? '...' : ''}</p>}
+                        {prod.description && <p className="card-text small text-secondary mb-2" style={{ minHeight: 36 }}>{prod.description.slice(0, 40)}{prod.description.length > 40 ? '...' : ''}</p>}
                         <p className="card-text text-danger fw-bold mb-2 fs-5">{prod.price ? prod.price.toLocaleString("vi-VN") + "₫" : "Liên hệ"}</p>
                         <button className="btn btn-primary mt-auto w-100">
                           <FaShoppingCart className="me-2 mb-1" />Mua ngay

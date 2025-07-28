@@ -5,9 +5,9 @@ import com.example.ecommerce_web.model.RoleName;
 import com.example.ecommerce_web.model.User;
 import com.example.ecommerce_web.repository.RoleRepository;
 import com.example.ecommerce_web.repository.UserRepository;
-import com.example.ecommerce_web.security.JwtUtil;
 import com.example.ecommerce_web.dto.RegisterRequest;
 import com.example.ecommerce_web.model.AuthProvider;
+import com.example.ecommerce_web.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class AuthController {
     private final RoleRepository roleRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -43,7 +43,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail()); // SỬA: dùng email để generate token
+        String token = jwtTokenProvider.generateToken(user.getEmail()); // SỬA: dùng email để generate token
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
