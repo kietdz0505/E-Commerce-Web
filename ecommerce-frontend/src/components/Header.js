@@ -24,7 +24,7 @@ function Header({ onLoginClick, currentUser }) {
                 <>
                   <div className="dropdown">
                     <button className="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                      <img src={currentUser.picture} alt="Avatar" className="rounded-circle" width="32" height="32" />
+                      <img src={currentUser.picture} alt="Avatar" className="rounded-circle" width="32" height="32" referrerpolicy="no-referrer"/>
                       <span>{currentUser.name}</span>
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">

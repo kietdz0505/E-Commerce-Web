@@ -1,21 +1,25 @@
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import React from 'react';
 import { getOAuthUrl } from "../config/apiConfig";
 
-
 const Login = () => {
-  const handleSuccess = (credentialResponse) => {
+  const handleGoogleLogin = () => {
     window.location.href = getOAuthUrl('google');
   };
 
+  const handleFacebookLogin = () => {
+    window.location.href = getOAuthUrl('facebook');
+  };
+
   return (
-    <GoogleOAuthProvider clientId="795276792020-k8vt8rfc44l6t65th0e0or9vets85u1g.apps.googleusercontent.com">
-      <div className="d-flex flex-column align-items-center mt-5">
-        <h2>Đăng nhập với Google</h2>
-        <button className="btn btn-danger mt-3" onClick={handleSuccess}>
-          Login with Google
-        </button>
-      </div>
-    </GoogleOAuthProvider>
+    <div className="d-flex flex-column align-items-center mt-5">
+      <h2>Đăng nhập</h2>
+      <button className="btn btn-danger mt-3" onClick={handleGoogleLogin}>
+        Đăng nhập với Google
+      </button>
+      <button className="btn btn-primary mt-3" onClick={handleFacebookLogin}>
+        Đăng nhập với Facebook
+      </button>
+    </div>
   );
 };
 

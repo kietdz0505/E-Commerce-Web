@@ -6,7 +6,9 @@ export const API_CONFIG = {
   // OAuth endpoints
   OAUTH: {
     FACEBOOK: '/oauth2/authorization/facebook',
-    GOOGLE: '/oauth2/authorization/google'
+    GOOGLE: '/oauth2/authorization/google',
+    LOCAL: '/auth/login',
+    REGISTER: '/auth/register'
   },
   
   // API endpoints khác

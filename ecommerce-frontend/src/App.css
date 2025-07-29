@@ -1,1 +1,27 @@
-/* Nếu bạn cần custom style cho Bootstrap, hãy thêm ở đây. Hiện tại đã chuyển toàn bộ sang Bootstrap nên file này có thể để trống hoặc chỉ giữ lại style phụ trợ. */
+.category-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.category-hover:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.product-hover:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-img-hover {
+  transition: transform 0.3s ease;
+}
+
+.product-hover:hover .product-img-hover {
+  transform: scale(1.05);
+}

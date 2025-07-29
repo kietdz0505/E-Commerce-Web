@@ -49,8 +49,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+
         if (userRepository.existsByUsername(req.getUsername())) {
             return ResponseEntity.badRequest().body("Username already exists");
+        }
+        if (userRepository.existsByEmail(req.getEmail())) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+
+        String usernamePattern = "^[a-z0-9]+$";
+        if (!req.getUsername().matches(usernamePattern)) {
+            return ResponseEntity.badRequest().body("Username chỉ được chứa chữ thường (a-z) và số (0-9), không dấu, không khoảng trắng, không ký tự đặc biệt.");
         }
 
         User user = new User();
@@ -59,6 +68,8 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setEmail(req.getEmail());
         user.setName(req.getName());
+        user.setPhone(req.getPhone());
+        user.setPicture(req.getPicture());
         user.setAuthProvider(AuthProvider.LOCAL);
         user.setCreatedAt(LocalDateTime.now());
 

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppAdmin from './admin/AppAdmin';
 import Home from './user/Home';
+import './App.css';
 import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
