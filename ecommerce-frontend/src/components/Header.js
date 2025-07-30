@@ -1,8 +1,13 @@
-import React, { useState } from "react";  // <-- Thêm useState ở đây
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FiUser, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 function Header({ onLoginClick, currentUser }) {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
  
   return (
     <>
@@ -14,7 +19,7 @@ function Header({ onLoginClick, currentUser }) {
           </button>
           <div className="collapse navbar-collapse" id="mainNavbar">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item"><a className="nav-link active" href="#">Trang chủ</a></li>
+              <li className="nav-item"><a className="nav-link active" href="/">Trang chủ</a></li>
               <li className="nav-item"><a className="nav-link" href="#">Sản phẩm</a></li>
               <li className="nav-item"><a className="nav-link" href="#">Giới thiệu</a></li>
               <li className="nav-item"><a className="nav-link" href="#">Liên hệ</a></li>
@@ -31,7 +36,7 @@ function Header({ onLoginClick, currentUser }) {
                       <li>
                         <button
                           className="dropdown-item d-flex align-items-center gap-2"
-                         
+                          onClick={handleProfileClick}
                         >
                           <FiUser /> Thông tin cá nhân
                         </button>

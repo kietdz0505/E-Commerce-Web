@@ -33,6 +33,11 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
     }
+    @Override
+    public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
+        Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
+        return products.map(ProductMapper::toDTO);
+    }
 
     @Override
     public Page<ProductDTO> getAllProducts(Pageable pageable) {

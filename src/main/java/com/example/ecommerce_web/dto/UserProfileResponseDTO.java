@@ -16,5 +16,6 @@ public class UserProfileResponseDTO {
     private String gender;
     private LocalDate dob;
     private String picture;
-    private Set<String> roles;  // Chỉ lấy tên role (ví dụ: ROLE_CUSTOMER)
+    private Set<String> roles;
+    private String authProvider;
 }

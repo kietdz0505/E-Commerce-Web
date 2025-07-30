@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.controller;
 
+import com.example.ecommerce_web.dto.ChangePasswordDTO;
 import com.example.ecommerce_web.dto.UserDTO;
 import com.example.ecommerce_web.dto.UserProfileResponseDTO;
 import com.example.ecommerce_web.dto.UserProfileUpdateDTO;
@@ -63,4 +64,9 @@ public class UserController {
         return dto;
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO dto) {
+        userService.changePassword(dto);
+        return ResponseEntity.ok("Đổi mật khẩu thành công.");
+    }
 }
