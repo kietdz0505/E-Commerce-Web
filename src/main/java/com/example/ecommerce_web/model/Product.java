@@ -24,6 +24,12 @@ public class Product {
     private int stock;
     private boolean available;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    @JsonBackReference
+    private Brand brand;
+
+
     @ManyToOne(fetch = FetchType.LAZY) // Tiết kiệm tài nguyên khi không cần load category ngay
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference

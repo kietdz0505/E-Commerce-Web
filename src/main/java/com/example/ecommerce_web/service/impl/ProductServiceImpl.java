@@ -33,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
         Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
@@ -68,5 +69,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    // Search Products with Filters
+    @Override
+    public Page<ProductDTO> searchProducts(String name, Long brandId, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable) {
+        return productRepository.searchProducts(name, brandId, minPrice, maxPrice, minRating, pageable)
+                .map(ProductMapper::toDTO);
+    }
+
+    // Autocomplete Product Names
+    @Override
+    public List<String> autocompleteProductNames(String query) {
+        return productRepository.findTop10ByNameContainingIgnoreCase(query)
+                .stream().map(Product::getName).collect(Collectors.toList());
     }
 }

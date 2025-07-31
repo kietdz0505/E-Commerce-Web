@@ -13,5 +13,7 @@ public class ProductDTO {
     private boolean available;
     private Long categoryId;
     private String categoryName;
+    private Long brandId;         // Thêm brandId
+    private String brandName;     // Thêm brandName
+    private Double averageRating; // Thêm averageRating (mức đánh giá trung bình)
 }
-

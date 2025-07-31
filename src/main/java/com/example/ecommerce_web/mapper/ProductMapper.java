@@ -2,6 +2,7 @@ package com.example.ecommerce_web.mapper;
 
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.model.Product;
+import com.example.ecommerce_web.model.Review;
 
 public class ProductMapper {
     public static ProductDTO toDTO(Product product) {
@@ -13,10 +14,28 @@ public class ProductMapper {
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
         dto.setAvailable(product.isAvailable());
+
         if (product.getCategory() != null) {
             dto.setCategoryId(product.getCategory().getId());
             dto.setCategoryName(product.getCategory().getName());
         }
+
+        if (product.getBrand() != null) {
+            dto.setBrandId(product.getBrand().getId());
+            dto.setBrandName(product.getBrand().getName());
+        }
+
+        // Tính Average Rating từ danh sách reviews (nếu có)
+        if (product.getReviews() != null && !product.getReviews().isEmpty()) {
+            double avg = product.getReviews().stream()
+                    .mapToInt(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+            dto.setAverageRating(avg);
+        } else {
+            dto.setAverageRating(0.0);
+        }
+
         return dto;
     }
 
@@ -29,6 +48,7 @@ public class ProductMapper {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setAvailable(dto.isAvailable());
+        // Category & Brand nên set ở Service layer
         return product;
     }
 }

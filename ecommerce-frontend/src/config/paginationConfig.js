@@ -2,7 +2,7 @@
 
 const PaginationConfig = {
     DEFAULT_PAGE: 0,
-    DEFAULT_SIZE: 10,
+    DEFAULT_PAGE_SIZE: 4,
 };
 
 export default PaginationConfig;

@@ -7,32 +7,57 @@ export const API_CONFIG = {
     FACEBOOK: '/oauth2/authorization/facebook',
     GOOGLE: '/oauth2/authorization/google',
     LOCAL: '/auth/login',
-    REGISTER: '/auth/register'
+    REGISTER: '/auth/register',
   },
 
   API: {
-    PRODUCTS: '/api/products',
+    PRODUCTS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/products?page=${page}&size=${size}`,
     CATEGORIES: '/api/categories',
     USERS: '/api/users',
     DASHBOARD: '/api/dashboard',
     PROFILE: '/api/users/me',
     EDIT_PROFILE: '/api/users/profile',
     CHANGE_PASSWORD: '/api/users/change-password',
-    CATEGORY_PRODUCTS: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_SIZE) =>
-      `/api/categories/${categoryId}/products?page=${page}&size=${size}`
-  }
+    CATEGORY_PRODUCTS: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/categories/${categoryId}/products?page=${page}&size=${size}`,
+    BRANDS: '/api/brands',
+    AUTOCOMPLETE: (query) => `/api/products/autocomplete?query=${encodeURIComponent(query)}`,
+    SEARCH: (params = {}) => {
+      console.log('Raw Params:', params); // Debug raw params
+      const { page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE, ...restParams } = params;
+
+      const filteredParams = Object.fromEntries(
+        Object.entries(restParams).filter(([_, v]) => v !== null && v !== '')
+      );
+
+      console.log('Filtered Params:', filteredParams); // Debug filtered params
+
+      const searchParams = new URLSearchParams(filteredParams);
+      searchParams.append('page', page);
+      searchParams.append('size', size);
+
+      return `/api/products/search?${searchParams.toString()}`;
+    },
+
+  },
 };
 
-// OAuth URL Helper
 export const getOAuthUrl = (provider) => {
-  return `${API_CONFIG.BASE_URL}${API_CONFIG.OAUTH[provider.toUpperCase()]}`;
+  const providerKey = provider.toUpperCase();
+  if (!API_CONFIG.OAUTH[providerKey]) {
+    throw new Error(`OAuth provider '${provider}' not supported`);
+  }
+  return `${API_CONFIG.BASE_URL}${API_CONFIG.OAUTH[providerKey]}`;
 };
 
-// API URL Helper
 export const getApiUrl = (endpoint, ...params) => {
-  const apiEndpoint = API_CONFIG.API[endpoint.toUpperCase()];
-  if (typeof apiEndpoint === 'function') {
-    return `${API_CONFIG.BASE_URL}${apiEndpoint(...params)}`;
+  const endpointKey = endpoint.toUpperCase();
+  if (!API_CONFIG.API[endpointKey]) {
+    throw new Error(`API endpoint '${endpoint}' not found`);
   }
-  return `${API_CONFIG.BASE_URL}${apiEndpoint}`;
+  const apiEndpoint = API_CONFIG.API[endpointKey];
+  const url = typeof apiEndpoint === 'function' ? `${API_CONFIG.BASE_URL}${apiEndpoint(...params)}` : `${API_CONFIG.BASE_URL}${apiEndpoint}`;
+  console.log(`Generated URL for ${endpoint}: ${url}`); // Debug URL
+  return url;
 };

@@ -1,32 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { getAllProducts } from '../api/productApi';
+import React from 'react';
+import ProductCard from '../shared/ProductCard';
+import Pagination from '../shared/Pagination';
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    getAllProducts()
-      .then(res => setProducts(res.data))
-      .catch(err => console.error(err));
-  }, []);
-
+const ProductList = ({ products, selectedCategoryId, currentPage, totalPages, onPageChange, loading }) => {
   return (
-    <div className="container mt-5">
-      <h2>Danh sách sản phẩm</h2>
-      <div className="row">
-        {products.map(p => (
-          <div className="col-md-4" key={p.id}>
-            <div className="card mb-3">
-              <div className="card-body">
-                <h5 className="card-title">{p.name}</h5>
-                <p>{p.description}</p>
-                <p><strong>{p.price} VND</strong></p>
-              </div>
-            </div>
+    <section className="py-4 bg-light">
+      <div className="container">
+        <h2 className="mb-4 text-center">
+          {selectedCategoryId ? 'Sản phẩm theo danh mục' : 'Sản phẩm nổi bật'}
+        </h2>
+
+        {loading ? (
+          <div className="text-center">Đang tải sản phẩm...</div>
+        ) : products.length === 0 ? (
+          <div className="text-center text-danger">Không có sản phẩm.</div>
+        ) : (
+          <div className="row g-4 justify-content-center">
+            {products.map((prod, idx) => (
+              <ProductCard key={prod.id || prod._id || prod.name} prod={prod} isHot={!selectedCategoryId && idx < 4} />
+            ))}
           </div>
-        ))}
+        )}
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        )}
+
       </div>
-    </div>
+    </section>
   );
 };
 
