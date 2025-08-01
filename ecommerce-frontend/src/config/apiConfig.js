@@ -11,18 +11,28 @@ export const API_CONFIG = {
   },
 
   API: {
+    BRANDS_BY_CATEGORY: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/brands/category/${categoryId}?page=${page}&size=${size}`,
+
     PRODUCTS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
       `/api/products?page=${page}&size=${size}`,
+
     CATEGORIES: '/api/categories',
+
+    CATEGORY_PRODUCTS: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/categories/${categoryId}/products?page=${page}&size=${size}`,
+
+    PRODUCTS_BY_CATEGORY_AND_BRAND: (categoryId, brandId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/categories/${categoryId}/brands/${brandId}/products?page=${page}&size=${size}`,
+
     USERS: '/api/users',
     DASHBOARD: '/api/dashboard',
     PROFILE: '/api/users/me',
     EDIT_PROFILE: '/api/users/profile',
     CHANGE_PASSWORD: '/api/users/change-password',
-    CATEGORY_PRODUCTS: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
-      `/api/categories/${categoryId}/products?page=${page}&size=${size}`,
-    BRANDS: '/api/brands',
+
     AUTOCOMPLETE: (query) => `/api/products/autocomplete?query=${encodeURIComponent(query)}`,
+
     SEARCH: (params = {}) => {
       console.log('Raw Params:', params); // Debug raw params
       const { page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE, ...restParams } = params;
@@ -39,7 +49,6 @@ export const API_CONFIG = {
 
       return `/api/products/search?${searchParams.toString()}`;
     },
-
   },
 };
 

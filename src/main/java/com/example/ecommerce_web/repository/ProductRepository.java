@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.repository;
 
+import com.example.ecommerce_web.model.Brand;
 import com.example.ecommerce_web.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,10 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    @Query("SELECT p FROM Product p WHERE p.brand.id = :brandId")
+    Page<Product> findProductsByBrandId(@Param("brandId") Long brandId, Pageable pageable);
+
     List<Product> findByNameContainingIgnoreCase(String keyword);
-    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE " +
             "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
@@ -31,5 +34,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findTop10ByNameContainingIgnoreCase(String name);
 
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
+    Page<Product> findProductsByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.brand.id = :brandId")
+    Page<Product> findProductsByCategoryAndBrand(@Param("categoryId") Long categoryId,
+                                                 @Param("brandId") Long brandId,
+                                                 Pageable pageable);
+
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.category.id = :categoryId")
+    List<Brand> findBrandsByCategoryId(@Param("categoryId") Long categoryId);
 
 }

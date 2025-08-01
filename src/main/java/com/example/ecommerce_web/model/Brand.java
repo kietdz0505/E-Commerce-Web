@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,11 +22,11 @@ public class Brand {
     private Long id;
 
     private String name;
-    private String logoUrl; // (Optional) logo hãng
-    private String description; // (Optional) mô tả hãng
+    private String logoUrl;
+    private String description;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "brand-products")
     private List<Product> products;
-
 }
+

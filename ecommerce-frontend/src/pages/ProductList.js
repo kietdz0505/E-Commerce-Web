@@ -6,7 +6,7 @@ const ProductList = ({ products, selectedCategoryId, currentPage, totalPages, on
   return (
     <section className="py-4 bg-light">
       <div className="container">
-        <h2 className="mb-4 text-center">
+        <h2 className="mb-4 text-center fw-bold">
           {selectedCategoryId ? 'Sản phẩm theo danh mục' : 'Sản phẩm nổi bật'}
         </h2>
 

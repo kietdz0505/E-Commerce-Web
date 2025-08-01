@@ -15,17 +15,12 @@ public class ProductMapper {
         dto.setStock(product.getStock());
         dto.setAvailable(product.isAvailable());
 
-        if (product.getCategory() != null) {
-            dto.setCategoryId(product.getCategory().getId());
-            dto.setCategoryName(product.getCategory().getName());
-        }
-
         if (product.getBrand() != null) {
             dto.setBrandId(product.getBrand().getId());
             dto.setBrandName(product.getBrand().getName());
         }
 
-        // Tính Average Rating từ danh sách reviews (nếu có)
+        // Average Rating
         if (product.getReviews() != null && !product.getReviews().isEmpty()) {
             double avg = product.getReviews().stream()
                     .mapToInt(Review::getRating)
@@ -48,7 +43,7 @@ public class ProductMapper {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setAvailable(dto.isAvailable());
-        // Category & Brand nên set ở Service layer
+        // Brand set ở Service Layer
         return product;
     }
 }

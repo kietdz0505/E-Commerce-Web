@@ -1,7 +1,6 @@
-import api from './axiosInstance';
+import axios from 'axios';
+import { getApiUrl } from '../config/apiConfig';
 
-export const getAllCategories = () => api.get('/categories');
-export const getCategoryById = (id) => api.get(`/categories/${id}`);
-export const createCategory = (category) => api.post('/categories', category);
-export const updateCategory = (id, category) => api.put(`/categories/${id}`, category);
-export const deleteCategory = (id) => api.delete(`/categories/${id}`);
+export const getAllCategories = () => {
+  return axios.get(getApiUrl('CATEGORIES'));
+};
