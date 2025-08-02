@@ -87,13 +87,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    // Search Products with Filters
-    @Override
-    public Page<ProductDTO> searchProducts(String name, Long brandId, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable) {
-        return productRepository.searchProducts(name, brandId, minPrice, maxPrice, minRating, pageable)
-                .map(ProductMapper::toDTO);
-    }
-
     // Autocomplete Product Names
     @Override
     public List<String> autocompleteProductNames(String query) {
@@ -106,4 +99,16 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findProductsByBrandId(brandId, pageable)
                 .map(ProductMapper::toDTO);
     }
+    // Search Products with Filters
+
+    @Override
+    public Page<ProductDTO> searchProducts(String keyword, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable) {
+        Page<Product> products = productRepository.searchProducts(keyword, minPrice, maxPrice, minRating, pageable);
+        return products.map(ProductMapper::toDTO);
+    }
+
+
+
+
+
 }

@@ -26,24 +26,31 @@ export const API_CONFIG = {
       `/api/categories/${categoryId}/brands/${brandId}/products?page=${page}&size=${size}`,
 
     USERS: '/api/users',
+    PRODUCT_DETAIL: (productId) => `/api/products/${productId}`,
     DASHBOARD: '/api/dashboard',
     PROFILE: '/api/users/me',
     EDIT_PROFILE: '/api/users/profile',
     CHANGE_PASSWORD: '/api/users/change-password',
 
-    AUTOCOMPLETE: (query) => `/api/products/autocomplete?query=${encodeURIComponent(query)}`,
+    PRODUCT_REVIEWS: (productId) => `/api/products/${productId}/reviews`,
 
     SEARCH: (params = {}) => {
-      console.log('Raw Params:', params); // Debug raw params
-      const { page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE, ...restParams } = params;
+      const {
+        keyword = '',
+        minPrice,
+        maxPrice,
+        minRating,
+        page = PaginationConfig.DEFAULT_PAGE,
+        size = PaginationConfig.DEFAULT_PAGE_SIZE
+      } = params;
 
-      const filteredParams = Object.fromEntries(
-        Object.entries(restParams).filter(([_, v]) => v !== null && v !== '')
-      );
+      const searchParams = new URLSearchParams();
 
-      console.log('Filtered Params:', filteredParams); // Debug filtered params
+      if (keyword) searchParams.append('keyword', keyword);
+      if (minPrice != null) searchParams.append('minPrice', minPrice);
+      if (maxPrice != null) searchParams.append('maxPrice', maxPrice);
+      if (minRating != null) searchParams.append('minRating', minRating);
 
-      const searchParams = new URLSearchParams(filteredParams);
       searchParams.append('page', page);
       searchParams.append('size', size);
 

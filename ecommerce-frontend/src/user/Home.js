@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FaShoppingCart } from "react-icons/fa";
 import { getAllCategories } from "../api/categoryApi";
 import { getApiUrl } from '../config/apiConfig';
 import PaginationConfig from "../config/paginationConfig";
@@ -7,12 +6,15 @@ import LoginPopup from "../components/LoginPopup";
 import RegisterPopup from "../components/RegisterPopup";
 import Header from "../components/Header";
 import ProductList from '../pages/ProductList';
-import { getAllProducts, getProductsByCategory, searchProducts } from '../api/productApi'; import SearchBar from "../components/SearchBar";
+import SearchBar from "../components/SearchBar";
+import { getAllProducts, getProductsByCategory, searchProducts } from '../api/productApi';
 import { getBrandsByCategory } from '../api/brandApi';
 import axios from 'axios';
+import HeroBanner from "../components/HeroBanner";
+import CategoryList from "../components/CategoryList";
+import BrandList from "../components/BrandList";
 
 function Home() {
-
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -21,6 +23,8 @@ function Home() {
   const [showRegister, setShowRegister] = useState(false);
   const [selectedBrandId, setSelectedBrandId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedPriceRange, setSelectedPriceRange] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -40,7 +44,6 @@ function Home() {
   useEffect(() => {
     getAllCategories()
       .then((res) => {
-        console.log("Categories API Response:", res.data); // 👈 Kiểm tra API response
         setCategories(Array.isArray(res.data) ? res.data : []);
       })
       .catch(err => console.error('Failed to load categories', err));
@@ -68,6 +71,9 @@ function Home() {
     setLoading(true);
     setSelectedCategoryId(categoryId);
     setSelectedBrandId(null);
+    setSelectedPriceRange(null);
+    setSearchKeyword('');
+
     Promise.all([
       getProductsByCategory(categoryId, page, PaginationConfig.DEFAULT_PAGE_SIZE),
       getBrandsByCategory(categoryId)
@@ -77,75 +83,19 @@ function Home() {
         const brandsData = brandsRes.data;
 
         setProducts(Array.isArray(productsData.content) ? productsData.content : []);
-        setBrands(Array.isArray(brandsData) ? brandsData : []);  // <-- brandsData là List<BrandDTO>
+        setBrands(Array.isArray(brandsData) ? brandsData : []);
 
         setCurrentPage(page);
         setTotalPages(productsData.totalPages);
         setLoading(false);
 
-        setTimeout(() => {
-          const productListSection = document.getElementById("product-list-section");
-          if (productListSection) {
-            productListSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
+        scrollToProductList();
       })
       .catch((err) => {
         console.error('Failed to load products/brands by category', err);
         setLoading(false);
       });
   };
-
-  const handleSearch = (filters) => {
-    setLoading(true);
-
-    searchProducts(filters)
-      .then(res => {
-        console.log("Search API Response:", res.data);
-        const data = res.data;
-
-        setProducts(Array.isArray(data.content) ? data.content : []);
-        setCurrentPage(0);
-        setTotalPages(data.totalPages);
-
-        // Reset các filter khác khi search:
-        setSelectedCategoryId(null);
-        setSelectedBrandId(null);  // <-- Reset Brand filter
-        setBrands([]);              // <-- Clear danh sách Brands (vì không thuộc Category nào nữa)
-
-        setLoading(false);
-
-        // Optional: Scroll tới danh sách sản phẩm
-        setTimeout(() => {
-          const productListSection = document.getElementById("product-list-section");
-          if (productListSection) {
-            productListSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      })
-      .catch(err => {
-        console.error('Failed to search products', err.response ? err.response.data : err);
-        setLoading(false);
-      });
-  };
-
-
-  const handlePageChange = (page) => {
-    if (selectedBrandId && selectedCategoryId) {
-      fetchProductsByCategoryAndBrand(selectedCategoryId, selectedBrandId, page);
-    } else if (selectedCategoryId) {
-      loadProductsByCategory(selectedCategoryId, page);
-    } else {
-      loadProducts(page);
-    }
-  };
-
-
-  const handleBrandClick = (brandId) => {
-    setSelectedBrandId(brandId);
-    fetchProductsByCategoryAndBrand(selectedCategoryId, brandId, 0); // Reset về page 0
-  };
-
 
   const fetchProductsByCategoryAndBrand = async (categoryId, brandId, page = 0) => {
     setLoading(true);
@@ -158,12 +108,80 @@ function Home() {
       setCurrentPage(page);
       setTotalPages(data.totalPages);
       setLoading(false);
+      scrollToProductList();
     } catch (error) {
       console.error('Error fetching products:', error);
       setLoading(false);
     }
   };
 
+  const handleSearch = (filters) => {
+    setLoading(true);
+    setSearchKeyword(filters.keyword || '');
+    setSelectedPriceRange(filters.minPrice !== null || filters.maxPrice !== null ? filters : null);
+
+    searchProducts(filters)
+      .then(res => {
+        const data = res.data;
+
+        setProducts(Array.isArray(data.content) ? data.content : []);
+        setCurrentPage(filters.page || 0);
+        setTotalPages(data.totalPages);
+
+        setSelectedCategoryId(null);
+        setSelectedBrandId(null);
+        setBrands([]);
+        setLoading(false);
+
+        scrollToProductList();
+      })
+      .catch(err => {
+        console.error('Failed to search products', err.response ? err.response.data : err);
+        setLoading(false);
+      });
+  };
+
+  const handleBrandClick = (brandId) => {
+    setSelectedBrandId(brandId);
+    fetchProductsByCategoryAndBrand(selectedCategoryId, brandId, 0);
+  };
+
+  const handlePageChange = (page) => {
+    if (searchKeyword || selectedPriceRange !== null) {
+      const filters = {
+        keyword: searchKeyword || '',
+        minPrice: selectedPriceRange?.min || null,
+        maxPrice: selectedPriceRange?.max || null,
+        page: page,
+        size: PaginationConfig.DEFAULT_PAGE_SIZE
+      };
+
+      handleSearch(filters);
+    } else if (selectedBrandId && selectedCategoryId) {
+      fetchProductsByCategoryAndBrand(selectedCategoryId, selectedBrandId, page);
+    } else if (selectedCategoryId) {
+      loadProductsByCategory(selectedCategoryId, page);
+    } else {
+      loadProducts(page);
+    }
+  };
+
+  const resetFilters = () => {
+    setSelectedCategoryId(null);
+    setSelectedBrandId(null);
+    setSelectedPriceRange(null);
+    setSearchKeyword('');
+    loadProducts(0);
+  };
+
+  const scrollToProductList = () => {
+    setTimeout(() => {
+      const productListSection = document.getElementById("product-list-section");
+      if (productListSection) {
+        productListSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
 
   return (
     <div className="homepage bg-light" style={{ minHeight: "100vh" }}>
@@ -171,66 +189,23 @@ function Home() {
       <LoginPopup open={showLogin} onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true); }} />
       <RegisterPopup open={showRegister} onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true); }} />
 
-      {/* Hero Banner */}
-      <section className="py-5 text-white text-center" style={{ background: "linear-gradient(120deg, #1976d2 60%, #42a5f5 100%)", marginBottom: "2rem" }}>
-        <div className="container">
-          <h1 className="display-3 fw-bold mb-3 text-shadow">
-            {currentUser ? <>Chào mừng <span className="text-warning fw-bolder">{currentUser.name}</span> đến với AZStore</> : 'Chào mừng đến với AZStore'}
-          </h1>
-          <p className="lead mb-4 fs-4">Siêu thị điện tử - Giá tốt mỗi ngày!</p>
-          <button className="btn btn-warning btn-lg fw-bold shadow">
-            <FaShoppingCart className="me-2 mb-1" />Mua ngay
-          </button>
-        </div>
-      </section>
-      {/* Thanh tìm kiếm */}
+      <HeroBanner currentUser={currentUser} />
       <SearchBar onSearch={handleSearch} />
-      {/* Danh mục sản phẩm */}
+
+      <div className="container">
+        <div className="text-center my-3">
+          <button className="btn btn-outline-secondary" onClick={resetFilters}>Xóa bộ lọc</button>
+        </div>
+      </div>
+
       <section className="py-4 bg-white" style={{ marginTop: '2rem' }}>
         <div className="container">
           <h2 className="mb-4 text-center fw-bold">Danh mục sản phẩm</h2>
-
-          <div className="row justify-content-center g-3">
-            {categories.map((cat) => (
-              <div key={cat.id} className="col-6 col-sm-4 col-md-3">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className={`card text-center shadow-sm h-100 py-3 border-0 rounded-4 category-hover ${selectedCategoryId === cat.id ? 'border-primary border-2' : ''}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => loadProductsByCategory(cat.id)}
-                  onKeyPress={(e) => { if (e.key === 'Enter') loadProductsByCategory(cat.id); }}
-                >
-                  <div className="fs-1 mb-2">{cat.icon}</div>
-                  <div className="fw-semibold fs-5">{cat.name}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {brands.length > 0 && (
-            <div className="d-flex overflow-auto mt-3 justify-content-center py-2 gap-3">
-              {brands.map((brand) => (
-                <div
-                  key={brand.id}
-                  className={`d-flex flex-column align-items-center justify-content-center border rounded-3 p-2 shadow-sm ${selectedBrandId === brand.id ? 'border-primary' : ''} flex-shrink-0`}
-                  style={{ width: '80px', height: '80px', cursor: 'pointer' }}
-                  onClick={() => handleBrandClick(brand.id)}
-                >
-                  <img
-                    src={brand.logoUrl}
-                    alt={brand.name}
-                    className="img-fluid mb-1"
-                    style={{ maxHeight: '40px', objectFit: 'contain' }}
-                  />
-                  <span className="text-center small fw-medium">{brand.name}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <CategoryList categories={categories} selectedCategoryId={selectedCategoryId} onCategoryClick={loadProductsByCategory} />
+          <BrandList brands={brands} selectedBrandId={selectedBrandId} onBrandClick={handleBrandClick} />
         </div>
       </section>
 
-      {/* Sản phẩm */}
       <ProductList
         products={products}
         selectedCategoryId={selectedCategoryId}

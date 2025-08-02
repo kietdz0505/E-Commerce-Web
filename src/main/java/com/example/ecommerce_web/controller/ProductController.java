@@ -64,10 +64,11 @@ public class ProductController {
     public void delete(@PathVariable Long id) {
         productService.deleteProduct(id);
     }
+
+
     @GetMapping("/search")
     public Map<String, Object> searchProducts(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Integer minRating,
@@ -75,7 +76,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> productPage = productService.searchProducts(name, brandId, minPrice, maxPrice, minRating, pageable);
+        Page<ProductDTO> productPage = productService.searchProducts(keyword, minPrice, maxPrice, minRating, pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", productPage.getContent());
@@ -83,6 +84,7 @@ public class ProductController {
         response.put("totalPages", productPage.getTotalPages());
         return response;
     }
+
 
 
     @GetMapping("/autocomplete")

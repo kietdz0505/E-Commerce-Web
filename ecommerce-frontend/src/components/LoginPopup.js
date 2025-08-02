@@ -7,8 +7,8 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
         username: '',
         password: ''
     });
-
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false); // <-- Add loading state
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,8 +20,9 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setIsSubmitting(true);  // Start loading
+        setError('');
 
-        // Gọi API login
         fetch(getOAuthUrl('local'), {
             method: 'POST',
             headers: {
@@ -36,12 +37,12 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
                 return res.json();
             })
             .then((data) => {
-                localStorage.setItem('token', data.token); // Lưu token
-                setError('');
-                window.location.reload(); // Reload lại để gọi API profile
+                localStorage.setItem('token', data.token); // Save token
+                window.location.reload(); // Reload to get profile
             })
             .catch((err) => {
                 setError(err.message);
+                setIsSubmitting(false);  // Stop loading if failed
             });
     };
 
@@ -65,6 +66,7 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
                                 className="form-control rounded-pill px-4"
                                 placeholder="Tên đăng nhập"
                                 required
+                                disabled={isSubmitting}
                             />
                             <input
                                 type="password"
@@ -74,9 +76,23 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
                                 className="form-control rounded-pill px-4"
                                 placeholder="Mật khẩu"
                                 required
+                                disabled={isSubmitting}
                             />
                             {error && <div className="text-danger text-center small">{error}</div>}
-                            <button type="submit" className="btn btn-primary rounded-pill fw-bold py-2">Đăng nhập</button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary rounded-pill fw-bold py-2 d-flex align-items-center justify-content-center"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Đang đăng nhập...
+                                    </>
+                                ) : (
+                                    'Đăng nhập'
+                                )}
+                            </button>
                         </form>
 
                         <div className="text-center mb-3">

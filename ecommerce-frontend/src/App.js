@@ -9,12 +9,15 @@ import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 import { getApiUrl } from './config/apiConfig';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import EditProfile from './user/EditProfile';  // <-- Import EditProfile component
+import EditProfile from './user/EditProfile';
 import { Link } from 'react-router-dom';
 import SearchPage from './pages/SearchPage';
+import ProductDetail from './pages/ProductDetail';
+import LoginPopup from './components/LoginPopup';
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [loginPopupOpen, setLoginPopupOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -29,8 +32,13 @@ const App = () => {
   }, []);
 
   const handleLoginClick = () => {
-    // Mở popup login hoặc redirect login page
+    setLoginPopupOpen(true);
   };
+
+  const handleCloseLoginPopup = () => {
+    setLoginPopupOpen(false);
+  };
+
   const fetchUserProfile = () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -74,12 +82,19 @@ const App = () => {
         <Route path="/profile" element={<UserProfile currentUser={currentUser} />} />
         <Route path="/profile/edit" element={<EditProfile currentUser={currentUser} onUpdateSuccess={fetchUserProfile} />} />
         <Route path="/" element={<Home currentUser={currentUser} />} />
-        <Route path="/" element={<SearchPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/product/:productId" element={<ProductDetail onLoginClick={handleLoginClick} />} />
       </Routes>
 
       <Footer />
-    </BrowserRouter>
 
+      {/* Popup Login */}
+      <LoginPopup
+        open={loginPopupOpen}
+        onClose={handleCloseLoginPopup}
+        onSwitchToRegister={() => { }}
+      />
+    </BrowserRouter>
   );
 };
 

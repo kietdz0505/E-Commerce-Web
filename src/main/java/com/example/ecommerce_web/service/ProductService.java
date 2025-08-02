@@ -13,7 +13,7 @@ public interface ProductService {
     ProductDTO createProduct(ProductDTO dto);
     void deleteProduct(Long id);
     Long countAllProducts();
-    Page<ProductDTO> searchProducts(String name, Long brandId, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable);
+    Page<ProductDTO> searchProducts(String keyword, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable);
     List<String> autocompleteProductNames(String query);
     Page<ProductDTO> getProductsByBrandId(Long brandId, Pageable pageable);
     Page<ProductDTO> getProductsByCategoryAndBrand(Long categoryId, Long brandId, Pageable pageable);

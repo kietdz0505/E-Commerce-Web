@@ -13,19 +13,19 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+
     @Query("SELECT p FROM Product p WHERE p.brand.id = :brandId")
     Page<Product> findProductsByBrandId(@Param("brandId") Long brandId, Pageable pageable);
 
     List<Product> findByNameContainingIgnoreCase(String keyword);
 
-    @Query("SELECT p FROM Product p WHERE " +
-            "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
-            "(:brandId IS NULL OR p.brand.id = :brandId) AND " +
-            "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
-            "(:maxPrice IS NULL OR p.price <= :maxPrice) AND " +
-            "(:minRating IS NULL OR (SELECT AVG(r.rating) FROM Review r WHERE r.product = p) >= :minRating)")
-    Page<Product> searchProducts(@Param("name") String name,
-                                 @Param("brandId") Long brandId,
+    @Query("SELECT p FROM Product p " +
+            "WHERE (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.brand.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
+            "AND (:minRating IS NULL OR (SELECT AVG(r.rating) FROM Review r WHERE r.product = p) >= :minRating)")
+    Page<Product> searchProducts(@Param("keyword") String keyword,
                                  @Param("minPrice") Double minPrice,
                                  @Param("maxPrice") Double maxPrice,
                                  @Param("minRating") Integer minRating,

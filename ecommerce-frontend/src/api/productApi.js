@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getApiUrl } from '../config/apiConfig';
+import { getApiUrl} from '../config/apiConfig';
 import PaginationConfig from '../config/paginationConfig';
 
 // ✅ Get All Products
@@ -22,21 +22,18 @@ export const getProductsByBrand = (brandId, page = PaginationConfig.DEFAULT_PAGE
   return axios.get(getApiUrl('PRODUCTS_BY_BRAND', brandId, page, size));
 };
 
-// ✅ Search Products API
 export const searchProducts = (filters) => {
   const params = {
-    name: filters.name || '',
-    brandId: filters.brandId,
+    keyword: filters.keyword || '',
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
-    minRating: filters.minRating,
-    page: filters.page || PaginationConfig.DEFAULT_PAGE,
+    page: filters.page || 0,
     size: filters.size || PaginationConfig.DEFAULT_PAGE_SIZE
   };
 
-  const token = localStorage.getItem('token');
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v !== null && v !== '')
+  );
 
-  const url = getApiUrl('SEARCH', params);
-  return axios.get(url, { headers });
+  return axios.get(getApiUrl('SEARCH', filteredParams));
 };

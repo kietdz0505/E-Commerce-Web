@@ -45,4 +45,11 @@ public class User {
     )
 
     private Set<Role> roles;
+
+    public boolean isAdmin() {
+        return roles.stream()
+                .anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN);
+    }
+
+
 }
