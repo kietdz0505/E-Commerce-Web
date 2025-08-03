@@ -13,8 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -28,21 +26,28 @@ public class ReviewService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<ReviewDTO> getReviewsByProduct(Long productId) {
-        List<Review> reviews = reviewRepository.findByProductId(productId);
+    public Page<ReviewDTO> getReviewsByProduct(Long productId, Pageable pageable, String currentUserId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        return reviews.stream()
-                .map(review -> new ReviewDTO(
-                        review.getId(),
-                        review.getComment(),
-                        review.getRating(),
-                        review.getImageUrl(),
-                        review.getUser().getName(),           // or getFullName()
-                        review.getUser().getPicture(),
-                        review.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+        Page<Review> reviews = reviewRepository.findByProduct(product, pageable);
+
+        return reviews.map(review -> {
+            boolean owner = currentUserId != null && review.getUser().getId().equals(currentUserId);
+            return new ReviewDTO(
+                    review.getId(),
+                    review.getComment(),
+                    review.getRating(),
+                    review.getImageUrl(),
+                    review.getUser().getName(),
+                    review.getUser().getPicture(),
+                    review.getCreatedAt(),
+                    owner
+            );
+        });
     }
+
+
 
     public ReviewDTO addReview(Long productId, String userId, String comment, int rating, String imageUrl) {
         if (rating < 1 || rating > 5) {
@@ -73,21 +78,9 @@ public class ReviewService {
                 savedReview.getImageUrl(),
                 user.getName(),
                 user.getPicture(),
-                savedReview.getCreatedAt()
+                savedReview.getCreatedAt(),
+                true  // isOwner = true vì user đang tạo review
         );
-    }
-
-    public Page<ReviewDTO> getReviewsByProduct(Long productId, Pageable pageable) {
-        Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
-        return reviewPage.map(review -> new ReviewDTO(
-                review.getId(),
-                review.getComment(),
-                review.getRating(),
-                review.getImageUrl(),
-                review.getUser().getName(),
-                review.getUser().getPicture(),
-                review.getCreatedAt()
-        ));
     }
 
     public void deleteReview(Long productId, Long reviewId, String userId) {
@@ -133,7 +126,8 @@ public class ReviewService {
                 review.getImageUrl(),
                 review.getUser().getName(),
                 review.getUser().getPicture(),
-                review.getCreatedAt()
+                review.getCreatedAt(),
+                true  // isOwner = true vì user đang chỉnh sửa review của mình
         );
     }
 
@@ -142,7 +136,5 @@ public class ReviewService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.isAdmin();
     }
-
-
 
 }

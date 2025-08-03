@@ -34,6 +34,8 @@ const ProductCard = ({ prod, isHot }) => (
 
           <div className="w-100 mt-3">
             <h5 className="card-title text-center">{prod.name}</h5>
+
+
             {prod.description && (
               <p className="card-text small text-secondary text-center mb-2">
                 {prod.description.slice(0, 40)}
@@ -43,6 +45,24 @@ const ProductCard = ({ prod, isHot }) => (
             <p className="card-text text-danger fw-bold text-center fs-5">
               {prod.price ? prod.price.toLocaleString("vi-VN") + "₫" : "Liên hệ"}
             </p>
+            <div className="d-flex justify-content-center align-items-center mb-2">
+              <p className="mb-0 me-2 small text-secondary">
+                {prod.averageRating ? `${prod.averageRating.toFixed(1)}` : 'Chưa có đánh giá'}
+              </p>
+
+              {[1, 2, 3, 4, 5].map((i) => (
+                <i
+                  key={i}
+                  className={`bi ${i <= Math.floor(prod.averageRating) ? 'bi-star-fill text-warning' :
+                    (i - prod.averageRating <= 0.5 && i - prod.averageRating > 0 ? 'bi-star-half text-warning' : 'bi-star text-secondary')}`}
+                ></i>
+              ))}
+
+              {prod.reviewCount > 0 && (
+                <span className="ms-2 small text-muted">({prod.reviewCount})</span>
+              )}
+            </div>
+
           </div>
         </div>
       </Link>

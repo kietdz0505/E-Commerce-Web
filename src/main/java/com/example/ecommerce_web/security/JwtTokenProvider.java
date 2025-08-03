@@ -19,27 +19,40 @@ public class JwtTokenProvider {
     }
 
     // Tạo token từ email
-    public String generateToken(String email) {
+    // Tạo token từ userId và email
+    public String generateToken(String userId, String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(email)  // Giữ email ở subject -> các chỗ khác sẽ không ảnh hưởng
+                .claim("userId", userId)  // Thêm userId vào claims
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    // Lấy email từ token
+    // Lấy userId từ token
+    public String getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", String.class);  // Đọc userId từ claims
+    }
+
+    // Lấy email từ token (giữ nguyên)
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();
+        return claims.getSubject();  // Subject vẫn là email
     }
+
 
     // Kiểm tra token hợp lệ
     public boolean validateToken(String token) {

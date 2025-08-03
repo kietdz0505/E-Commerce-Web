@@ -34,6 +34,9 @@ export const API_CONFIG = {
 
     PRODUCT_REVIEWS: (productId) => `/api/products/${productId}/reviews`,
 
+    PRODUCT_REVIEW_DETAIL: (productId, reviewId) => `/api/products/${productId}/reviews/${reviewId}`,
+
+
     SEARCH: (params = {}) => {
       const {
         keyword = '',

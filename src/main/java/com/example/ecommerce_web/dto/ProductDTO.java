@@ -14,6 +14,7 @@ public class ProductDTO {
     private Long brandId;
     private String brandName;
     private Double averageRating;
+    private Long reviewCount;
     private Long categoryId;
     private String categoryName;
 

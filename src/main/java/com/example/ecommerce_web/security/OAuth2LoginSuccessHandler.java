@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.security;
 
+import com.example.ecommerce_web.security.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +16,10 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;  // Class để generate JWT
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private com.example.ecommerce_web.repository.UserRepository userRepository;  // Thêm dòng này để query user từ DB
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -25,11 +29,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Lấy email từ OAuth2User
         String email = oAuth2User.getAttribute("email");
 
-        // Generate JWT Token từ email
-        String jwtToken = jwtTokenProvider.generateToken(email);
+        // Tìm user từ DB bằng email
+        com.example.ecommerce_web.model.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Generate JWT Token từ userId và email
+        String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail());
 
         // Redirect về Frontend kèm token
-        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwtToken;
+        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token;
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

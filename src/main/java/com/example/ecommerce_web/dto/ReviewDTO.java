@@ -19,4 +19,5 @@ public class ReviewDTO {
     private String userName;
     private String userAvatar;
     private LocalDateTime createdAt;
+    private boolean owner;
 }

@@ -24,7 +24,7 @@ const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
 
     const formData = new FormData();
     formData.append('comment', comment);
-    formData.append('rating', rating);
+    formData.append('rating', rating); // vẫn là string, backend tự cast int
     if (image) {
       formData.append('image', image);
     }
@@ -33,6 +33,8 @@ const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
       setIsSubmitting(true);
       const response = await submitReview(productId, formData);
       onReviewSubmitted(response.data);
+
+      // Reset form
       setComment('');
       setRating(5);
       setImage(null);
@@ -52,25 +54,46 @@ const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4" encType="multipart/form-data">
+    <form onSubmit={handleSubmit} className="mt-4">
       <h5>Viết đánh giá</h5>
       <div className="mb-3">
         <label className="form-label">Số sao</label>
-        <select className="form-select" value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-          {[5, 4, 3, 2, 1].map((val) => (
-            <option key={val} value={val}>{val} sao</option>
+        <div>
+          {[1, 2, 3, 4, 5].map((val) => (
+            <i
+              key={val}
+              className={`bi ${val <= rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'} fs-4 me-1`}
+              style={{ cursor: 'pointer' }}
+              onClick={() => setRating(val)}
+            ></i>
           ))}
-        </select>
+        </div>
       </div>
+
       <div className="mb-3">
         <label className="form-label">Bình luận</label>
-        <textarea className="form-control" value={comment} onChange={(e) => setComment(e.target.value)} rows="3" required></textarea>
+        <textarea
+          className="form-control"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows="3"
+          required
+        ></textarea>
       </div>
       <div className="mb-3">
         <label className="form-label">Ảnh (tuỳ chọn)</label>
-        <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} />
+        <input
+          type="file"
+          className="form-control"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
+        />
       </div>
-      <button type="submit" className="btn btn-primary" disabled={isSubmitting || !comment.trim()}>
+      <button
+        type="submit"
+        className="btn btn-primary"
+        disabled={isSubmitting || !comment.trim()}
+      >
         {isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá'}
       </button>
     </form>

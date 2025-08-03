@@ -60,7 +60,11 @@ const ProductDetail = () => {
             {product.price != null ? product.price.toLocaleString('vi-VN') + '₫' : 'Liên hệ'}
           </p>
           <p className="text-muted">{product.description || 'Không có mô tả.'}</p>
-
+          <p className="text-muted">Thương hiệu: {product.brandName || 'Không có'}</p>
+          <p className="text-muted">Hàng tồn: {product.stock || 'Hết hàng'}</p>
+          <p className="text-muted">
+            Đánh giá: {product.averageRating ? parseFloat(Number(product.averageRating).toFixed(1)) : '0'} <i className="bi bi-star-fill text-warning"></i>
+          </p>
           <div className="d-flex gap-2 mt-4">
             <button className="btn btn-primary btn-lg">
               <i className="bi bi-cart-plus me-2"></i>Thêm vào giỏ
@@ -84,7 +88,7 @@ const ProductDetail = () => {
       <LoginPopup
         open={loginPopupOpen}
         onClose={() => setLoginPopupOpen(false)}
-        onSwitchToRegister={() => {}}
+        onSwitchToRegister={() => { }}
       />
     </div>
   );

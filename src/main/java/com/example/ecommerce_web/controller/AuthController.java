@@ -43,7 +43,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
 
-        String token = jwtTokenProvider.generateToken(user.getEmail()); // SỬA: dùng email để generate token
+        String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail());
         return ResponseEntity.ok(new TokenResponse(token));
     }
 

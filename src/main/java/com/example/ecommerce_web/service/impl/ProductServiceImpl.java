@@ -8,6 +8,7 @@ import com.example.ecommerce_web.repository.BrandRepository;
 
 import com.example.ecommerce_web.repository.CategoryRepository;
 import com.example.ecommerce_web.repository.ProductRepository;
+import com.example.ecommerce_web.repository.ReviewRepository;
 import com.example.ecommerce_web.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,14 +34,24 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Autowired
+    private ReviewRepository reviewRepository;
 
+
+    @Override
+    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(this::enrichProductWithReview);
+    }
 
     @Override
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(ProductMapper::toDTO)
+                .map(this::enrichProductWithReview)
                 .collect(Collectors.toList());
     }
+
+
 
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
@@ -48,18 +59,14 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toDTO);
     }
 
-    @Override
-    public Page<ProductDTO> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable)
-                .map(ProductMapper::toDTO);
-    }
 
     @Override
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
-                .map(ProductMapper::toDTO)
+                .map(this::enrichProductWithReview)
                 .orElse(null);
     }
+
 
     @Override
     public Long countAllProducts() {
@@ -103,9 +110,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductDTO> searchProducts(String keyword, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable) {
-        Page<Product> products = productRepository.searchProducts(keyword, minPrice, maxPrice, minRating, pageable);
-        return products.map(ProductMapper::toDTO);
+        return productRepository.searchProducts(keyword, minPrice, maxPrice, minRating, pageable)
+                .map(this::enrichProductWithReview);
     }
+
+
+    private ProductDTO enrichProductWithReview(Product product) {
+        ProductDTO dto = ProductMapper.toDTO(product);
+        Long count = reviewRepository.countByProductId(product.getId());
+        Double avg = reviewRepository.findAverageRatingByProductId(product.getId());
+        dto.setReviewCount(count != null ? count : 0L);
+        dto.setAverageRating(avg != null ? avg : 0.0);
+        return dto;
+    }
+
 
 
 
