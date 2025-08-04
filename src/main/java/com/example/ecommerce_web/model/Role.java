@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     private RoleName name;
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 }

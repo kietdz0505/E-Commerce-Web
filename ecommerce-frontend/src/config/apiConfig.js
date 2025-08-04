@@ -36,6 +36,23 @@ export const API_CONFIG = {
 
     PRODUCT_REVIEW_DETAIL: (productId, reviewId) => `/api/products/${productId}/reviews/${reviewId}`,
 
+    GET_CART: '/api/cart',
+
+    GET_CART_ITEMS: '/api/cart/items',
+
+    ADD_TO_CART: (productId, quantity) =>
+      `/api/cart/add?productId=${productId}&quantity=${quantity}`,
+
+    UPDATE_CART_ITEM: (cartItemId, quantity) =>
+      `/api/cart/update/${cartItemId}?quantity=${quantity}`,
+
+    REMOVE_CART_ITEM: (cartItemId) =>
+      `/api/cart/remove/${cartItemId}`,
+
+    CLEAR_CART: '/api/cart/clear',
+
+    CART_TOTAL: '/api/cart/total',
+
 
     SEARCH: (params = {}) => {
       const {

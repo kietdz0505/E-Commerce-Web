@@ -36,6 +36,13 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column
+    private Double averageRating;
+
+    @Column
+    private Long reviewCount;
+
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
 

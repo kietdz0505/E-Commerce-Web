@@ -3,9 +3,11 @@ import axios from 'axios';
 import { Form, Button, Container, Row, Col, Card, Spinner } from 'react-bootstrap';  // Import Spinner
 import { getApiUrl } from '../config/apiConfig';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../shared/NotificationContext';
 
 function EditProfile({ currentUser, onUpdateSuccess }) {
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
 
     const [formData, setFormData] = useState({
         name: currentUser?.name || '',
@@ -53,11 +55,11 @@ function EditProfile({ currentUser, onUpdateSuccess }) {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            alert('Cập nhật thành công!');
+            showNotification('Đã cập nhật thông tin cá nhân!', 'success');
             onUpdateSuccess();
         } catch (error) {
             console.error('Update failed:', error);
-            alert('Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại.');
+            showNotification('Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại.', 'danger');
         } finally {
             setLoading(false);  // Tắt loading
         }

@@ -5,12 +5,16 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
-public class CustomUserPrincipal extends User {
+public class CustomUserDetails extends User {
     private String userId;
 
-    public CustomUserPrincipal(String userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(String userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
         this.userId = userId;
+    }
+
+    public String getId() {
+        return userId;
     }
 
     public String getUserId() {

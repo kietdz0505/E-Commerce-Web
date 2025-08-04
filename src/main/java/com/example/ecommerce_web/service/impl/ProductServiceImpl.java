@@ -50,9 +50,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::enrichProductWithReview)
                 .collect(Collectors.toList());
     }
-
-
-
+    
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
         return productRepository.findProductsByCategoryId(categoryId, pageable)
