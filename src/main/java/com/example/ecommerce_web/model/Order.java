@@ -1,7 +1,10 @@
 package com.example.ecommerce_web.model;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,18 +23,21 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    private String paymentMethod; // COD, BANK_TRANSFER, ONLINE_PAYMENT
+
     private LocalDateTime orderDate;
+
+    private BigDecimal totalAmount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference // Để tránh loop khi trả JSON
     private List<OrderItem> items;
 
     @ManyToOne
     @JoinColumn(name = "promotion_id")
     private Promotion promotion;
-
 }
-

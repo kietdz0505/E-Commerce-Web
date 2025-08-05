@@ -81,7 +81,7 @@ const CartPage = () => {
           <div className="d-flex flex-column align-items-end mt-4">
             <h4 className="fw-bold">Tổng cộng: <span className="text-danger">{subtotal.toLocaleString('vi-VN')}₫</span></h4>
             <button className="btn btn-success btn-lg mt-3 px-5 py-2" onClick={handleCheckout}>
-              Tiến hành thanh toán
+              Đặt hàng
             </button>
           </div>
         </>
