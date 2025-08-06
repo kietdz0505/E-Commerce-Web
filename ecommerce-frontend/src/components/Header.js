@@ -1,16 +1,19 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FiUser, FiLogOut, FiShoppingCart } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiShoppingCart, FiPackage } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../shared/CartContext';
-
 
 function Header({ onLoginClick, currentUser }) {
   const navigate = useNavigate();
   const { cartCount, clearCartContext } = useCart();
 
+  const handleOrdersClick = () => {
+        navigate('/my-orders');  // Đường dẫn tới trang đơn hàng của bạn
+    };
   const handleLogout = () => {
     localStorage.removeItem('token');  // Xóa token để logout
-    clearCartContext();                // Xóa cart ở frontend context (React state)
+    clearCartContext();
+    navigate('/');              // Xóa cart ở frontend context (React state)
     window.location.reload();          // Reload app để reset toàn bộ state
   };
 
@@ -49,6 +52,14 @@ function Header({ onLoginClick, currentUser }) {
                         <FiUser /> Thông tin cá nhân
                       </button>
                     </li>
+                    <li>
+                      <button
+                        className="dropdown-item d-flex align-items-center gap-2"
+                        onClick={handleOrdersClick}
+                      >
+                        <FiPackage /> Đơn hàng của tôi
+                      </button>
+                    </li>
                     <li><hr className="dropdown-divider" /></li>
                     <li>
                       <button
@@ -59,6 +70,7 @@ function Header({ onLoginClick, currentUser }) {
                       </button>
                     </li>
                   </ul>
+
                 </div>
                 <button className="btn btn-warning fw-bold d-flex align-items-center position-relative" onClick={() => navigate('/cart')}>
                   <FiShoppingCart size={20} />

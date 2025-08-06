@@ -33,9 +33,9 @@ public class VNPaymentService {
     @Value("${vnpay.returnUrl}")
     private String vnp_ReturnUrl;
 
-    public String createVNPayPayment(Long orderId, Long amountFromClient, String orderInfo) {
+    public String createVNPayPayment(Long orderId, String orderInfo) {
         // Log input parameters
-        System.out.println("Debug - Starting createVNPayPayment with orderId: " + orderId + ", amountFromClient: " + amountFromClient + ", orderInfo: " + orderInfo);
+        System.out.println("Debug - Starting createVNPayPayment with orderId: " + orderId + ", orderInfo: " + orderInfo);
 
         Long amount = orderService.getOrderAmount(orderId);
         if (amount == null || amount <= 0) {

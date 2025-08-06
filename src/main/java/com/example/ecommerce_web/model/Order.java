@@ -23,7 +23,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private String paymentMethod; // COD, BANK_TRANSFER, ONLINE_PAYMENT
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod; // COD, BANK_TRANSFER, ONLINE_PAYMENT
 
     private LocalDateTime orderDate;
 

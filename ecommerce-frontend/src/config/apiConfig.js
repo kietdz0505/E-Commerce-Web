@@ -53,6 +53,25 @@ export const API_CONFIG = {
 
     CART_TOTAL: '/api/cart/total',
 
+    PLACE_ORDER: '/api/orders',  // POST request
+
+    GET_ORDER_BY_ID: (orderId) => `/api/orders/${orderId}`,  // GET request
+
+    UPDATE_ORDER_STATUS: (orderId) => `/api/orders/${orderId}/status`,  // PUT request
+
+    GET_MY_ORDERS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+      `/api/orders/my?page=${page}&size=${size}`,
+
+    PROMOTIONS_BY_PRODUCTS: (productIds) => `api/promotions/by-products?productIds=${productIds.join(',')}`,
+
+     // Payment APIs
+    CREATE_MOMO_PAYMENT: (orderId) => `/api/payment/momo?orderId=${orderId}`,
+    CREATE_VNPAY_PAYMENT: (orderId) => `/api/payment/vnpay?orderId=${orderId}`,
+
+    PAYMENT_RETURN_MOMO: '/payment/momo-return',
+    PAYMENT_RETURN_VNPAY: '/payment/vnpay-return',
+
+
 
     SEARCH: (params = {}) => {
       const {

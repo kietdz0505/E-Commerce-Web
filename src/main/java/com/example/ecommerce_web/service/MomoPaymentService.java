@@ -41,7 +41,7 @@ public class MomoPaymentService {
     @Value("${momo.endpoint}")
     private String endpoint;
 
-    public MomoPaymentResponse createPayment(Long orderId, Long amountFromClient, String orderInfo) {
+    public MomoPaymentResponse createPayment(Long orderId, String orderInfo) {
         Long amount = orderService.getOrderAmount(orderId); // ✅ LẤY TỪ DB
 
         if (amount == null || amount <= 0) {

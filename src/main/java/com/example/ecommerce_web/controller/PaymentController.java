@@ -22,9 +22,9 @@ public class PaymentController {
     private final OrderService orderService;
 
     @PostMapping("/vnpay")
-    public ResponseEntity<?> createVNPayPayment(@RequestParam Long orderId, @RequestParam Long amount) {
+    public ResponseEntity<?> createVNPayPayment(@RequestParam Long orderId) {
         String orderInfo = "Thanh toán đơn hàng #" + orderId;
-        String paymentUrl = vnPaymentService.createVNPayPayment(orderId, amount, orderInfo);
+        String paymentUrl = vnPaymentService.createVNPayPayment(orderId, orderInfo);
         return ResponseEntity.ok(Collections.singletonMap("paymentUrl", paymentUrl));
     }
 
@@ -58,9 +58,9 @@ public class PaymentController {
 
 
     @PostMapping("/momo")
-    public ResponseEntity<?> createMomoPayment(@RequestParam Long orderId, @RequestParam Long amount) {
+    public ResponseEntity<?> createMomoPayment(@RequestParam Long orderId) {
         String orderInfo = "Thanh toán đơn hàng #" + orderId;
-        MomoPaymentResponse response = momoPaymentService.createPayment(orderId, amount, orderInfo);
+        MomoPaymentResponse response = momoPaymentService.createPayment(orderId, orderInfo);
         return ResponseEntity.ok(response);
     }
 

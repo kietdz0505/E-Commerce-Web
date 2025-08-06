@@ -27,11 +27,10 @@ public class OrderService {
     private final PromotionRepository promotionRepository;
 
     @Transactional
-    public Order placeOrder(OrderRequest request, String userId) {
+    public OrderResponse placeOrder(OrderRequest request, String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Tìm Promotion theo code (nếu có)
         Promotion promotion = null;
         if (request.getPromotionCode() != null && !request.getPromotionCode().isEmpty()) {
             promotion = promotionRepository.findByCode(request.getPromotionCode())
@@ -48,7 +47,7 @@ public class OrderService {
         order.setReceiverName(request.getReceiverName());
         order.setReceiverPhone(request.getReceiverPhone());
         order.setDeliveryAddress(request.getDeliveryAddress());
-        order.setPaymentMethod(request.getPaymentMethod());
+        order.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod().toUpperCase()));
         order.setStatus(OrderStatus.PENDING);
         order.setOrderDate(LocalDateTime.now());
         order.setUser(user);
@@ -65,45 +64,44 @@ public class OrderService {
                 throw new RuntimeException("Not enough stock for product: " + product.getName());
             }
 
-            // Trừ tồn kho
             product.setStock(product.getStock() - itemReq.getQuantity());
+
+            BigDecimal originalPrice = BigDecimal.valueOf(product.getPrice());
+            BigDecimal discountedPrice = originalPrice;
+
+
+            if (promotion != null && promotion.getProducts().stream()
+                    .anyMatch(p -> p.getId().equals(product.getId()))) {
+                BigDecimal discount = originalPrice.multiply(promotion.getDiscountPercent())
+                        .divide(BigDecimal.valueOf(100));
+                discountedPrice = originalPrice.subtract(discount);
+            }
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(itemReq.getQuantity());
-            orderItem.setUnitPrice(product.getPrice());
-
+            orderItem.setUnitPrice(originalPrice);
+            orderItem.setDiscountedUnitPrice(discountedPrice);
             orderItems.add(orderItem);
 
-            totalPrice = totalPrice.add(BigDecimal.valueOf(product.getPrice())
-                    .multiply(BigDecimal.valueOf(itemReq.getQuantity())));
+            totalPrice = totalPrice.add(discountedPrice.multiply(BigDecimal.valueOf(itemReq.getQuantity())));
         }
 
-        // Áp dụng khuyến mãi nếu có
-        if (promotion != null) {
-            BigDecimal discount = totalPrice.multiply(promotion.getDiscountPercent())
-                    .divide(BigDecimal.valueOf(100));
-            totalPrice = totalPrice.subtract(discount);
-
-            // Giảm số lần sử dụng (usageLimit - 1)
-            if (promotion.getUsageLimit() != null) {
-                promotion.setUsageLimit(promotion.getUsageLimit() - 1);
-                promotionRepository.save(promotion);
-            }
+        if (promotion != null && promotion.getUsageLimit() != null) {
+            promotion.setUsageLimit(promotion.getUsageLimit() - 1);
+            promotionRepository.save(promotion);
         }
 
         order.setItems(orderItems);
-        order.setTotalAmount(totalPrice); // ✅ Đặt sau khi tính xong totalPrice
+        order.setTotalAmount(totalPrice);
 
-        return orderRepository.save(order);
+        orderRepository.save(order);
+
+        return mapToOrderResponse(order);  // ✅ Trả về DTO Response
     }
 
-    public List<Order> getUserOrders(String userId) {
-        return orderRepository.findByUserId(userId);
-    }
-
-    public Order getOrderById(Long id, String userId) {
+    public OrderResponse getOrderById(Long id, String userId) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -111,41 +109,14 @@ public class OrderService {
             throw new RuntimeException("Access denied");
         }
 
-        return order;
+        return mapToOrderResponse(order);
     }
 
-    // Lấy danh sách đơn hàng của user (pagination)
     public Page<OrderResponse> getUserOrders(String userId, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<Order> ordersPage = orderRepository.findByUserId(userId, pageable);
 
-        return ordersPage.map(order -> {
-            OrderResponse response = new OrderResponse();
-            response.setId(order.getId());
-            response.setReceiverName(order.getReceiverName());
-            response.setReceiverPhone(order.getReceiverPhone());
-            response.setDeliveryAddress(order.getDeliveryAddress());
-            response.setPaymentMethod(order.getPaymentMethod());
-            response.setStatus(order.getStatus().name());
-            response.setOrderDate(order.getOrderDate());
-            response.setTotalAmount(order.getTotalAmount());
-
-            if (order.getPromotion() != null) {
-                response.setPromotionCode(order.getPromotion().getCode());
-            }
-
-            List<OrderItemResponse> items = order.getItems().stream().map(item -> {
-                OrderItemResponse itemRes = new OrderItemResponse();
-                itemRes.setProductId(item.getProduct().getId());
-                itemRes.setProductName(item.getProduct().getName());
-                itemRes.setQuantity(item.getQuantity());
-                itemRes.setUnitPrice(item.getUnitPrice());
-                return itemRes;
-            }).toList();
-
-            response.setItems(items);
-            return response;
-        });
+        return ordersPage.map(this::mapToOrderResponse);
     }
 
     @Transactional
@@ -155,18 +126,17 @@ public class OrderService {
 
         if (order.getStatus() == status) {
             System.out.println("Order #" + orderId + " already in status: " + status);
-            return;  // Idempotent update, không update lại
+            return;  // Idempotent update
         }
 
         order.setStatus(status);
         orderRepository.save(order);
     }
 
-
     public Long getOrderAmount(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        return order.getTotalAmount().longValue();  // Trả về kiểu Long để dùng cho Payment
+        return order.getTotalAmount().longValue();
     }
 
     public OrderStatus getOrderStatus(Long orderId) {
@@ -175,5 +145,33 @@ public class OrderService {
         return order.getStatus();
     }
 
+    // ----------------- PRIVATE MAPPER -------------------
+    private OrderResponse mapToOrderResponse(Order order) {
+        OrderResponse response = new OrderResponse();
+        response.setId(order.getId());
+        response.setReceiverName(order.getReceiverName());
+        response.setReceiverPhone(order.getReceiverPhone());
+        response.setDeliveryAddress(order.getDeliveryAddress());
+        response.setPaymentMethod(order.getPaymentMethod().name());
+        response.setStatus(order.getStatus().name());
+        response.setOrderDate(order.getOrderDate());
+        response.setTotalAmount(order.getTotalAmount());
 
+        if (order.getPromotion() != null) {
+            response.setPromotionCode(order.getPromotion().getCode());
+        }
+
+        List<OrderItemResponse> items = order.getItems().stream().map(item -> {
+            OrderItemResponse itemRes = new OrderItemResponse();
+            itemRes.setProductId(item.getProduct().getId());
+            itemRes.setProductName(item.getProduct().getName());
+            itemRes.setQuantity(item.getQuantity());
+            itemRes.setUnitPrice(item.getUnitPrice());
+            itemRes.setDiscountedUnitPrice(item.getDiscountedUnitPrice());
+            return itemRes;
+        }).toList();
+
+        response.setItems(items);
+        return response;
+    }
 }

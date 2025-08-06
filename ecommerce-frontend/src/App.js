@@ -10,13 +10,15 @@ import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 import { getApiUrl } from './config/apiConfig';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import './api/axiosConfig';
+import MyOrdersPage from './pages/MyOrdersPage';
+import './api/axiosInstance';
 import EditProfile from './user/EditProfile';
 import SearchPage from './pages/SearchPage';
 import ProductDetail from './pages/ProductDetail';
 import LoginPopup from './components/LoginPopup';
 import { CartProvider, useCart } from './shared/CartContext';
 import CartPage from './pages/CartPage';
+import OrderCheckoutPage from './pages/OrderCheckoutPage';
 
 // 👉 Đây là Component con chứa logic useCart, sau khi CartProvider đã wrap
 const AppLayout = () => {
@@ -91,6 +93,8 @@ const AppLayout = () => {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/product/:productId" element={<ProductDetail onLoginClick={handleLoginClick} />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/orders" element={<OrderCheckoutPage />} />
+        <Route path="/my-orders" element={<MyOrdersPage />} />
       </Routes>
 
       <Footer />
