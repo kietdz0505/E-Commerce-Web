@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from '../shared/CartContext';
 import { useNotification } from '../shared/NotificationContext';
+import StarRating from '../config/StarRating'; // hoặc điều chỉnh path phù hợp
+
+
 const ProductCard = ({ prod, isHot }) => {
   const { addToCart } = useCart();
   const { showNotification } = useNotification();
@@ -50,6 +53,11 @@ const ProductCard = ({ prod, isHot }) => {
               <p className="card-text text-danger fw-bold text-center fs-5">
                 {prod.price ? prod.price.toLocaleString("vi-VN") + "₫" : "Liên hệ"}
               </p>
+            </div>
+            <div className="d-flex justify-content-center align-items-center gap-1 mb-2">
+              <span className="text-dark fw-semibold">{(prod.averageRating || 0).toFixed(1)}</span>
+              <StarRating rating={prod.averageRating || 0} />
+              <span className="text-muted ms-1">({prod.reviewCount || 0})</span>
             </div>
           </div>
         </Link>

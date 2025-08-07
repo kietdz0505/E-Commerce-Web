@@ -17,11 +17,16 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     private RoleName name;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
-}
 
+    public Role(RoleName name) {
+        this.name = name;
+    }
+}

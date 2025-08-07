@@ -64,7 +64,7 @@ export const API_CONFIG = {
 
     PROMOTIONS_BY_PRODUCTS: (productIds) => `api/promotions/by-products?productIds=${productIds.join(',')}`,
 
-     // Payment APIs
+    // Payment APIs
     CREATE_MOMO_PAYMENT: (orderId) => `/api/payment/momo?orderId=${orderId}`,
     CREATE_VNPAY_PAYMENT: (orderId) => `/api/payment/vnpay?orderId=${orderId}`,
 
@@ -73,28 +73,18 @@ export const API_CONFIG = {
 
 
 
-    SEARCH: (params = {}) => {
-      const {
-        keyword = '',
-        minPrice,
-        maxPrice,
-        minRating,
-        page = PaginationConfig.DEFAULT_PAGE,
-        size = PaginationConfig.DEFAULT_PAGE_SIZE
-      } = params;
+    SEARCH: (filters) => {
+      const params = new URLSearchParams();
 
-      const searchParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, value);
+        }
+      });
 
-      if (keyword) searchParams.append('keyword', keyword);
-      if (minPrice != null) searchParams.append('minPrice', minPrice);
-      if (maxPrice != null) searchParams.append('maxPrice', maxPrice);
-      if (minRating != null) searchParams.append('minRating', minRating);
+      return `/api/products/search?${params.toString()}`;
+    }
 
-      searchParams.append('page', page);
-      searchParams.append('size', size);
-
-      return `/api/products/search?${searchParams.toString()}`;
-    },
   },
 };
 

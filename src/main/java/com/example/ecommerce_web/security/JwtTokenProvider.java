@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.security;
 
+import com.example.ecommerce_web.model.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -18,15 +21,20 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Tạo token từ email
     // Tạo token từ userId và email
-    public String generateToken(String userId, String email) {
+    public String generateToken(String userId, String email, Set<Role> roles) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
+        // Thêm "ROLE_" prefix để tương thích với Spring Security
+        var roleNames = roles.stream()
+                .map(role -> "ROLE_" + role.getName().name())
+                .collect(Collectors.toList());
+
         return Jwts.builder()
-                .setSubject(email)  // Giữ email ở subject -> các chỗ khác sẽ không ảnh hưởng
-                .claim("userId", userId)  // Thêm userId vào claims
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("roles", roleNames)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -40,19 +48,18 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.get("userId", String.class);  // Đọc userId từ claims
+        return claims.get("userId", String.class);
     }
 
-    // Lấy email từ token (giữ nguyên)
+    // Lấy email từ token
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();  // Subject vẫn là email
+        return claims.getSubject();
     }
-
 
     // Kiểm tra token hợp lệ
     public boolean validateToken(String token) {
@@ -60,7 +67,9 @@ public class JwtTokenProvider {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("Invalid JWT: " + e.getMessage());
             return false;
         }
     }
+
 }

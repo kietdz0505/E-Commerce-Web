@@ -6,15 +6,20 @@ import com.example.ecommerce_web.dto.UserProfileResponseDTO;
 import com.example.ecommerce_web.dto.UserProfileUpdateDTO;
 import com.example.ecommerce_web.model.AuthProvider;
 import com.example.ecommerce_web.model.Role;
+import com.example.ecommerce_web.model.RoleName;
 import com.example.ecommerce_web.model.User;
 import com.example.ecommerce_web.mapper.UserMapper;
+import com.example.ecommerce_web.repository.RoleRepository;
 import com.example.ecommerce_web.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +29,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+
 
     public void changePassword(ChangePasswordDTO dto) {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -117,4 +124,60 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
+
+    public void updateUserRole(String userId, String roleName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        RoleName newRoleName;
+        try {
+            newRoleName = RoleName.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role name: " + roleName);
+        }
+
+        Role role = roleRepository.findByName(newRoleName)
+                .orElseThrow(() -> new RuntimeException("Role not found in DB: " + roleName));
+
+        user.setRoles(new HashSet<>(Set.of(role)));
+
+        userRepository.save(user);
+    }
+
+    public Page<UserDTO> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(this::convertToDTO);
+    }
+
+    private UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setPicture(user.getPicture());
+        dto.setPhone(user.getPhone());
+        dto.setAddress(user.getAddress());
+        dto.setGender(user.getGender());
+        dto.setDob(user.getDob());
+        dto.setAuthProvider(user.getAuthProvider());
+
+
+        if (user.getRoles() != null) {
+            dto.setRoles(user.getRoles().stream()
+                    .map(role -> role.getName().name()) // Enum to String
+                    .collect(Collectors.toSet()));
+        }
+
+
+
+        return dto;
+    }
+
+
+
+
+
+
+
 }

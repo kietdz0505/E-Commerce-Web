@@ -28,6 +28,9 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(null);
+
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -119,7 +122,7 @@ function Home() {
     setLoading(true);
     setSearchKeyword(filters.keyword || '');
     setSelectedPriceRange(filters.minPrice !== null || filters.maxPrice !== null ? filters : null);
-
+    setSelectedRating(filters.minRating || null);
     searchProducts(filters)
       .then(res => {
         const data = res.data;
@@ -147,14 +150,16 @@ function Home() {
   };
 
   const handlePageChange = (page) => {
-    if (searchKeyword || selectedPriceRange !== null) {
+    if (searchKeyword || selectedPriceRange !== null || selectedRating !== null) {
       const filters = {
         keyword: searchKeyword || '',
         minPrice: selectedPriceRange?.min || null,
         maxPrice: selectedPriceRange?.max || null,
+        minRating: selectedRating || null,
         page: page,
         size: PaginationConfig.DEFAULT_PAGE_SIZE
       };
+
 
       handleSearch(filters);
     } else if (selectedBrandId && selectedCategoryId) {
@@ -170,6 +175,7 @@ function Home() {
     setSelectedCategoryId(null);
     setSelectedBrandId(null);
     setSelectedPriceRange(null);
+    setSelectedRating(null);
     setSearchKeyword('');
     loadProducts(0);
   };

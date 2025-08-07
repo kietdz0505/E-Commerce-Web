@@ -27,6 +27,7 @@ export const searchProducts = (filters) => {
     keyword: filters.keyword || '',
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
+    minRating: filters.minRating,
     page: filters.page || 0,
     size: filters.size || PaginationConfig.DEFAULT_PAGE_SIZE
   };

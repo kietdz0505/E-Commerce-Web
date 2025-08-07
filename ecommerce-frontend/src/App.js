@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import AppAdmin from './admin/AppAdmin';
 import { NotificationProvider } from './shared/NotificationContext';
 import Home from './user/Home';
 import UserProfile from './pages/UserProfile';
@@ -20,7 +19,7 @@ import { CartProvider, useCart } from './shared/CartContext';
 import CartPage from './pages/CartPage';
 import OrderCheckoutPage from './pages/OrderCheckoutPage';
 
-// 👉 Đây là Component con chứa logic useCart, sau khi CartProvider đã wrap
+
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loginPopupOpen, setLoginPopupOpen] = useState(false);
@@ -28,6 +27,7 @@ const AppLayout = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+
     if (token) {
       fetch(getApiUrl('PROFILE'), {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -35,14 +35,17 @@ const AppLayout = () => {
         .then(res => res.json())
         .then(data => {
           setCurrentUser(data);
-          fetchCartItems();  // Fetch Cart sau khi login
+          localStorage.setItem('user', JSON.stringify({ ...data, token }));
+          fetchCartItems();
         })
         .catch(err => {
           console.error('Failed to fetch user', err);
           clearCartContext();
+          localStorage.removeItem('user');
         });
     } else {
       clearCartContext();
+      localStorage.removeItem('user');
     }
   }, []);
 
@@ -57,8 +60,8 @@ const AppLayout = () => {
       })
         .then(res => res.json())
         .then(data => {
-          console.log('Updated User:', data);
           setCurrentUser(data);
+          localStorage.setItem('user', JSON.stringify({ ...data, token }));
         })
         .catch(err => console.error('Failed to fetch user', err));
     }
@@ -71,7 +74,7 @@ const AppLayout = () => {
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">AZStore</Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
@@ -85,11 +88,13 @@ const AppLayout = () => {
       </nav>
 
       <Routes>
-        <Route path="/admin/*" element={<AppAdmin />} />
+
+
+        {/* 👇 Các route người dùng */}
+        <Route path="/" element={<Home currentUser={currentUser} />} />
         <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         <Route path="/profile" element={<UserProfile currentUser={currentUser} />} />
         <Route path="/profile/edit" element={<EditProfile currentUser={currentUser} onUpdateSuccess={fetchUserProfile} />} />
-        <Route path="/" element={<Home currentUser={currentUser} />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/product/:productId" element={<ProductDetail onLoginClick={handleLoginClick} />} />
         <Route path="/cart" element={<CartPage />} />
@@ -108,7 +113,6 @@ const AppLayout = () => {
   );
 };
 
-// 👉 App vẫn giữ nguyên tên file là App.jsx
 const App = () => (
   <NotificationProvider>
     <CartProvider>
