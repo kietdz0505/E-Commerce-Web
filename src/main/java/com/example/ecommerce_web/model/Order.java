@@ -21,6 +21,7 @@ public class Order {
     private String deliveryAddress;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private OrderStatus status;
 
     @Enumerated(EnumType.STRING)

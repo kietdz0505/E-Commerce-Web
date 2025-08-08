@@ -48,6 +48,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Page<CategoryDTO> getAllCategoriesPaged(Pageable pageable) {
+        return categoryRepository.findAll(pageable)
+                .map(CategoryMapper::toCategoryDTO);
+    }
+
+
+    @Override
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         return categoryRepository.findById(id).map(existingCategory -> {
             existingCategory.setName(categoryDTO.getName());
@@ -57,9 +64,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
+    public boolean deleteCategory(Long id) {
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
+
 
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {

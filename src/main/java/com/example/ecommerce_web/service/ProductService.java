@@ -17,6 +17,6 @@ public interface ProductService {
     List<String> autocompleteProductNames(String query);
     Page<ProductDTO> getProductsByBrandId(Long brandId, Pageable pageable);
     Page<ProductDTO> getProductsByCategoryAndBrand(Long categoryId, Long brandId, Pageable pageable);
-
+    ProductDTO updateProduct(Long id, ProductDTO dto);
 
 }

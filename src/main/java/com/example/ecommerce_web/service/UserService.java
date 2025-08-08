@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -168,16 +169,18 @@ public class UserService {
                     .map(role -> role.getName().name()) // Enum to String
                     .collect(Collectors.toSet()));
         }
-
-
-
         return dto;
     }
 
+    @Transactional
+    public void lockUser(String userId, boolean lock) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
+        user.setLocked(lock);
+        user.setUpdatedAt(LocalDateTime.now());
 
-
-
-
+        userRepository.save(user);
+    }
 
 }

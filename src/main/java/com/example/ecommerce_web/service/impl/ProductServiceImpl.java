@@ -3,6 +3,8 @@ package com.example.ecommerce_web.service.impl;
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.mapper.ProductMapper;
 
+import com.example.ecommerce_web.model.Brand;
+import com.example.ecommerce_web.model.Category;
 import com.example.ecommerce_web.model.Product;
 import com.example.ecommerce_web.repository.BrandRepository;
 
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,8 +92,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Product not found with id: " + id);
+        }
         productRepository.deleteById(id);
     }
+
 
     // Autocomplete Product Names
     @Override
@@ -122,9 +129,55 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
+    private ProductDTO mapToDTO(Product product) {
+        ProductDTO dto = new ProductDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setImageUrl(product.getImageUrl());
+        dto.setPrice(product.getPrice());
+        dto.setStock(product.getStock());
+        dto.setAvailable(product.isAvailable());
+        dto.setBrandId(product.getBrand() != null ? product.getBrand().getId() : null);
+        dto.setBrandName(product.getBrand() != null ? product.getBrand().getName() : null);
+        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
+        dto.setCategoryName(product.getCategory() != null ? product.getCategory().getName() : null);
+        dto.setAverageRating(product.getAverageRating());
+        dto.setReviewCount(product.getReviewCount());
+        return dto;
+    }
 
+    @Override
+    public ProductDTO updateProduct(Long id, ProductDTO dto) {
+        // Tìm sản phẩm
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
+        // Nếu có brandId mới => kiểm tra và gán brand
+        if (dto.getBrandId() != null) {
+            Brand brand = brandRepository.findById(dto.getBrandId())
+                    .orElseThrow(() -> new RuntimeException("Brand not found with id: " + dto.getBrandId()));
+            product.setBrand(brand);
+        }
 
+        // Nếu có categoryId mới => kiểm tra và gán category
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+            product.setCategory(category);
+        }
 
+        // Cập nhật các trường cơ bản
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setImageUrl(dto.getImageUrl());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock());
+        product.setAvailable(dto.isAvailable());
+        // Lưu lại
+        Product updated = productRepository.save(product);
+        // Trả về DTO
+        return mapToDTO(updated);
+    }
 
 }

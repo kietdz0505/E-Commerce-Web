@@ -54,12 +54,32 @@ public class OrderController {
     public ResponseEntity<Page<OrderResponse>> getMyOrders(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "desc") String sortDirection
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getUserId();
 
-        Page<OrderResponse> ordersPage = orderService.getUserOrders(userId, page, size);
+        Page<OrderResponse> ordersPage = orderService.getUserOrders(userId, page, size,sortDirection);
         return ResponseEntity.ok(ordersPage);
     }
+
+    @DeleteMapping("/{id}/cancel")
+    public ResponseEntity<String> cancelOrder(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = userDetails.getUserId();
+
+        try {
+            orderService.cancelOrder(id, userId);
+            return ResponseEntity.ok("Order has been canceled successfully");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
 }

@@ -70,9 +70,7 @@ export const API_CONFIG = {
 
     PAYMENT_RETURN_MOMO: '/payment/momo-return',
     PAYMENT_RETURN_VNPAY: '/payment/vnpay-return',
-
-
-
+    CANCEL_ORDER: (orderId) => `/api/orders/${orderId}/cancel`, // DELETE request
     SEARCH: (filters) => {
       const params = new URLSearchParams();
 

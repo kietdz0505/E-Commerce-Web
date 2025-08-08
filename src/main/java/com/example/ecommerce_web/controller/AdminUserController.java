@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AdminUserController {
 
     private final UserService userService;
@@ -54,5 +54,16 @@ public class AdminUserController {
         Pageable pageable = PageRequest.of(page, size);
         return userService.getAllUsers(pageable);
     }
+
+    @PutMapping("/{id}/lock")
+    public ResponseEntity<String> lockUser(@PathVariable String id, @RequestParam boolean lock) {
+        try {
+            userService.lockUser(id, lock);
+            return ResponseEntity.ok(lock ? "Người dùng bị khóa" : "Người dùng được mở khóa");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy người dùng");
+        }
+    }
+
 
 }
