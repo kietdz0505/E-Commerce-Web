@@ -2,6 +2,7 @@ package com.example.ecommerce_web.controller;
 
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +20,11 @@ public class AdminProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO dto) {
+    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO dto) {
         ProductDTO createdProduct = productService.createProduct(dto);
         return ResponseEntity.ok(createdProduct);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(

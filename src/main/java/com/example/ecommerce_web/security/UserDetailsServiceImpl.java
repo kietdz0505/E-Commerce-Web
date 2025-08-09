@@ -25,20 +25,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        // ✅ Chặn nếu tài khoản bị khóa
+        if (Boolean.TRUE.equals(user.isLocked())) {
+            throw new UsernameNotFoundException("Tài khoản của bạn đã bị khóa");
+        }
+
         String password = user.getPassword() != null ? user.getPassword() : "oauth2user";
 
-        // Lấy danh sách quyền từ user.getRoles()
         Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name())) // ROLE_ADMIN, ROLE_CUSTOMER
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toSet());
 
         return new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
                 password,
+                Boolean.TRUE.equals(user.isLocked()), // truyền trạng thái khóa
                 authorities
         );
+
     }
+
 
 
 }

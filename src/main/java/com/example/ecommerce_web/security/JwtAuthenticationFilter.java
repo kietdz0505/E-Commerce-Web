@@ -35,6 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             CustomUserDetails customPrincipal = (CustomUserDetails) userDetailsService.loadUserByUsername(email);
 
+            // 🚫 Chặn request nếu tài khoản bị khóa
+            if (!customPrincipal.isAccountNonLocked()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.getWriter().write("Account is locked");
+                response.getWriter().flush();
+                return;
+            }
+
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             customPrincipal, null, customPrincipal.getAuthorities()
@@ -45,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

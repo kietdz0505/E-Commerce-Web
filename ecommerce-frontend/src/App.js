@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { NotificationProvider } from './shared/NotificationContext';
-import Home from './user/Home';
-import UserProfile from './pages/UserProfile';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import OAuth2RedirectHandler from './OAuth2RedirectHandler';
+import { CartProvider, useCart } from './shared/CartContext';
 import { getApiUrl } from './config/apiConfig';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import MyOrdersPage from './pages/MyOrdersPage';
 import './api/axiosInstance';
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import LoginPopup from './components/LoginPopup';
+
+import Home from './user/Home';
+import UserProfile from './pages/UserProfile';
 import EditProfile from './user/EditProfile';
 import SearchPage from './pages/SearchPage';
 import ProductDetail from './pages/ProductDetail';
-import LoginPopup from './components/LoginPopup';
-import { CartProvider, useCart } from './shared/CartContext';
 import CartPage from './pages/CartPage';
+import MyOrdersPage from './pages/MyOrdersPage';
 import OrderCheckoutPage from './pages/OrderCheckoutPage';
+import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 
+// Admin pages
+import AdminRoute from './routers/AdminRoute';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminPromotionsPage from './pages/admin/AdminPromotionsPage';
+import AdminReviewsPage from './pages/admin/AdminReviewsPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [loginPopupOpen, setLoginPopupOpen] = useState(false);
   const { fetchCartItems, clearCartContext } = useCart();
 
@@ -30,7 +43,7 @@ const AppLayout = () => {
 
     if (token) {
       fetch(getApiUrl('PROFILE'), {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
         .then(data => {
@@ -42,30 +55,33 @@ const AppLayout = () => {
           console.error('Failed to fetch user', err);
           clearCartContext();
           localStorage.removeItem('user');
-        });
+        })
+        .finally(() => setLoadingUser(false));
     } else {
       clearCartContext();
       localStorage.removeItem('user');
+      setLoadingUser(false);
     }
   }, []);
-
-  const handleLoginClick = () => setLoginPopupOpen(true);
-  const handleCloseLoginPopup = () => setLoginPopupOpen(false);
 
   const fetchUserProfile = () => {
     const token = localStorage.getItem('token');
     if (token) {
       fetch(getApiUrl('PROFILE'), {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
         .then(data => {
+          console.log("User data from API:", data); 
           setCurrentUser(data);
           localStorage.setItem('user', JSON.stringify({ ...data, token }));
         })
         .catch(err => console.error('Failed to fetch user', err));
     }
   };
+
+  const handleLoginClick = () => setLoginPopupOpen(true);
+  const handleCloseLoginPopup = () => setLoginPopupOpen(false);
 
   return (
     <>
@@ -88,9 +104,7 @@ const AppLayout = () => {
       </nav>
 
       <Routes>
-
-
-        {/* 👇 Các route người dùng */}
+        {/* Route người dùng */}
         <Route path="/" element={<Home currentUser={currentUser} />} />
         <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         <Route path="/profile" element={<UserProfile currentUser={currentUser} />} />
@@ -100,15 +114,20 @@ const AppLayout = () => {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<OrderCheckoutPage />} />
         <Route path="/my-orders" element={<MyOrdersPage />} />
+
+        {/* Route admin */}
+        <Route path="/admin/products" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminProductsPage /></AdminRoute>} />
+        <Route path="/admin/categories" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminCategoriesPage /></AdminRoute>} />
+        <Route path="/admin/orders" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminOrdersPage /></AdminRoute>} />
+        <Route path="/admin/promotions" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminPromotionsPage /></AdminRoute>} />
+        <Route path="/admin/reviews" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReviewsPage /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUsersPage /></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminDashboardPage /></AdminRoute>} />
       </Routes>
 
       <Footer />
 
-      <LoginPopup
-        open={loginPopupOpen}
-        onClose={handleCloseLoginPopup}
-        onSwitchToRegister={() => { }}
-      />
+      <LoginPopup open={loginPopupOpen} onClose={handleCloseLoginPopup} onSwitchToRegister={() => { }} />
     </>
   );
 };

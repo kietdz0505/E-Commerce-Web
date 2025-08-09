@@ -11,7 +11,7 @@ public class SecurityUtils {
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof CustomUserDetails userDetails) {
-                return userDetails.getId();
+                return userDetails.getUserId();
             }
         }
         return null;

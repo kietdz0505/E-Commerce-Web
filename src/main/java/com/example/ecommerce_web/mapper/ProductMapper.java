@@ -20,19 +20,28 @@ public class ProductMapper {
             dto.setBrandName(product.getBrand().getName());
         }
 
-        // Average Rating
+        if (product.getCategory() != null) {
+            dto.setCategoryId(product.getCategory().getId());
+            dto.setCategoryName(product.getCategory().getName());
+        }
+
+        // Review count
         if (product.getReviews() != null && !product.getReviews().isEmpty()) {
+            dto.setReviewCount((long) product.getReviews().size());
             double avg = product.getReviews().stream()
                     .mapToInt(Review::getRating)
                     .average()
                     .orElse(0.0);
             dto.setAverageRating(avg);
         } else {
+            dto.setReviewCount(0L);
             dto.setAverageRating(0.0);
         }
 
         return dto;
     }
+
+
 
     public static Product toEntity(ProductDTO dto) {
         Product product = new Product();
@@ -43,7 +52,8 @@ public class ProductMapper {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setAvailable(dto.isAvailable());
-        // Brand set ở Service Layer
+        // Brand và Category set ở Service Layer
         return product;
     }
+
 }

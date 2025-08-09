@@ -25,13 +25,13 @@ public class CartController {
     // Lấy giỏ hàng của user hiện tại (bao gồm các item)
     @GetMapping
     public ResponseEntity<CartResponseDTO> getCart(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        Cart cart = cartService.getCartForUser(currentUser.getId());
+        Cart cart = cartService.getCartForUser(currentUser.getUserId());
         return ResponseEntity.ok(cartService.convertToCartResponseDTO(cart));
     }
 
     @GetMapping("/items")
     public ResponseEntity<List<CartItemDTO>> getCartItems(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        List<CartItemDTO> items = cartService.getCartItems(currentUser.getId());
+        List<CartItemDTO> items = cartService.getCartItems(currentUser.getUserId());
         return ResponseEntity.ok(items);
     }
 
@@ -41,7 +41,7 @@ public class CartController {
     public ResponseEntity<CartItemDTO> addItemToCart(@AuthenticationPrincipal CustomUserDetails currentUser,
                                                      @RequestParam Long productId,
                                                      @RequestParam int quantity) {
-        CartItem item = cartService.addItemToCart(currentUser.getId(), productId, quantity);
+        CartItem item = cartService.addItemToCart(currentUser.getUserId(), productId, quantity);
         return ResponseEntity.ok(cartService.convertToCartItemDTO(item));
     }
 
@@ -50,7 +50,7 @@ public class CartController {
     public ResponseEntity<CartItemDTO> updateCartItem(@AuthenticationPrincipal CustomUserDetails currentUser,
                                                       @PathVariable Long cartItemId,
                                                       @RequestParam int quantity) {
-        CartItem updatedItem = cartService.updateCartItemQuantity(currentUser.getId(), cartItemId, quantity);
+        CartItem updatedItem = cartService.updateCartItemQuantity(currentUser.getUserId(), cartItemId, quantity);
         return ResponseEntity.ok(cartService.convertToCartItemDTO(updatedItem));
     }
 
@@ -58,21 +58,21 @@ public class CartController {
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<Void> removeItemFromCart(@AuthenticationPrincipal CustomUserDetails currentUser,
                                                    @PathVariable Long cartItemId) {
-        cartService.removeItemFromCart(currentUser.getId(), cartItemId);
+        cartService.removeItemFromCart(currentUser.getUserId(), cartItemId);
         return ResponseEntity.noContent().build();
     }
 
     // Xóa toàn bộ giỏ hàng
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearCart(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        cartService.clearCart(currentUser.getId());
+        cartService.clearCart(currentUser.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     // Tính tổng tiền giỏ hàng
     @GetMapping("/total")
     public ResponseEntity<Double> calculateCartTotal(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        Double total = cartService.calculateCartTotal(currentUser.getId());
+        Double total = cartService.calculateCartTotal(currentUser.getUserId());
         return ResponseEntity.ok(total);
     }
 }

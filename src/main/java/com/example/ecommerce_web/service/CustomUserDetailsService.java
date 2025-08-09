@@ -33,10 +33,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 ? user.getPassword()
                 : "N/A";
 
+        // Truyền isLocked vào CustomUserDetails để Spring Security chặn nếu bị khóa
         return new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
                 password,
+                user.isLocked(), // true = bị khóa, false = không khóa
                 authorities
         );
     }

@@ -2,12 +2,10 @@ package com.example.ecommerce_web.service.impl;
 
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.mapper.ProductMapper;
-
 import com.example.ecommerce_web.model.Brand;
 import com.example.ecommerce_web.model.Category;
 import com.example.ecommerce_web.model.Product;
 import com.example.ecommerce_web.repository.BrandRepository;
-
 import com.example.ecommerce_web.repository.CategoryRepository;
 import com.example.ecommerce_web.repository.ProductRepository;
 import com.example.ecommerce_web.repository.ReviewRepository;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +23,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
-
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
@@ -40,7 +36,6 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-
     @Override
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
         return productRepository.findAll(pageable)
@@ -53,13 +48,12 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::enrichProductWithReview)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
         return productRepository.findProductsByCategoryId(categoryId, pageable)
                 .map(ProductMapper::toDTO);
     }
-
 
     @Override
     public ProductDTO getProductById(Long id) {
@@ -67,7 +61,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(this::enrichProductWithReview)
                 .orElse(null);
     }
-
 
     @Override
     public Long countAllProducts() {
@@ -79,7 +72,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = ProductMapper.toEntity(dto);
         product.setBrand(brandRepository.findById(dto.getBrandId()).orElse(null));
         product.setCategory(categoryRepository.findById(dto.getCategoryId()).orElse(null));
-        return ProductMapper.toDTO(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        return enrichProductWithReview(saved);
     }
 
     @Override
@@ -87,8 +81,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findProductsByCategoryAndBrand(categoryId, brandId, pageable)
                 .map(ProductMapper::toDTO);
     }
-
-
 
     @Override
     public void deleteProduct(Long id) {
@@ -98,8 +90,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-
-    // Autocomplete Product Names
     @Override
     public List<String> autocompleteProductNames(String query) {
         return productRepository.findTop10ByNameContainingIgnoreCase(query)
@@ -111,14 +101,12 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findProductsByBrandId(brandId, pageable)
                 .map(ProductMapper::toDTO);
     }
-    // Search Products with Filters
 
     @Override
     public Page<ProductDTO> searchProducts(String keyword, Double minPrice, Double maxPrice, Integer minRating, Pageable pageable) {
         return productRepository.searchProducts(keyword, minPrice, maxPrice, minRating, pageable)
                 .map(this::enrichProductWithReview);
     }
-
 
     private ProductDTO enrichProductWithReview(Product product) {
         ProductDTO dto = ProductMapper.toDTO(product);
@@ -149,35 +137,29 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
-        // Tìm sản phẩm
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        // Nếu có brandId mới => kiểm tra và gán brand
         if (dto.getBrandId() != null) {
             Brand brand = brandRepository.findById(dto.getBrandId())
                     .orElseThrow(() -> new RuntimeException("Brand not found with id: " + dto.getBrandId()));
             product.setBrand(brand);
         }
 
-        // Nếu có categoryId mới => kiểm tra và gán category
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
             product.setCategory(category);
         }
 
-        // Cập nhật các trường cơ bản
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setImageUrl(dto.getImageUrl());
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setAvailable(dto.isAvailable());
-        // Lưu lại
+
         Product updated = productRepository.save(product);
-        // Trả về DTO
         return mapToDTO(updated);
     }
-
 }

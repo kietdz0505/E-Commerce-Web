@@ -29,12 +29,21 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         com.example.ecommerce_web.model.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
+        // 🚫 Chặn login nếu bị khóa
+        if (user.isLocked()) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Account is locked");
+            response.getWriter().flush();
+            return;
+        }
+
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
 
         // Redirect về Frontend kèm token (localhost:3000)
         String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
     }
+
 
 
 }

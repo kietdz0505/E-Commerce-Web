@@ -81,7 +81,51 @@ export const API_CONFIG = {
       });
 
       return `/api/products/search?${params.toString()}`;
-    }
+    },
+
+    ADMIN_CATEGORIES: {
+      // Category management
+      GET_CATEGORIES: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+        `/api/admin/categories?page=${page}&size=${size}`,
+      GET_CATEGORY_BY_ID: (id) => `/api/admin/categories/${id}`,
+      CREATE_CATEGORY: '/api/admin/categories', // POST request
+      UPDATE_CATEGORY: (id) => `/api/admin/categories/${id}`, // PUT request
+      DELETE_CATEGORY: (id) => `/api/admin/categories/${id}`, // DELETE request
+    },
+
+    ADMIN_ORDERS: {
+      GET_ALL_ORDERS: (page = 0, size = 10, sortDirection = 'desc') =>
+        `/api/admin/orders?page=${page}&size=${size}&sortDirection=${sortDirection}`,
+      GET_ORDER_BY_ID: (id) => `/api/admin/orders/${id}`,
+      UPDATE_ORDER_STATUS: (id, status) => `/api/admin/orders/${id}/status?status=${status}`,
+      DELETE_ORDER: (id) => `/api/admin/orders/${id}`,
+    },
+
+    ADMIN_PRODUCTS: {
+      CREATE_PRODUCT: '/api/admin/products', // POST request
+      UPDATE_PRODUCT: (id) => `/api/admin/products/${id}`, // PUT request
+      DELETE_PRODUCT: (id) => `/api/admin/products/${id}`, // DELETE request
+      GET_ALL_PRODUCTS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+        `/api/admin/products?page=${page}&size=${size}`, // GET request
+    },
+
+    ADMIN_PROMOTIONS: {
+      CREATE_PROMOTION: '/api/admin/promotions', // POST request
+    },
+
+    ADMIN_REVIEWS: {
+      DELETE_REVIEW: (productId, reviewId) =>
+        `/api/admin/products/${productId}/reviews/${reviewId}`, // DELETE request
+    },
+
+    ADMIN_USERS: {
+      GET_ALL: (page = 0, size = 10) => `/api/admin/users?page=${page}&size=${size}`, // GET
+      GET_BY_ID: (id) => `/api/admin/users/${id}`, // GET
+      DELETE: (id) => `/api/admin/users/${id}`, // DELETE
+      COUNT: `/api/admin/users/count`, // GET
+      UPDATE_ROLE: (id) => `/api/admin/users/${id}/role`, // PUT
+      LOCK_USER: (id, lock) => `/api/admin/users/${id}/lock?lock=${lock}`, // PUT
+    },
 
   },
 };
