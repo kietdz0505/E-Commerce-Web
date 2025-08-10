@@ -150,7 +150,7 @@ public class OrderService {
             throw new RuntimeException("You cannot cancel this order");
         }
 
-        order.setStatus(OrderStatus.CANCELED);
+        order.setStatus(OrderStatus.CANCELLED);
         restoreStock(order);
         return mapToOrderResponse(orderRepository.save(order));
     }
@@ -224,7 +224,7 @@ public class OrderService {
         }
 
         // Nếu user hủy đơn => cộng lại tồn kho
-        if (status == OrderStatus.CANCELED && order.getStatus() != OrderStatus.CANCELED) {
+        if (status == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.CANCELLED) {
             order.getItems().forEach(item -> {
                 Product product = item.getProduct();
                 product.setStock(product.getStock() + item.getQuantity());
@@ -243,14 +243,23 @@ public class OrderService {
         return mapToOrderResponse(order);
     }
 
-    private boolean isValidStatusTransition(OrderStatus current, OrderStatus next) {
-        return switch (current) {
-            case PENDING -> next == OrderStatus.PAID || next == OrderStatus.CANCELED;
-            case PAID -> next == OrderStatus.SHIPPED || next == OrderStatus.CANCELED;
-            case SHIPPED -> next == OrderStatus.COMPLETED || next == OrderStatus.FAILED;
-            default -> false; // COMPLETED, CANCELED, FAILED không chuyển tiếp nữa
-        };
+    private boolean isValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
+        switch (currentStatus) {
+            case PENDING:
+                return newStatus == OrderStatus.PAID ||
+                        newStatus == OrderStatus.SHIPPED ||
+                        newStatus == OrderStatus.CANCELLED;
+            case SHIPPED:
+                return newStatus == OrderStatus.COMPLETED ||
+                        newStatus == OrderStatus.FAILED;
+            case COMPLETED:
+            case FAILED:
+                return false;
+            default:
+                return false;
+        }
     }
+
 
     @Transactional
     public void updateOrderStatusByAdmin(Long orderId, OrderStatus status) {
@@ -263,7 +272,7 @@ public class OrderService {
             );
         }
 
-        if (status == OrderStatus.CANCELED && order.getStatus() != OrderStatus.CANCELED) {
+        if (status == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.CANCELLED) {
             restoreStock(order);
         }
 

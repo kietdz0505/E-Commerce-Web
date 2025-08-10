@@ -1,6 +1,7 @@
 package com.example.ecommerce_web.controller;
 
 import com.example.ecommerce_web.dto.OrderResponse;
+import com.example.ecommerce_web.model.OrderStatus;
 import com.example.ecommerce_web.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,15 +33,23 @@ public class AdminOrderController {
         return ResponseEntity.ok(orderService.getOrderByIdForAdmin(id));
     }
 
-    //  Cập nhật trạng thái đơn hàng
     @PutMapping("/{id}/status")
-    public ResponseEntity<Void> updateOrderStatus(
+    public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long id,
             @RequestParam String status
     ) {
-        orderService.updateOrderStatusByAdmin(id, Enum.valueOf(com.example.ecommerce_web.model.OrderStatus.class, status.toUpperCase()));
+        OrderStatus orderStatus;
+        try {
+            orderStatus = OrderStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body("Trạng thái đơn hàng không hợp lệ: " + status);
+        }
+
+        orderService.updateOrderStatusByAdmin(id, orderStatus);
         return ResponseEntity.ok().build();
     }
+
 
     // AdminOrderController.java
     @DeleteMapping("/{id}")

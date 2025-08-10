@@ -12,7 +12,11 @@ export default function AdminUsersPage() {
     setLoading(true);
     try {
       const data = await AdminUserService.getAll(page, size);
-      setUsers(data.content || []);
+      const normalizedUsers = (data.content || []).map(u => ({
+        ...u,
+        locked: u.locked === true || u.locked === 1 || u.locked === "1"
+      }));
+      setUsers(normalizedUsers);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error('Lỗi tải danh sách người dùng:', error);
@@ -22,8 +26,14 @@ export default function AdminUsersPage() {
   };
 
   const handleLock = async (id, lock) => {
-    await AdminUserService.lockUser(id, lock);
-    loadUsers();
+    try {
+      await AdminUserService.lockUser(id, lock);
+      setUsers(prev =>
+        prev.map(u => (u.id === id ? { ...u, locked: lock } : u))
+      );
+    } catch (error) {
+      console.error('Lỗi khi khóa/mở khóa người dùng:', error);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -75,11 +85,11 @@ export default function AdminUsersPage() {
                     <td>
                       <select
                         className="form-select form-select-sm"
-                        value={u.roles[0] === "ROLE_ADMIN" ? "ADMIN" : "USER"}
+                        value={u.roles[0]}
                         onChange={(e) => handleChangeRole(u.id, e.target.value)}
                       >
-                        <option value="USER">USER</option>
-                        <option value="ADMIN">ADMIN</option>
+                        <option value="ROLE_CUSTOMER">USER</option>
+                        <option value="ROLE_ADMIN">ADMIN</option>
                       </select>
                     </td>
                     <td>
@@ -91,9 +101,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td>
                       <button
-                        className={`btn btn-sm me-2 ${
-                          u.locked ? 'btn-success' : 'btn-warning'
-                        }`}
+                        className={`btn btn-sm me-2 ${u.locked ? 'btn-success' : 'btn-warning'}`}
                         onClick={() => handleLock(u.id, !u.locked)}
                       >
                         {u.locked ? 'Mở khóa' : 'Khóa'}

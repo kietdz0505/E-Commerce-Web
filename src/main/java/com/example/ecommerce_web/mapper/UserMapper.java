@@ -19,17 +19,16 @@ public class UserMapper {
         dto.setGender(user.getGender());
         dto.setAuthProvider(user.getAuthProvider());
         dto.setDob(user.getDob());
-        Set<Role> roles = user.getRoles();
+        dto.setLocked(user.isLocked());
 
+        Set<Role> roles = user.getRoles();
         Set<String> roleNames = roles.stream()
                 .map(role -> role.getName().name())
                 .collect(Collectors.toSet());
-
         dto.setRoles(roleNames);
-
-
 
         return dto;
     }
+
 }
 

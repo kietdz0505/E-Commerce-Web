@@ -15,4 +15,5 @@ public class UserProfileUpdateDTO {
     private LocalDate dob;
     private String picture;
     private Set<Role> roles;
+    private boolean locked;
 }

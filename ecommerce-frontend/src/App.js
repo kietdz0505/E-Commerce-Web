@@ -31,6 +31,7 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminPromotionsPage from './pages/admin/AdminPromotionsPage';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminBrandPage from './pages/admin/AdminBrandPage';
 
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -123,6 +124,7 @@ const AppLayout = () => {
         <Route path="/admin/reviews" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReviewsPage /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUsersPage /></AdminRoute>} />
         <Route path="/admin" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminDashboardPage /></AdminRoute>} />
+        <Route path="/admin/brands" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminBrandPage /></AdminRoute>} />
       </Routes>
 
       <Footer />

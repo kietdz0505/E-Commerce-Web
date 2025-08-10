@@ -1,50 +1,30 @@
-import axios from 'axios';
+// src/services/admin/adminProductService.js
 import { API_CONFIG } from '../../config/apiConfig';
+import apiClient from '../../api/axiosInstance';
 
-const BASE_URL = API_CONFIG.BASE_URL;
+const adminProductService = {
+  // Lấy tất cả sản phẩm (phân trang)
+  getAllProducts: (page = 0, size = 10) =>
+    apiClient
+      .get(API_CONFIG.API.ADMIN_PRODUCTS.GET_ALL_PRODUCTS(page, size))
+      .then(res => res.data),
 
-export const adminProductService = {
+  // Tạo sản phẩm mới
+  createProduct: (productData) =>
+    apiClient
+      .post(API_CONFIG.API.ADMIN_PRODUCTS.CREATE_PRODUCT, productData)
+      .then(res => res.data),
 
-  getAllProducts: async (page = 0, size = 10) => {
-    const token = localStorage.getItem('token');
-    const url = `${BASE_URL}${API_CONFIG.API.ADMIN_PRODUCTS.GET_ALL_PRODUCTS(page, size)}`;
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  },
+  // Cập nhật sản phẩm
+  updateProduct: (id, productData) =>
+    apiClient
+      .put(API_CONFIG.API.ADMIN_PRODUCTS.UPDATE_PRODUCT(id), productData)
+      .then(res => res.data),
 
-  createProduct: async (productData) => {
-    const token = localStorage.getItem('token');
-    const url = `${BASE_URL}${API_CONFIG.API.ADMIN_PRODUCTS.CREATE_PRODUCT}`;
-    const response = await axios.post(url, productData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  },
-
-  updateProduct: async (id, productData) => {
-    const token = localStorage.getItem('token');
-    const url = `${BASE_URL}${API_CONFIG.API.ADMIN_PRODUCTS.UPDATE_PRODUCT(id)}`;
-    const response = await axios.put(url, productData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  },
-
-  deleteProduct: async (id) => {
-    const token = localStorage.getItem('token');
-    const url = `${BASE_URL}${API_CONFIG.API.ADMIN_PRODUCTS.DELETE_PRODUCT(id)}`;
-    await axios.delete(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  },
+  // Xóa sản phẩm
+  deleteProduct: (id) =>
+    apiClient
+      .delete(API_CONFIG.API.ADMIN_PRODUCTS.DELETE_PRODUCT(id)),
 };
+
+export default adminProductService;

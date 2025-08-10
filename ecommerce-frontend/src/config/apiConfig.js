@@ -1,3 +1,4 @@
+import { UPDATE } from 'react-admin';
 import PaginationConfig from './paginationConfig';
 
 export const API_CONFIG = {
@@ -94,11 +95,20 @@ export const API_CONFIG = {
     },
 
     ADMIN_ORDERS: {
-      GET_ALL_ORDERS: (page = 0, size = 10, sortDirection = 'desc') =>
+      GET_ALL_ORDERS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE, sortDirection = 'desc') =>
         `/api/admin/orders?page=${page}&size=${size}&sortDirection=${sortDirection}`,
       GET_ORDER_BY_ID: (id) => `/api/admin/orders/${id}`,
       UPDATE_ORDER_STATUS: (id, status) => `/api/admin/orders/${id}/status?status=${status}`,
       DELETE_ORDER: (id) => `/api/admin/orders/${id}`,
+    },
+    ADMIN_BRANDS:{
+      GET_ALL_BRANDS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+        `/api/admin/brands?page=${page}&size=${size}`,
+
+      GET_BRAND_BY_ID: (id) => `/api/admin/brands/${id}`,
+      CREATE_BRAND: '/api/admin/brands', // POST request
+      UPDATE_BRAND: (id) => `/api/admin/brands/${id}`, // PUT request
+      DELETE_BRAND: (id) => `/api/admin/brands/${id}`, // DELETE request
     },
 
     ADMIN_PRODUCTS: {
@@ -119,7 +129,7 @@ export const API_CONFIG = {
     },
 
     ADMIN_USERS: {
-      GET_ALL: (page = 0, size = 10) => `/api/admin/users?page=${page}&size=${size}`, // GET
+      GET_ALL: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) => `/api/admin/users?page=${page}&size=${size}`, // GET
       GET_BY_ID: (id) => `/api/admin/users/${id}`, // GET
       DELETE: (id) => `/api/admin/users/${id}`, // DELETE
       COUNT: `/api/admin/users/count`, // GET

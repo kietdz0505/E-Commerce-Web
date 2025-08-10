@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner, Table, Button, Modal } from 'react-bootstrap';
-import * as adminOrderService from '../../services/admin/adminOrderService';
+import adminOrderService from '../../services/admin/adminOrderService';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -13,6 +13,26 @@ export default function AdminOrdersPage() {
   // For confirmation modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
+
+  const getBadgeColor = (status) => {
+    switch (status) {
+      case 'PENDING':
+        return 'warning';
+      case 'PAID':
+        return 'info';
+      case 'SHIPPED':
+        return 'primary';
+      case 'COMPLETED':
+        return 'success';
+      case 'CANCELLED':
+        return 'danger';
+      case 'FAILED':
+        return 'dark';
+      default:
+        return 'secondary';
+    }
+  };
+
 
   const fetchOrders = async (currentPage = page) => {
     setLoading(true);
@@ -79,40 +99,33 @@ export default function AdminOrdersPage() {
             <tbody>
               {orders.length > 0 ? (
                 orders.map((order) => {
-                  let badgeColor = 'primary';
-                  if (order.status === 'CANCELED') badgeColor = 'danger';
-                  else if (order.status === 'COMPLETED') badgeColor = 'success';
-                  else if (order.status === 'PENDING') badgeColor = 'warning';
-
                   return (
                     <tr key={order.id}>
                       <td>{order.id}</td>
                       <td>{order.receiverName}</td>
                       <td>{order.totalAmount} VND</td>
                       <td>
-                        <span className={`badge bg-${badgeColor}`}>
+                        <span className={`badge bg-${getBadgeColor(order.status)}`}>
                           {order.status}
                         </span>
                       </td>
                       <td>{new Date(order.orderDate).toLocaleString()}</td>
-                      <td>
-                        <Button
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleUpdateStatus(order.id, 'COMPLETED')}
-                          disabled={order.status === 'COMPLETED' || order.status === 'CANCELED'}
+                      <td className='d-flex gap-2'>
+                        <select
+                          className="form-select form-select-sm"
+                          value={order.status}
+                          onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
+                          disabled={order.status === 'COMPLETED' || order.status === 'FAILED' || order.status === 'CANCELLED'}
+                          style={{ maxWidth: '160px' }}
                         >
-                          Hoàn thành
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="warning"
-                          className="me-2"
-                          onClick={() => handleUpdateStatus(order.id, 'CANCELED')}
-                          disabled={order.status === 'COMPLETED' || order.status === 'CANCELED'}
-                        >
-                          Hủy
-                        </Button>
+                          <option value="PENDING">PENDING</option>
+                          <option value="PAID">PAID</option>
+                          <option value="SHIPPED">SHIPPED</option>
+                          <option value="COMPLETED">COMPLETED</option>
+                          <option value="FAILED">FAILED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                        {' '}
                         <Button
                           size="sm"
                           variant="danger"
@@ -135,6 +148,7 @@ export default function AdminOrdersPage() {
                 </tr>
               )}
             </tbody>
+
 
           </Table>
 

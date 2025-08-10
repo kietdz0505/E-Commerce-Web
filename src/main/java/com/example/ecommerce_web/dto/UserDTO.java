@@ -20,5 +20,5 @@ public class UserDTO {
     private LocalDate dob;
     private AuthProvider authProvider;  // Enum
     private Set<String> roles;
-
+    private boolean locked;
 }

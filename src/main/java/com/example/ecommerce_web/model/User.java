@@ -52,6 +52,7 @@ public class User {
     @Column(name = "is_locked")
     private boolean locked = false;
 
+
     // Kiểm tra quyền admin
     public boolean isAdmin() {
         return roles.stream()

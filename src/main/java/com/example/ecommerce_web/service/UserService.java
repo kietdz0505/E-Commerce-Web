@@ -163,7 +163,7 @@ public class UserService {
         dto.setDob(user.getDob());
         dto.setAuthProvider(user.getAuthProvider());
 
-
+        dto.setLocked(user.isLocked());
         if (user.getRoles() != null) {
             dto.setRoles(user.getRoles().stream()
                     .map(role -> role.getName().name()) // Enum to String

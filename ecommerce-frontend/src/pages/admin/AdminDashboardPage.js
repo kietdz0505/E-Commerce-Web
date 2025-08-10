@@ -9,6 +9,7 @@ const AdminDashboardPage = () => {
     { to: '/admin/promotions', label: 'Quản lý khuyến mãi', icon: 'gift' },
     { to: '/admin/reviews', label: 'Quản lý đánh giá', icon: 'star' },
     { to: '/admin/users', label: 'Quản lý người dùng', icon: 'users' },
+    { to: '/admin/brands', label: 'Quản lý thương hiệu', icon: 'tag' },
   ];
 
   return (
