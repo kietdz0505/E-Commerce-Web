@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import adminProductService from '../../services/admin/adminProductService';
 import adminBrandService from '../../services/admin/adminBrandService';
 import adminCategoryService from '../../services/admin/adminCategoryService';
-import Select from 'react-select';
+import { Modal, Button, Input, Checkbox, Select, Form, message, Spin } from 'antd';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -14,24 +14,12 @@ export default function AdminProductsPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
-  // Form state
-  const [form, setForm] = useState({
-    name: '',
-    price: '',
-    description: '',
-    imageUrl: '',
-    stock: '',
-    available: true,
-    brandId: '',
-    categoryId: '',
-  });
-
-  const [formErrors, setFormErrors] = useState({});
-
-  // State chứa danh sách brands và categories
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  const [form] = Form.useForm();
+
+  // Load danh sách sản phẩm
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -39,46 +27,44 @@ export default function AdminProductsPage() {
       setProducts(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
-      alert('Không thể tải sản phẩm');
+      message.error('Không thể tải sản phẩm');
     } finally {
       setLoading(false);
     }
   };
 
+  // Load brands (đệ quy để lấy đủ trang)
   const loadBrands = async () => {
     setLoading(true);
     try {
       let allBrands = [];
       let currentPage = 0;
-      let totalPages = 1;
+      let totalPagesLocal = 1;
 
-      while (currentPage < totalPages) {
+      while (currentPage < totalPagesLocal) {
         const data = await adminBrandService.getAllBrands(currentPage, size);
         allBrands = allBrands.concat(data.content || []);
-        totalPages = data.totalPages || 1;
+        totalPagesLocal = data.totalPages || 1;
         currentPage++;
       }
 
       setBrands(allBrands);
-      setTotalPages(totalPages);
     } catch (error) {
-      console.error('Lỗi tải brand:', error);
+      message.error('Lỗi tải thương hiệu');
     } finally {
       setLoading(false);
     }
   };
 
-
+  // Load categories
   const loadCategories = async () => {
     try {
-      const data = await adminCategoryService.getCategories(page, size);
+      const data = await adminCategoryService.getCategories(0, 1000); // giả định lấy hết
       setCategories(data.content || []);
-      setTotalPages(data.totalPages || 0);
     } catch (error) {
-      console.error('Lỗi tải danh mục:', error);
+      message.error('Lỗi tải danh mục');
     }
   };
-
 
   useEffect(() => {
     loadProducts();
@@ -89,113 +75,106 @@ export default function AdminProductsPage() {
     loadCategories();
   }, []);
 
+  // Mở modal và set giá trị form
   const openModal = (product = null) => {
     setEditingProduct(product);
     if (product) {
-      setForm({
+      form.setFieldsValue({
         name: product.name || '',
         price: product.price !== undefined ? product.price : '',
         description: product.description || '',
         imageUrl: product.imageUrl || '',
         stock: product.stock !== undefined ? product.stock : '',
         available: product.available !== undefined ? product.available : true,
-        brandId: product.brandId !== undefined ? product.brandId : '',
-        categoryId: product.categoryId !== undefined ? product.categoryId : '',
+        brandId: product.brandId || null,
+        categoryId: product.categoryId || null,
       });
     } else {
-      setForm({
-        name: '',
-        price: '',
-        description: '',
-        imageUrl: '',
-        stock: '',
-        available: true,
-        brandId: '',
-        categoryId: '',
-      });
+      form.resetFields();
     }
-    setFormErrors({});
     setModalVisible(true);
   };
 
+  // Đóng modal
   const closeModal = () => {
     setModalVisible(false);
   };
 
-  const validateForm = () => {
-    let errors = {};
-    if (!form.name.trim()) errors.name = 'Tên sản phẩm không được để trống';
-    if (form.price === '' || isNaN(form.price) || Number(form.price) < 0) errors.price = 'Giá phải là số >= 0';
-    if (form.stock === '' || isNaN(form.stock) || Number(form.stock) < 0) errors.stock = 'Số lượng phải là số >= 0';
-    if (form.brandId === '' || isNaN(form.brandId) || Number(form.brandId) <= 0) errors.brandId = 'Brand ID phải là số nguyên dương';
-    if (form.categoryId === '' || isNaN(form.categoryId) || Number(form.categoryId) <= 0) errors.categoryId = 'Category ID phải là số nguyên dương';
-    return errors;
+  // Submit form
+  const handleSubmit = () => {
+    form
+      .validateFields()
+      .then(async (values) => {
+        const payload = {
+          name: values.name,
+          description: values.description,
+          imageUrl: values.imageUrl,
+          price: Number(values.price),
+          stock: Number(values.stock),
+          available: values.available,
+          brandId: Number(values.brandId),
+          categoryId: Number(values.categoryId),
+        };
+
+        try {
+          if (editingProduct) {
+            await adminProductService.updateProduct(editingProduct.id, payload);
+            message.success('Cập nhật sản phẩm thành công');
+          } else {
+            await adminProductService.createProduct(payload);
+            message.success('Thêm sản phẩm thành công');
+          }
+          closeModal();
+          loadProducts();
+        } catch (error) {
+          message.error('Lỗi khi lưu sản phẩm');
+        }
+      })
+      .catch(() => {
+        // validation lỗi, AntD tự hiện message
+      });
   };
 
-  const handleSubmit = async () => {
-    const errors = validateForm();
-    setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    const payload = {
-      name: form.name,
-      description: form.description,
-      imageUrl: form.imageUrl,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      available: form.available,
-      brandId: Number(form.brandId),
-      categoryId: Number(form.categoryId),
-    };
-
-    try {
-      if (editingProduct) {
-        await adminProductService.updateProduct(editingProduct.id, payload);
-        alert('Cập nhật sản phẩm thành công');
-      } else {
-        await adminProductService.createProduct(payload);
-        alert('Thêm sản phẩm thành công');
-      }
-      closeModal();
-      loadProducts();
-    } catch {
-      alert('Lỗi khi lưu sản phẩm');
-    }
-  };
-
+  // Xóa sản phẩm
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-    try {
-      await adminProductService.deleteProduct(id);
-      alert('Xóa sản phẩm thành công');
-      loadProducts();
-    } catch {
-      alert('Không thể xóa sản phẩm');
-    }
+    Modal.confirm({
+      title: 'Bạn có chắc muốn xóa sản phẩm này?',
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          await adminProductService.deleteProduct(id);
+          message.success('Xóa sản phẩm thành công');
+          loadProducts();
+        } catch {
+          message.error('Không thể xóa sản phẩm');
+        }
+      },
+    });
   };
 
+  // Thay đổi trang
   const onChangePage = (pageIndex) => {
     if (pageIndex !== page) setPage(pageIndex);
   };
 
   return (
-    <div className="container mt-4" >
+    <div className="container mt-4">
       <h2 className="mb-4 text-center">Quản lý sản phẩm</h2>
 
-      <button className="btn btn-primary mb-3" onClick={() => openModal()}>
+      <Button type="primary" className="mb-3" onClick={() => openModal()}>
         Thêm sản phẩm
-      </button>
+      </Button>
 
       {loading ? (
         <div className="d-flex justify-content-center align-items-center" style={{ height: 200 }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <Spin size="large" />
         </div>
       ) : (
-        <table className="table table-bordered table-hover align-middle ">
+        <table className="table table-bordered table-hover align-middle">
           <thead className="table-light">
-            <tr className="justify-content" style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+            <tr style={{ textAlign: 'center', verticalAlign: 'middle' }}>
               <th>ID</th>
               <th>Ảnh</th>
               <th style={{ minWidth: 200 }}>Tên sản phẩm</th>
@@ -233,8 +212,8 @@ export default function AdminProductsPage() {
                     {brands.find((b) => b.id === p.brandId)?.logoUrl ? (
                       <img
                         src={brands.find((b) => b.id === p.brandId)?.logoUrl}
-                        alt={brands.find((b) => b.id === p.brandId)?.name || "Logo"}
-                        style={{ width: 50, height: 50, objectFit: "contain" }}
+                        alt={brands.find((b) => b.id === p.brandId)?.name || 'Logo'}
+                        style={{ width: 50, height: 50, objectFit: 'contain' }}
                       />
                     ) : (
                       <span className="text-muted">Chưa có</span>
@@ -243,23 +222,23 @@ export default function AdminProductsPage() {
                   <td>{categories.find((c) => c.id === p.categoryId)?.name || `#${p.categoryId} (Chưa có)`}</td>
                   <td>
                     <div className="d-flex justify-content-center">
-                      <button
+                      <Button
                         style={{ width: 100 }}
-                        className="btn btn-sm btn-primary me-2"
+                        type="primary"
+                        className="me-2"
                         onClick={() => openModal(p)}
                       >
                         Sửa
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         style={{ width: 100 }}
-                        className="btn btn-sm btn-danger"
+                        danger
                         onClick={() => handleDelete(p.id)}
                       >
                         Xóa
-                      </button>
+                      </Button>
                     </div>
                   </td>
-
                 </tr>
               ))
             ) : (
@@ -289,126 +268,126 @@ export default function AdminProductsPage() {
         </ul>
       </nav>
 
-      {/* Modal */}
-      {modalVisible && (
-        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">{editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}</h5>
-                <button type="button" className="btn-close" aria-label="Close" onClick={closeModal}></button>
-              </div>
-              <div className="modal-body">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSubmit();
-                  }}
-                >
-                  <div className="mb-3">
-                    <label className="form-label">Tên sản phẩm</label>
-                    <input
-                      type="text"
-                      className={`form-control ${formErrors.name ? 'is-invalid' : ''}`}
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    />
-                    {formErrors.name && <div className="invalid-feedback">{formErrors.name}</div>}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Giá</label>
-                    <input
-                      type="number"
-                      min="0"
-                      className={`form-control ${formErrors.price ? 'is-invalid' : ''}`}
-                      value={form.price}
-                      onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    />
-                    {formErrors.price && <div className="invalid-feedback">{formErrors.price}</div>}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Số lượng</label>
-                    <input
-                      type="number"
-                      min="0"
-                      className={`form-control ${formErrors.stock ? 'is-invalid' : ''}`}
-                      value={form.stock}
-                      onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                    />
-                    {formErrors.stock && <div className="invalid-feedback">{formErrors.stock}</div>}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Mô tả</label>
-                    <textarea
-                      className="form-control"
-                      rows="3"
-                      value={form.description}
-                      onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    ></textarea>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">URL ảnh sản phẩm</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={form.imageUrl}
-                      onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                      placeholder="Nhập URL ảnh"
-                    />
-                  </div>
-                  <div className="mb-3 form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      checked={form.available}
-                      onChange={(e) => setForm({ ...form, available: e.target.checked })}
-                      id="availableCheck"
-                    />
-                    <label className="form-check-label" htmlFor="availableCheck">
-                      Có hàng
-                    </label>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Brand</label>
-                    <Select
-                      options={brands.map((b) => ({ value: b.id, label: b.name }))}
-                      value={brands.find((b) => b.id === form.brandId) ? { value: form.brandId, label: brands.find((b) => b.id === form.brandId)?.name } : null}
-                      onChange={(option) => setForm({ ...form, brandId: option?.value || '' })}
-                      placeholder="-- Chọn Brand --"
-                      isClearable
-                    />
-                    {formErrors.brandId && (
-                      <div className="text-danger small mt-1">{formErrors.brandId}</div>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Category</label>
-                    <select
-                      className={`form-select ${formErrors.categoryId ? 'is-invalid' : ''}`}
-                      value={form.categoryId}
-                      onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                    >
-                      <option value="">-- Chọn Category --</option>
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    {formErrors.categoryId && <div className="invalid-feedback">{formErrors.categoryId}</div>}
-                  </div>
-                  <button type="submit" className="btn btn-primary">
-                    {editingProduct ? 'Cập nhật' : 'Thêm'}
-                  </button>
-                  <button type="button" className="btn btn-secondary ms-2" onClick={closeModal}>
-                    Hủy
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal Ant Design */}
+      <Modal
+        title={editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
+        visible={modalVisible}
+        onOk={handleSubmit}
+        onCancel={closeModal}
+        okText={editingProduct ? 'Cập nhật' : 'Thêm'}
+        cancelText="Hủy"
+        destroyOnClose
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ available: true }}
+        >
+          <Form.Item
+            label="Tên sản phẩm"
+            name="name"
+            rules={[{ required: true, message: 'Tên sản phẩm không được để trống' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Giá"
+            name="price"
+            rules={[
+              { required: true, message: 'Giá là bắt buộc' },
+              {
+                validator: (_, value) => {
+                  if (value === undefined || value === '') return Promise.reject('Giá không được để trống');
+                  if (isNaN(Number(value))) return Promise.reject('Giá phải là số');
+                  if (Number(value) <= 0) return Promise.reject('Giá phải lớn hơn 0');
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input type="number" min={0} />
+          </Form.Item>
+
+          <Form.Item
+            label="Mô tả"
+            name="description"
+            rules={[{ required: true, message: 'Mô tả không được để trống' }]}
+          >
+            <Input.TextArea rows={3} />
+          </Form.Item>
+
+          <Form.Item
+            label="URL ảnh"
+            name="imageUrl"
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Số lượng"
+            name="stock"
+            rules={[
+              { required: true, message: 'Số lượng không được để trống' },
+              {
+                validator: (_, value) => {
+                  if (value === undefined || value === '') return Promise.reject('Số lượng không được để trống');
+                  if (!Number.isInteger(Number(value))) return Promise.reject('Số lượng phải là số nguyên');
+                  if (Number(value) < 0) return Promise.reject('Số lượng phải lớn hơn hoặc bằng 0');
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input type="number" min={0} />
+          </Form.Item>
+
+          <Form.Item
+            name="available"
+            valuePropName="checked"
+            style={{ marginBottom: 10 }}
+          >
+            <Checkbox>Còn hàng</Checkbox>
+          </Form.Item>
+
+          <Form.Item
+            label="Thương hiệu"
+            name="brandId"
+            rules={[{ required: true, message: 'Chọn thương hiệu' }]}
+          >
+            <Select
+              placeholder="Chọn thương hiệu"
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {brands.map((brand) => (
+                <Select.Option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+
+          <Form.Item
+            label="Danh mục"
+            name="categoryId"
+            rules={[{ required: true, message: 'Chọn danh mục' }]}
+          >
+            <Select placeholder="Chọn danh mục" allowClear>
+              {categories.map((cat) => (
+                <Select.Option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

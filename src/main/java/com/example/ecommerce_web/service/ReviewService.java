@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.service;
 
+import com.example.ecommerce_web.dto.AdminReviewDTO;
 import com.example.ecommerce_web.dto.ReviewDTO;
 import com.example.ecommerce_web.model.Product;
 import com.example.ecommerce_web.model.Review;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -136,5 +139,21 @@ public class ReviewService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.isAdmin();
     }
+
+    public Page<AdminReviewDTO> getReviewsByProductIdForAdmin(Long productId, Pageable pageable) {
+        Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
+
+        return reviewPage.map(review -> new AdminReviewDTO(
+                review.getId(),
+                review.getComment(),
+                review.getRating(),
+                review.getImageUrl(),
+                review.getUser().getId().toString(),
+                review.getUser().getName(),
+                review.getUser().getPicture(),
+                review.getCreatedAt()
+        ));
+    }
+
 
 }

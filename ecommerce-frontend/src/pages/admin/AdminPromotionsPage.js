@@ -1,123 +1,115 @@
-// src/pages/admin/AdminUsersPage.js
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Popconfirm, message, Modal, Form, Select } from 'antd';
-import adminUserService from '../../services/admin/adminUserService';
+import { Table, Button, Modal, Form, Input, InputNumber, Space, Popconfirm, message, DatePicker, Select } from 'antd';
+import adminPromotionService from '../../services/admin/adminPromotionService';
+import adminProductService from '../../services/admin/adminProductService';
+import dayjs from 'dayjs';
+import PaginationConfig from '../../config/paginationConfig';
 
-const { Option } = Select;
-
-const AdminUsersPage = () => {
-  const [users, setUsers] = useState([]);
+export default function AdminPromotionsPage() {
+  const [promotions, setPromotions] = useState([]);
+  const [products, setProducts] = useState([]); // lưu danh sách sản phẩm
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // từ backend
+  const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
+  const [editingPromotion, setEditingPromotion] = useState(null);
 
   const [form] = Form.useForm();
 
-  const fetchUsers = async (currentPage = page) => {
+  // Lấy danh sách khuyến mãi
+  const fetchPromotions = async (currentPage = page, currentSize = pageSize) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await adminUserService.getAllUsers(currentPage - 1, pageSize);
-      setUsers(data.content || []);
+      const data = await adminPromotionService.getPromotions(currentPage - 1, currentSize);
+      setPromotions(data.content || []);
       setTotal(data.totalElements || 0);
-      setPageSize(data.size || 10);
-    } catch (error) {
-      message.error('Lỗi khi tải danh sách người dùng');
+    } catch {
+      message.error('Lỗi khi tải danh sách khuyến mãi');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page]);
-
-  const handleDelete = async (id) => {
+  // Lấy danh sách sản phẩm
+  const fetchProducts = async () => {
     try {
-      await adminUserService.deleteUser(id);
-      message.success('Xóa người dùng thành công');
-      fetchUsers();
-    } catch (error) {
-      message.error('Lỗi khi xóa người dùng');
+      const data = await adminProductService.getAllProducts(0, PaginationConfig.DEFAULT_PAGE_SIZE); // load 20 sản phẩm đầu
+      setProducts(data.content || []);
+    } catch {
+      message.error('Không thể tải sản phẩm');
     }
   };
 
-  const handleOpenModal = (user) => {
-    setEditingUser(user);
-    form.setFieldsValue({
-      role: user.role,
-    });
+  useEffect(() => {
+    fetchPromotions();
+    fetchProducts();
+  }, [page, pageSize]);
+
+  const handleOpenModal = (promotion = null) => {
+    setEditingPromotion(promotion);
+    if (promotion) {
+      form.setFieldsValue({
+        ...promotion,
+        validFrom: dayjs(promotion.validFrom),
+        validTo: dayjs(promotion.validTo),
+        products: promotion.products?.map(p => p.id) || []
+      });
+    } else {
+      form.resetFields();
+    }
     setIsModalVisible(true);
   };
 
-  const handleSave = async () => {
+  const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await adminUserService.updateUserRole(editingUser.id, values.role);
-      message.success('Cập nhật quyền thành công');
+      const payload = {
+        ...values,
+        validFrom: values.validFrom.format('YYYY-MM-DDTHH:mm:ss'),
+        validTo: values.validTo.format('YYYY-MM-DDTHH:mm:ss'),
+        products: values.products.map(id => ({ id }))
+      };
+
+      if (editingPromotion) {
+        await adminPromotionService.updatePromotion(editingPromotion.id, payload);
+        message.success('Cập nhật khuyến mãi thành công');
+      } else {
+        await adminPromotionService.createPromotion(payload);
+        message.success('Thêm khuyến mãi thành công');
+      }
       setIsModalVisible(false);
-      fetchUsers();
-    } catch (error) {
-      message.error('Lỗi khi cập nhật quyền');
+      fetchPromotions();
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleToggleLock = async (id, isLocked) => {
+  const handleDelete = async (id) => {
     try {
-      if (isLocked) {
-        await adminUserService.unlockUser(id);
-        message.success('Mở khóa người dùng thành công');
-      } else {
-        await adminUserService.lockUser(id);
-        message.success('Khóa người dùng thành công');
-      }
-      fetchUsers();
-    } catch (error) {
-      message.error('Lỗi khi thay đổi trạng thái khóa');
+      await adminPromotionService.deletePromotion(id);
+      message.success('Xóa khuyến mãi thành công');
+      fetchPromotions();
+    } catch {
+      message.error('Lỗi khi xóa khuyến mãi');
     }
   };
 
   const columns = [
-    {
-      title: 'Tên',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Quyền',
-      dataIndex: 'role',
-      key: 'role',
-    },
-    {
-      title: 'Trạng thái',
-      key: 'status',
-      render: (_, record) => (record.locked ? 'Bị khóa' : 'Hoạt động'),
-    },
+    { title: 'Mã KM', dataIndex: 'code', key: 'code' },
+    { title: 'Tên khuyến mãi', dataIndex: 'description', key: 'description' },
+    { title: 'Phần trăm giảm', dataIndex: 'discountPercent', key: 'discountPercent', render: (v) => `${v}%` },
+    { title: 'Giới hạn', dataIndex: 'usageLimit', key: 'usageLimit' },
+    { title: 'Ngày bắt đầu', dataIndex: 'validFrom', key: 'validFrom', render: (v) => new Date(v).toLocaleDateString('vi-VN') },
+    { title: 'Ngày kết thúc', dataIndex: 'validTo', key: 'validTo', render: (v) => new Date(v).toLocaleDateString('vi-VN') },
     {
       title: 'Hành động',
-      key: 'action',
+      key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button onClick={() => handleOpenModal(record)}>Đổi quyền</Button>
-          <Button
-            danger={record.locked === false}
-            onClick={() => handleToggleLock(record.id, record.locked)}
-          >
-            {record.locked ? 'Mở khóa' : 'Khóa'}
-          </Button>
-          <Popconfirm
-            title="Bạn có chắc muốn xóa người dùng này?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Có"
-            cancelText="Không"
-          >
+          <Button type="primary" onClick={() => handleOpenModal(record)}>Sửa</Button>
+          <Popconfirm title="Xóa khuyến mãi này?" onConfirm={() => handleDelete(record.id)}>
             <Button danger>Xóa</Button>
           </Popconfirm>
         </Space>
@@ -126,43 +118,119 @@ const AdminUsersPage = () => {
   ];
 
   return (
-    <div>
-      <h2>Quản lý người dùng</h2>
+    <div style={{ padding: 20 }}>
+      <h2 className='text-center mb-4 mt-4'>Quản lý khuyến mãi</h2>
+      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => handleOpenModal()}>Thêm khuyến mãi</Button>
 
       <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={users}
+        bordered
         loading={loading}
+        columns={columns}
+        dataSource={promotions}
+        rowKey="id"
         pagination={{
           current: page,
-          pageSize: pageSize,
-          total: total,
-          onChange: (p) => setPage(p),
+          pageSize,
+          total,
+          onChange: (p, ps) => { setPage(p); setPageSize(ps); },
+          className: 'd-flex justify-content-center',
         }}
       />
 
       <Modal
-        title="Cập nhật quyền"
+        title={editingPromotion ? 'Sửa khuyến mãi' : 'Thêm khuyến mãi'}
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
-        onOk={handleSave}
+        onOk={handleSubmit}
+        okText="Lưu"
+        cancelText="Hủy"
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="role"
-            label="Quyền"
-            rules={[{ required: true, message: 'Vui lòng chọn quyền' }]}
-          >
-            <Select>
-              <Option value="USER">USER</Option>
-              <Option value="ADMIN">ADMIN</Option>
-            </Select>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            validFrom: dayjs(),
+            validTo: dayjs(),
+            products: []
+          }}
+        >
+          <Form.Item name="code" label="Mã khuyến mãi" rules={[{ required: true, message: 'Vui lòng nhập mã' }]}>
+            <Input />
           </Form.Item>
+
+          <Form.Item name="description" label="Tên khuyến mãi" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="discountPercent" label="Phần trăm giảm (%)" rules={[{ required: true }]}>
+            <InputNumber min={1} max={100} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item name="usageLimit" label="Giới hạn số lần sử dụng" rules={[{ required: true }]}>
+            <InputNumber min={1} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item name="validFrom" label="Ngày bắt đầu" rules={[{ required: true }]}>
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+              style={{ width: '100%' }}
+              getPopupContainer={(trigger) => document.body}
+            />
+          </Form.Item>
+
+          <Form.Item name="validTo" label="Ngày kết thúc" rules={[{ required: true }]}>
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+              style={{ width: '100%' }}
+              getPopupContainer={(trigger) => document.body}
+            />
+          </Form.Item>
+
+          <Form.Item name="products" label="Sản phẩm áp dụng" rules={[{ required: true }]}>
+            <Select
+              mode="multiple"
+              placeholder="Chọn sản phẩm"
+              showSearch
+              filterOption={false}
+              onSearch={async (value) => {
+                if (value.trim().toLowerCase() === "all" || value.trim().toLowerCase() === "@all") {
+                  try {
+                    const data = await adminProductService.getAllProducts(0, 9999);
+                    const allProducts = data.content || data; // thêm fallback
+                    setProducts(allProducts);
+                  } catch {
+                    message.error("Không thể tải tất cả sản phẩm");
+                  }
+                } else if (value.trim()) {
+                  try {
+                    const data = await adminProductService.searchProducts(value);
+                    setProducts(data.content || data); // fallback khi không phải Page
+                  } catch {
+                    message.error("Lỗi khi tìm kiếm sản phẩm");
+                  }
+                } else {
+                  fetchProducts();
+                }
+              }}
+
+              onSelect={(value) => {
+                if (value === "@select_all") {
+                  const allIds = products.map(p => p.id);
+                  form.setFieldsValue({ products: allIds });
+                }
+              }}
+              options={[
+                { label: "✅ Chọn tất cả sản phẩm", value: "@select_all" },
+                ...products.map(p => ({ label: p.name, value: p.id }))
+              ]}
+            />
+          </Form.Item>
+
+
         </Form>
       </Modal>
     </div>
   );
-};
-
-export default AdminUsersPage;
+}

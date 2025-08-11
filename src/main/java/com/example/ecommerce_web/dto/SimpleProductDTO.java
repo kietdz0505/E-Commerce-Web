@@ -1,10 +1,12 @@
 package com.example.ecommerce_web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@Data
 public class SimpleProductDTO {
     private Long id;
     private String name;

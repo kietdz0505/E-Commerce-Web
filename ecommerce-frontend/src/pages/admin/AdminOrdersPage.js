@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, Table, Button, Modal } from 'react-bootstrap';
+import {
+  Table,
+  Button,
+  Modal,
+  Select,
+  Pagination,
+  Spin,
+  message,
+  Tag,
+} from 'antd';
 import adminOrderService from '../../services/admin/adminOrderService';
+
+const { Option } = Select;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -10,29 +21,28 @@ export default function AdminOrdersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
-  // For confirmation modal
+  // Delete Modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
 
-  const getBadgeColor = (status) => {
+  const getTagColor = (status) => {
     switch (status) {
       case 'PENDING':
-        return 'warning';
+        return 'orange';
       case 'PAID':
-        return 'info';
+        return 'blue';
       case 'SHIPPED':
-        return 'primary';
+        return 'processing';
       case 'COMPLETED':
-        return 'success';
+        return 'green';
       case 'CANCELLED':
-        return 'danger';
+        return 'red';
       case 'FAILED':
-        return 'dark';
+        return 'default';
       default:
-        return 'secondary';
+        return 'gray';
     }
   };
-
 
   const fetchOrders = async (currentPage = page) => {
     setLoading(true);
@@ -42,7 +52,7 @@ export default function AdminOrdersPage() {
       setTotal(data.totalElements || 0);
       setPageSize(data.size || 10);
     } catch {
-      alert('Lỗi khi tải đơn hàng');
+      message.error('Lỗi khi tải đơn hàng');
     } finally {
       setLoading(false);
     }
@@ -55,142 +65,147 @@ export default function AdminOrdersPage() {
   const handleDelete = async () => {
     try {
       await adminOrderService.deleteOrder(deleteOrderId);
-      alert('Xóa đơn hàng thành công');
+      message.success('Xóa đơn hàng thành công');
       setShowDeleteModal(false);
-      fetchOrders();
+      // Nếu xóa đơn cuối trang, có thể cần lùi page
+      if (orders.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchOrders();
+      }
     } catch {
-      alert('Lỗi khi xóa đơn hàng');
+      message.error('Lỗi khi xóa đơn hàng');
     }
   };
 
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       await adminOrderService.updateOrderStatus(id, newStatus);
-      alert('Cập nhật trạng thái đơn hàng thành công');
+      message.success('Cập nhật trạng thái đơn hàng thành công');
       fetchOrders();
     } catch {
-      alert('Lỗi khi cập nhật trạng thái đơn hàng');
+      message.error('Lỗi khi cập nhật trạng thái đơn hàng');
     }
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+  const columns = [
+    {
+      title: 'Mã đơn',
+      dataIndex: 'id',
+      key: 'id',
+      width: 100,
+    },
+    {
+      title: 'Người đặt',
+      dataIndex: 'receiverName',
+      key: 'receiverName',
+    },
+    {
+      title: 'Tổng tiền',
+      dataIndex: 'totalAmount',
+      key: 'totalAmount',
+      render: (value) => `${value} VND`,
+      width: 130,
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      width: 130,
+      render: (status) => (
+        <Tag color={getTagColor(status)} style={{ fontWeight: 'bold' }}>
+          {status}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'orderDate',
+      key: 'orderDate',
+      render: (date) => new Date(date).toLocaleString(),
+      width: 180,
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      width: 220,
+      render: (_, record) => {
+        const disabled =
+          record.status === 'COMPLETED' ||
+          record.status === 'FAILED' ||
+          record.status === 'CANCELLED';
+
+        return (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Select
+              size="small"
+              style={{ width: 160 }}
+              value={record.status}
+              onChange={(value) => handleUpdateStatus(record.id, value)}
+              disabled={disabled || loading}
+            >
+              <Option value="PENDING">PENDING</Option>
+              <Option value="PAID">PAID</Option>
+              <Option value="SHIPPED">SHIPPED</Option>
+              <Option value="COMPLETED">COMPLETED</Option>
+              <Option value="FAILED">FAILED</Option>
+              <Option value="CANCELLED">CANCELLED</Option>
+            </Select>
+            <Button
+              size="small"
+              danger
+              onClick={() => {
+                setDeleteOrderId(record.id);
+                setShowDeleteModal(true);
+              }}
+              disabled={loading}
+            >
+              Xóa
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="container my-5" style={{ maxWidth: 900 }}>
-      <h2 className="mb-4 text-center">Quản lý đơn hàng</h2>
+    <div className="container" style={{ marginTop: 40 }}>
+      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý đơn hàng</h2>
 
-      {loading ? (
-        <div className="d-flex justify-content-center my-5">
-          <Spinner animation="border" variant="primary" />
+      <Spin spinning={loading}>
+        <Table
+          columns={columns}
+          dataSource={orders}
+          rowKey="id"
+          pagination={false}
+          locale={{ emptyText: 'Không có đơn hàng' }}
+          scroll={{ x: 'max-content' }}
+        />
+
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <Pagination
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            onChange={(p) => setPage(p)}
+            showSizeChanger={false}
+            className='d-flex justify-content-center mb-4'
+          />
         </div>
-      ) : (
-        <>
-          <Table bordered hover responsive>
-            <thead className="table-light">
-              <tr>
-                <th>Mã đơn</th>
-                <th>Người đặt</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
-                <th style={{ minWidth: '220px' }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length > 0 ? (
-                orders.map((order) => {
-                  return (
-                    <tr key={order.id}>
-                      <td>{order.id}</td>
-                      <td>{order.receiverName}</td>
-                      <td>{order.totalAmount} VND</td>
-                      <td>
-                        <span className={`badge bg-${getBadgeColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td>{new Date(order.orderDate).toLocaleString()}</td>
-                      <td className='d-flex gap-2'>
-                        <select
-                          className="form-select form-select-sm"
-                          value={order.status}
-                          onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
-                          disabled={order.status === 'COMPLETED' || order.status === 'FAILED' || order.status === 'CANCELLED'}
-                          style={{ maxWidth: '160px' }}
-                        >
-                          <option value="PENDING">PENDING</option>
-                          <option value="PAID">PAID</option>
-                          <option value="SHIPPED">SHIPPED</option>
-                          <option value="COMPLETED">COMPLETED</option>
-                          <option value="FAILED">FAILED</option>
-                          <option value="CANCELLED">CANCELLED</option>
-                        </select>
-                        {' '}
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => {
-                            setDeleteOrderId(order.id);
-                            setShowDeleteModal(true);
-                          }}
-                        >
-                          Xóa
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center text-muted py-3">
-                    Không có đơn hàng
-                  </td>
-                </tr>
-              )}
-            </tbody>
+      </Spin>
 
-
-          </Table>
-
-          {/* Pagination */}
-          <nav aria-label="Page navigation" className="d-flex justify-content-center">
-            <ul className="pagination">
-              <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => setPage(page - 1)} disabled={page === 1}>
-                  &laquo;
-                </button>
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li key={i} className={`page-item ${page === i + 1 ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => setPage(i + 1)}>
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
-              <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
-                  &raquo;
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Xác nhận xóa đơn hàng</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Bạn có chắc muốn xóa đơn hàng này?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Hủy
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Xóa
-          </Button>
-        </Modal.Footer>
+      <Modal
+        title="Xác nhận xóa đơn hàng"
+        visible={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onOk={handleDelete}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true, loading: loading }}
+        cancelButtonProps={{ disabled: loading }}
+        centered
+      >
+        <p>Bạn có chắc muốn xóa đơn hàng này?</p>
       </Modal>
     </div>
   );

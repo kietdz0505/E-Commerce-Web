@@ -1,6 +1,7 @@
 package com.example.ecommerce_web.service.impl;
 
 import com.example.ecommerce_web.dto.ProductDTO;
+import com.example.ecommerce_web.dto.SimpleProductDTO;
 import com.example.ecommerce_web.mapper.ProductMapper;
 import com.example.ecommerce_web.model.Brand;
 import com.example.ecommerce_web.model.Category;
@@ -135,6 +136,13 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
+    private SimpleProductDTO mapToSimpleDTO(Product product){
+        SimpleProductDTO dto = new SimpleProductDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        return dto;
+    }
+
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
@@ -162,4 +170,16 @@ public class ProductServiceImpl implements ProductService {
         Product updated = productRepository.save(product);
         return mapToDTO(updated);
     }
+
+
+    @Override
+    public List<SimpleProductDTO> searchSimpleProducts(String keyword) {
+        return productRepository
+                .findByNameContainingIgnoreCase(keyword)
+                .stream()
+                .map(this::mapToSimpleDTO)
+                .toList();
+    }
+
+
 }

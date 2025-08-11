@@ -112,6 +112,7 @@ export const API_CONFIG = {
     },
 
     ADMIN_PRODUCTS: {
+      SEARCH_PRODUCTS: (keyword) => `/api/admin/products/search?keyword=${keyword}`,
       CREATE_PRODUCT: '/api/admin/products', // POST request
       UPDATE_PRODUCT: (id) => `/api/admin/products/${id}`, // PUT request
       DELETE_PRODUCT: (id) => `/api/admin/products/${id}`, // DELETE request
@@ -121,11 +122,16 @@ export const API_CONFIG = {
 
     ADMIN_PROMOTIONS: {
       CREATE_PROMOTION: '/api/admin/promotions', // POST request
+      GET_PROMOTIONS: '/api/admin/promotions', // GET request
+      UPDATE_PROMOTION: (id) => `/api/admin/promotions/${id}`, // PUT request
+      DELETE_PROMOTION: (id) => `/api/admin/promotions/${id}`, // DELETE request
     },
 
     ADMIN_REVIEWS: {
       DELETE_REVIEW: (productId, reviewId) =>
         `/api/admin/products/${productId}/reviews/${reviewId}`, // DELETE request
+      GET_ALL_REVIEWS: (productId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
+        `/api/admin/products/${productId}/reviews?page=${page}&size=${size}`, // GET request
     },
 
     ADMIN_USERS: {
@@ -136,6 +142,7 @@ export const API_CONFIG = {
       UPDATE_ROLE: (id) => `/api/admin/users/${id}/role`, // PUT
       LOCK_USER: (id, lock) => `/api/admin/users/${id}/lock?lock=${lock}`, // PUT
     },
+    ADMIN_DASHBOARD: '/api/admin/dashboard-stats', // GET request for dashboard stats
 
   },
 };

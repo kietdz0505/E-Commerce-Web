@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Promotion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,14 +41,15 @@ public class Promotion {
             joinColumns = @JoinColumn(name = "promotion_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private List<Product> products;
-
+    private List<Product> products = new ArrayList<>();
 
     @OneToMany(mappedBy = "promotion")
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 
     public boolean isActive() {
         LocalDateTime now = LocalDateTime.now();
-        return validFrom.isBefore(now) && validTo.isAfter(now);
+        return validFrom != null && validTo != null
+                && validFrom.isBefore(now)
+                && validTo.isAfter(now);
     }
 }

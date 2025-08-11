@@ -244,20 +244,16 @@ public class OrderService {
     }
 
     private boolean isValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
-        switch (currentStatus) {
-            case PENDING:
-                return newStatus == OrderStatus.PAID ||
-                        newStatus == OrderStatus.SHIPPED ||
-                        newStatus == OrderStatus.CANCELLED;
-            case SHIPPED:
-                return newStatus == OrderStatus.COMPLETED ||
-                        newStatus == OrderStatus.FAILED;
-            case COMPLETED:
-            case FAILED:
-                return false;
-            default:
-                return false;
-        }
+        return switch (currentStatus) {
+            case PENDING -> newStatus == OrderStatus.PAID ||
+                    newStatus == OrderStatus.SHIPPED ||
+                    newStatus == OrderStatus.CANCELLED;
+            case SHIPPED -> newStatus == OrderStatus.COMPLETED ||
+                    newStatus == OrderStatus.FAILED;
+            case PAID -> newStatus == OrderStatus.SHIPPED ||
+                    newStatus == OrderStatus.CANCELLED;
+            default -> false;
+        };
     }
 
 

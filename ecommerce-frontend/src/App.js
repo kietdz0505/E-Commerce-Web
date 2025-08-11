@@ -73,7 +73,7 @@ const AppLayout = () => {
       })
         .then(res => res.json())
         .then(data => {
-          console.log("User data from API:", data); 
+          console.log("User data from API:", data);
           setCurrentUser(data);
           localStorage.setItem('user', JSON.stringify({ ...data, token }));
         })
@@ -86,50 +86,52 @@ const AppLayout = () => {
 
   return (
     <>
-      <Header onLoginClick={handleLoginClick} currentUser={currentUser} />
+      <div className="d-flex flex-column min-vh-100">
+        <Header onLoginClick={handleLoginClick} currentUser={currentUser} />
 
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div className="container">
-          <Link className="navbar-brand fw-bold" to="/">AZStore</Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <Link className="nav-link" to="/search">Tìm kiếm</Link>
-              </li>
-            </ul>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+          <div className="container">
+            <Link className="navbar-brand fw-bold" to="/">AZStore</Link>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarNav">
+              <ul className="navbar-nav ms-auto">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/search">Tìm kiếm</Link>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <Routes>
-        {/* Route người dùng */}
-        <Route path="/" element={<Home currentUser={currentUser} />} />
-        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-        <Route path="/profile" element={<UserProfile currentUser={currentUser} />} />
-        <Route path="/profile/edit" element={<EditProfile currentUser={currentUser} onUpdateSuccess={fetchUserProfile} />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/product/:productId" element={<ProductDetail onLoginClick={handleLoginClick} />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/orders" element={<OrderCheckoutPage />} />
-        <Route path="/my-orders" element={<MyOrdersPage />} />
+        <Routes>
+          {/* Route người dùng */}
+          <Route path="/" element={<Home currentUser={currentUser} />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+          <Route path="/profile" element={<UserProfile currentUser={currentUser} />} />
+          <Route path="/profile/edit" element={<EditProfile currentUser={currentUser} onUpdateSuccess={fetchUserProfile} />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/product/:productId" element={<ProductDetail onLoginClick={handleLoginClick} />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/orders" element={<OrderCheckoutPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
 
-        {/* Route admin */}
-        <Route path="/admin/products" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminProductsPage /></AdminRoute>} />
-        <Route path="/admin/categories" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminCategoriesPage /></AdminRoute>} />
-        <Route path="/admin/orders" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminOrdersPage /></AdminRoute>} />
-        <Route path="/admin/promotions" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminPromotionsPage /></AdminRoute>} />
-        <Route path="/admin/reviews" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReviewsPage /></AdminRoute>} />
-        <Route path="/admin/users" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUsersPage /></AdminRoute>} />
-        <Route path="/admin" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminDashboardPage /></AdminRoute>} />
-        <Route path="/admin/brands" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminBrandPage /></AdminRoute>} />
-      </Routes>
+          {/* Route admin */}
+          <Route path="/admin/products" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminProductsPage /></AdminRoute>} />
+          <Route path="/admin/categories" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminCategoriesPage /></AdminRoute>} />
+          <Route path="/admin/orders" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminOrdersPage /></AdminRoute>} />
+          <Route path="/admin/promotions" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminPromotionsPage /></AdminRoute>} />
+          <Route path="/admin/reviews" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReviewsPage /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUsersPage /></AdminRoute>} />
+          <Route path="/admin" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminDashboardPage /></AdminRoute>} />
+          <Route path="/admin/brands" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminBrandPage /></AdminRoute>} />
+        </Routes>
 
-      <Footer />
+        <Footer />
 
-      <LoginPopup open={loginPopupOpen} onClose={handleCloseLoginPopup} onSwitchToRegister={() => { }} />
+        <LoginPopup open={loginPopupOpen} onClose={handleCloseLoginPopup} onSwitchToRegister={() => { }} />
+      </div>
     </>
   );
 };

@@ -9,6 +9,11 @@ const adminProductService = {
       .get(API_CONFIG.API.ADMIN_PRODUCTS.GET_ALL_PRODUCTS(page, size))
       .then(res => res.data),
 
+  searchProducts: (keyword) =>
+    apiClient
+      .get(API_CONFIG.API.ADMIN_PRODUCTS.SEARCH_PRODUCTS(keyword))
+      .then(res => res.data),
+
   // Tạo sản phẩm mới
   createProduct: (productData) =>
     apiClient
@@ -24,7 +29,8 @@ const adminProductService = {
   // Xóa sản phẩm
   deleteProduct: (id) =>
     apiClient
-      .delete(API_CONFIG.API.ADMIN_PRODUCTS.DELETE_PRODUCT(id)),
+      .delete(API_CONFIG.API.ADMIN_PRODUCTS.DELETE_PRODUCT(id))
+      .then(res => res.data),
 };
 
 export default adminProductService;

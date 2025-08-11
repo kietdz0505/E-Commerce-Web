@@ -1,6 +1,7 @@
 package com.example.ecommerce_web.controller;
 
 import com.example.ecommerce_web.dto.ProductDTO;
+import com.example.ecommerce_web.dto.SimpleProductDTO;
 import com.example.ecommerce_web.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/products")
@@ -24,6 +27,13 @@ public class AdminProductController {
         ProductDTO createdProduct = productService.createProduct(dto);
         return ResponseEntity.ok(createdProduct);
     }
+
+    @GetMapping("/search")
+    public List<SimpleProductDTO> searchProducts(
+            @RequestParam String keyword) {
+        return productService.searchSimpleProducts(keyword);
+    }
+
 
 
     @PutMapping("/{id}")

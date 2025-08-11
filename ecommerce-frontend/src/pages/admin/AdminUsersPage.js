@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Table, Tag, Button, Select, Pagination, Spin, Popconfirm, message } from 'antd';
 import AdminUserService from '../../services/admin/adminUserService';
+
+const { Option } = Select;
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1); // antd pagination page bắt đầu từ 1
   const [size] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -11,7 +14,7 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const data = await AdminUserService.getAll(page, size);
+      const data = await AdminUserService.getAll(page - 1, size);
       const normalizedUsers = (data.content || []).map(u => ({
         ...u,
         locked: u.locked === true || u.locked === 1 || u.locked === "1"
@@ -19,6 +22,7 @@ export default function AdminUsersPage() {
       setUsers(normalizedUsers);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
+      message.error('Lỗi tải danh sách người dùng');
       console.error('Lỗi tải danh sách người dùng:', error);
     } finally {
       setLoading(false);
@@ -31,117 +35,144 @@ export default function AdminUsersPage() {
       setUsers(prev =>
         prev.map(u => (u.id === id ? { ...u, locked: lock } : u))
       );
+      message.success(lock ? 'Người dùng đã bị khóa' : 'Người dùng đã được mở khóa');
     } catch (error) {
+      message.error('Lỗi khi khóa/mở khóa người dùng');
       console.error('Lỗi khi khóa/mở khóa người dùng:', error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa người dùng này?')) {
+    try {
       await AdminUserService.delete(id);
+      message.success('Người dùng đã được xóa');
       loadUsers();
+    } catch (error) {
+      message.error('Lỗi khi xóa người dùng');
+      console.error('Lỗi khi xóa người dùng:', error);
     }
   };
 
   const handleChangeRole = async (id, role) => {
-    await AdminUserService.updateRole(id, role);
-    loadUsers();
+    try {
+      await AdminUserService.updateRole(id, role);
+      message.success('Cập nhật role thành công');
+      loadUsers();
+    } catch (error) {
+      message.error('Lỗi khi cập nhật role');
+      console.error('Lỗi khi cập nhật role:', error);
+    }
   };
 
   useEffect(() => {
     loadUsers();
   }, [page]);
 
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 70,
+    },
+    {
+      title: 'Tên',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Role',
+      dataIndex: 'roles',
+      key: 'roles',
+      width: 150,
+      render: (roles, record) => (
+        <Select
+          size="small"
+          value={roles[0]}
+          onChange={(value) => handleChangeRole(record.id, value)}
+          style={{ width: '100%' }}
+        >
+          <Option value="ROLE_CUSTOMER">USER</Option>
+          <Option value="ROLE_ADMIN">ADMIN</Option>
+        </Select>
+      ),
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'locked',
+      key: 'locked',
+      width: 120,
+      render: locked =>
+        locked ? (
+          <Tag color="red">Bị khóa</Tag>
+        ) : (
+          <Tag color="green">Hoạt động</Tag>
+        ),
+    },
+    {
+      title: 'Hành động',
+      key: 'actions',
+      width: 180,
+      render: (_, record) => (
+        <>
+          <Button
+            size="small"
+            type={record.locked ? 'primary' : 'default'}
+            danger={!record.locked}
+            onClick={() => handleLock(record.id, !record.locked)}
+            style={{ marginRight: 8 }}
+          >
+            {record.locked ? 'Mở khóa' : 'Khóa'}
+          </Button>
+
+          <Popconfirm
+            title="Bạn có chắc muốn xóa người dùng này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button size="small" danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div className="container my-5">
-      <h2 className="text-center mb-4">Quản lý người dùng</h2>
+    <div className="container" style={{ padding: '40px 20px' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý người dùng</h2>
 
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: 200 }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 50 }}>
+          <Spin size="large" />
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover align-middle">
-            <thead className="table-primary">
-              <tr>
-                <th>ID</th>
-                <th>Tên</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length > 0 ? (
-                users.map(u => (
-                  <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <select
-                        className="form-select form-select-sm"
-                        value={u.roles[0]}
-                        onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                      >
-                        <option value="ROLE_CUSTOMER">USER</option>
-                        <option value="ROLE_ADMIN">ADMIN</option>
-                      </select>
-                    </td>
-                    <td>
-                      {u.locked ? (
-                        <span className="badge bg-danger">Bị khóa</span>
-                      ) : (
-                        <span className="badge bg-success">Hoạt động</span>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        className={`btn btn-sm me-2 ${u.locked ? 'btn-success' : 'btn-warning'}`}
-                        onClick={() => handleLock(u.id, !u.locked)}
-                      >
-                        {u.locked ? 'Mở khóa' : 'Khóa'}
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(u.id)}
-                      >
-                        Xóa
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    Không có dữ liệu người dùng
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+        <>
+          <Table
+            columns={columns}
+            dataSource={users}
+            rowKey="id"
+            pagination={false}
+            locale={{ emptyText: 'Không có dữ liệu người dùng' }}
+          />
 
-      <nav>
-        <ul className="pagination justify-content-center">
-          {Array.from({ length: totalPages }, (_, i) => (
-            <li key={i} className={`page-item ${i === page ? 'active' : ''}`}>
-              <button
-                className="page-link"
-                onClick={() => setPage(i)}
-                disabled={i === page}
-              >
-                {i + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+          <Pagination
+            current={page}
+            total={totalPages * size}
+            pageSize={size}
+            onChange={setPage}
+            style={{ marginTop: 16, textAlign: 'center' }}
+            className="d-flex justify-content-center"
+          />
+        </>
+      )}
     </div>
   );
 }

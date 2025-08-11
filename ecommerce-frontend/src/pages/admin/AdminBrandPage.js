@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Table, Button, Pagination, Spin } from 'antd'; // import Antd components
 import adminBrandService from '../../services/admin/adminBrandService';
 
 export default function AdminBrandPage() {
@@ -77,91 +78,97 @@ export default function AdminBrandPage() {
     loadBrands();
   }, [page]);
 
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
+    },
+    {
+      title: 'Tên thương hiệu',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Logo',
+      dataIndex: 'logoUrl',
+      key: 'logoUrl',
+      width: 120,
+      render: (url, record) =>
+        url ? (
+          <img
+            src={url}
+            alt={record.name}
+            style={{ maxHeight: 50, maxWidth: 100, objectFit: 'contain' }}
+            onError={(e) => (e.target.src = '/placeholder-image.png')}
+          />
+        ) : (
+          <span className="text-muted">Không có</span>
+        ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      width: 180,
+      render: (_, record) => (
+        <>
+          <Button
+            type="primary"
+            size="small"
+            className="me-2"
+            onClick={() => openEditForm(record)}
+          >
+            Sửa
+          </Button>
+          <Button
+            danger
+            size="small"
+            onClick={() => handleDelete(record.id)}
+          >
+            Xóa
+          </Button>
+        </>
+      ),
+    },
+  ];
+
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
       <h2 className="mb-4 text-center">Quản lý thương hiệu (Brand)</h2>
 
-      <button className="btn btn-success mb-3" onClick={openCreateForm}>
+      <Button type="primary" className="mb-3" onClick={openCreateForm}>
         Thêm thương hiệu mới
-      </button>
+      </Button>
 
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: 200 }}>
-          <div className="spinner-border text-primary" role="status" aria-hidden="true"></div>
-          <span className="ms-2">Đang tải...</span>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: 200 }}
+        >
+          <Spin size="large" tip="Đang tải..." />
         </div>
       ) : (
         <>
-          <table className="table table-bordered table-hover align-middle">
-            <thead className="table-light">
-              <tr>
-                <th>ID</th>
-                <th>Tên thương hiệu</th>
-                <th>Logo</th>
-                <th style={{ width: '180px' }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {brands.length > 0 ? (
-                brands.map((b) => (
-                  <tr key={b.id}>
-                    <td>{b.id}</td>
-                    <td>{b.name}</td>
-                    <td style={{ width: 100 }}>
-                      {b.logoUrl ? (
-                        <img
-                          src={b.logoUrl}
-                          alt={b.name}
-                          style={{ maxHeight: 50, maxWidth: 100, objectFit: 'contain' }}
-                          onError={(e) => (e.target.src = '/placeholder-image.png')}
-                        />
-                      ) : (
-                        <span className="text-muted">Không có</span>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm me-2"
-                        onClick={() => openEditForm(b)}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(b.id)}
-                      >
-                        Xóa
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="text-center text-muted py-3">
-                    Không có dữ liệu thương hiệu
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <Table
+            columns={columns}
+            dataSource={brands}
+            rowKey="id"
+            pagination={false}
+            bordered
+            loading={loading}
+          />
 
-          {/* Phân trang */}
-          <nav aria-label="Page navigation example" className="d-flex justify-content-center">
-            <ul className="pagination">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li
-                  key={i}
-                  className={`page-item ${i === page ? 'active' : ''}`}
-                  onClick={() => i !== page && setPage(i)}
-                  style={{ cursor: i === page ? 'default' : 'pointer' }}
-                >
-                  <span className="page-link">{i + 1}</span>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {/* Pagination */}
+          <div className="d-flex justify-content-center mt-3" style={{marginBottom: '20px'}}>
+            <Pagination
+              current={page + 1}
+              pageSize={size}
+              total={totalPages * size}
+              onChange={(p) => setPage(p - 1)}
+              showSizeChanger={false}
+            />
+          </div>
         </>
       )}
 
@@ -171,13 +178,21 @@ export default function AdminBrandPage() {
           className="modal show d-block"
           tabIndex="-1"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={(e) => e.target.classList.contains('modal') && setShowForm(false)}
+          onClick={(e) =>
+            e.target.classList.contains('modal') && setShowForm(false)
+          }
         >
           <div className="modal-dialog">
             <form className="modal-content" onSubmit={handleFormSubmit}>
               <div className="modal-header">
-                <h5 className="modal-title">{editingBrand ? 'Sửa thương hiệu' : 'Thêm thương hiệu mới'}</h5>
-                <button type="button" className="btn-close" onClick={() => setShowForm(false)}></button>
+                <h5 className="modal-title">
+                  {editingBrand ? 'Sửa thương hiệu' : 'Thêm thương hiệu mới'}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowForm(false)}
+                ></button>
               </div>
               <div className="modal-body">
                 <div className="mb-3">
@@ -211,7 +226,11 @@ export default function AdminBrandPage() {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowForm(false)}
+                >
                   Hủy
                 </button>
                 <button type="submit" className="btn btn-primary">
