@@ -29,7 +29,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final PromotionRepository promotionRepository;
     @Value("${order.cancel.limit-hours}")
-    private int limitHours;
+    private int cancelLimitHours;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String userId) {
@@ -120,7 +120,7 @@ public class OrderService {
     public Page<OrderResponse> getUserOrders(String userId, int page, int size, String sortDirection) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         PageRequest pageable = PageRequest.of(page, size, Sort.by(direction, "orderDate"));
-        Page<Order> ordersPage = orderRepository.findByUserId(userId, pageable);
+        Page<Order> ordersPage = orderRepository.findByUser_Id(userId, pageable);
         return ordersPage.map(this::mapToOrderResponse);
     }
 
@@ -158,7 +158,7 @@ public class OrderService {
 
     private boolean isCancelableByUser(OrderStatus status, long hoursSinceOrder) {
         return (status == OrderStatus.PENDING || status == OrderStatus.PAID)
-                && hoursSinceOrder <= limitHours;
+                && hoursSinceOrder <= cancelLimitHours;
     }
 
     private void restoreStock(Order order) {
@@ -180,7 +180,7 @@ public class OrderService {
         response.setStatus(order.getStatus().name());
         response.setOrderDate(order.getOrderDate());
         response.setTotalAmount(order.getTotalAmount());
-        response.setCancelLimitHours(limitHours); // ✅ Trả số giờ hủy tối đa ra FE
+        response.setCancelLimitHours(cancelLimitHours); // ✅ Trả số giờ hủy tối đa ra FE
 
         if (order.getPromotion() != null) {
             response.setPromotionCode(order.getPromotion().getCode());
@@ -189,8 +189,8 @@ public class OrderService {
         // ✅ Tính toán có được hủy hay không
         boolean cancelable =
                 (order.getStatus() == OrderStatus.PENDING || order.getStatus() == OrderStatus.PAID) &&
-                        Duration.between(order.getOrderDate(), LocalDateTime.now()).toHours() <= limitHours;
-        response.setCancelable(cancelable);
+                        LocalDateTime.now().isBefore(order.getOrderDate().plusHours(cancelLimitHours));
+
 
         List<OrderItemResponse> items = order.getItems().stream().map(item -> {
             OrderItemResponse itemRes = new OrderItemResponse();
@@ -284,7 +284,6 @@ public class OrderService {
         }
         orderRepository.deleteById(orderId);
     }
-
 
 
 }

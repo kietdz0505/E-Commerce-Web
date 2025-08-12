@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,25 +12,25 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "roles") // Tránh vòng lặp khi in User
-@EqualsAndHashCode(of = "id") // So sánh dựa trên id
+@ToString(exclude = {"roles", "userPromotions"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
 })
 public class User {
 
     @Id
+    @EqualsAndHashCode.Include
     private String id;
 
     private String username;
 
-    @Column(nullable = true) // Cho phép null cho OAuth2
+    @Column(nullable = true)
     private String password;
 
     private String name;
     private String email;
     private String picture;
-
     private String phone;
     private String address;
     private String gender;
@@ -47,26 +48,24 @@ public class User {
             joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "roles_id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "is_locked")
     private boolean locked = false;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserPromotion> userPromotions = new HashSet<>();
 
-    // Kiểm tra quyền admin
     public boolean isAdmin() {
-        return roles.stream()
-                .anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN); // RoleName là enum
+        return roles.stream().anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN);
     }
 
-    // Tự động set thời gian khi tạo mới
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
-    // Tự động set thời gian khi update
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

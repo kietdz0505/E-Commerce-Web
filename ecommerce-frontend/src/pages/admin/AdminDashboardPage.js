@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Collapse } from 'react-bootstrap';
 import {
-  FaBox, FaTags, FaShoppingCart, FaGift, FaStar, FaUsers, FaTag, FaChevronDown
+  FaBox, FaTags, FaShoppingCart, FaGift, FaStar, FaUsers, FaTag, FaChevronDown, FaChartBar
 } from 'react-icons/fa';
 import adminService from '../../services/admin/adminService';
 import CountUp from 'react-countup';
@@ -30,7 +30,8 @@ const AdminDashboardPage = () => {
     { label: 'Thương hiệu', value: stats.totalBrands, icon: <FaTag size={24} />, color: 'bg-warning' },
     { label: 'Đơn hàng', value: stats.totalOrders, icon: <FaShoppingCart size={24} />, color: 'bg-danger' },
     { label: 'Sản phẩm', value: stats.totalProducts, icon: <FaBox size={24} />, color: 'bg-info' },
-    { label: 'Lượt đánh giá', value: stats.totalReviews, icon: <FaStar size={24} />, color: 'bg-secondary' }
+    { label: 'Lượt đánh giá', value: stats.totalReviews, icon: <FaStar size={24} />, color: 'bg-secondary' },
+    
   ];
 
   const adminLinks = [
@@ -41,6 +42,7 @@ const AdminDashboardPage = () => {
     { to: '/admin/reviews', label: 'Quản lý đánh giá', icon: <FaStar size={28} /> },
     { to: '/admin/users', label: 'Quản lý người dùng', icon: <FaUsers size={28} /> },
     { to: '/admin/brands', label: 'Quản lý thương hiệu', icon: <FaTag size={28} /> },
+    { to: '/admin/report', label: 'Thống kê báo cáo', icon: <FaChartBar size={28} /> },
   ];
 
   return (

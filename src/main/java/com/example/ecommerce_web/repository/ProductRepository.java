@@ -44,5 +44,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.category.id = :categoryId")
     List<Brand> findBrandsByCategoryId(@Param("categoryId") Long categoryId);
+    // Sản phẩm theo tồn kho (sắp xếp tăng dần)
+    List<Product> findAllByOrderByStockAsc();
+
+    @Query("SELECT COALESCE(SUM(p.stock), 0) FROM Product p")
+    int sumAllStock();
 
 }

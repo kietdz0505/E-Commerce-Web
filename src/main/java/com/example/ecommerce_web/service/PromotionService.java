@@ -87,7 +87,6 @@ public class PromotionService {
         return response;
     }
 
-
     public Page<PromotionDTO> getAllPromotions(Pageable pageable) {
         Page<Promotion> page = promotionRepository.findAll(pageable);
         return page.map(this::toDTO);
@@ -164,7 +163,6 @@ public class PromotionService {
         );
     }
 
-
     public void deletePromotion(Long id) {
         if (!promotionRepository.existsById(id)) {
             throw new RuntimeException("Promotion not found with id: " + id);
@@ -172,9 +170,9 @@ public class PromotionService {
         promotionRepository.deleteById(id);
     }
 
-
-
-
-
+    public Promotion getById(Long id) {
+        return promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotion not found with id: " + id));
+    }
 
 }

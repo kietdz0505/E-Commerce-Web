@@ -57,7 +57,7 @@ public class UserService {
     public UserDTO getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(UserMapper::toDTO)
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
     public List<UserDTO> getAllUsers() {
@@ -182,5 +182,17 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+
+    public List<User> getAllUsersEntity() {
+        return userRepository.findAll();
+    }
+
+    public User findById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+
 
 }

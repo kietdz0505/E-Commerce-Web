@@ -144,6 +144,8 @@ export const API_CONFIG = {
     },
     ADMIN_DASHBOARD: '/api/admin/dashboard-stats', // GET request for dashboard stats
 
+    ADMIN_STATS: '/api/admin/report/overview'
+
   },
 };
 
