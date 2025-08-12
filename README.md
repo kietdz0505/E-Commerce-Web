@@ -32,11 +32,6 @@ Dự án là một website thương mại điện tử chuyên bán các sản p
 | Quản lý nội dung chatbot     | Thêm/sửa câu hỏi – trả lời mặc định, huấn luyện thêm dữ liệu FAQ          |
 | Thống kê – báo cáo           | Tổng số đơn hàng, doanh thu, sản phẩm bán chạy, số lượng tồn kho          |
 
-Công nghệ đề xuất cho chatbot
-
-    AI/Rule-based Chatbot trả lời tự động các câu hỏi về bảo hành, tư vấn sản phẩm, tra cứu đơn hàng.
-
-    Công nghệ gợi ý: Dialogflow, Rasa, ...
 
 Cách chạy dự án
 
