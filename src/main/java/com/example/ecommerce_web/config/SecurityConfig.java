@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/", "/register", "/auth/**", "/oauth2/**",
                                 "/api/dashboard/stats", "/api/products/**",
                                 "/api/categories/**", "/api/brands/**",
-                                "/api/products/search"
+                                "/api/products/search", "/api/promotions/claim"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()

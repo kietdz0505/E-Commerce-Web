@@ -19,6 +19,15 @@ const OrderCheckoutPage = () => {
         paymentMethod: 'CASH'
     });
 
+    useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Thông tin đặt hàng"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
     const navigate = useNavigate();
 
     useEffect(() => {

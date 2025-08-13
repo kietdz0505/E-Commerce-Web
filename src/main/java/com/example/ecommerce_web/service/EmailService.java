@@ -22,24 +22,27 @@ public class EmailService {
     @Value("${app.mail.from-name}")  // thêm tên hiển thị, nếu có
     private String fromName;
 
-    public void sendEmail(String to, String subject, String text) {
+    public void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8"); // true = multipart (HTML)
 
             if (fromName == null || fromName.isBlank()) {
                 helper.setFrom(from);
             } else {
-                helper.setFrom(from, fromName);  // có thể ném UnsupportedEncodingException
+                helper.setFrom(from, fromName);
             }
+
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(text, false);
+            helper.setText(htmlBody, true); // true = HTML
 
             mailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new RuntimeException("Failed to send email", e);
+            throw new RuntimeException("Failed to send HTML email", e);
         }
     }
+
+
 
 }

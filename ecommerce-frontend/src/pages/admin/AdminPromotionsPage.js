@@ -18,6 +18,15 @@ export default function AdminPromotionsPage() {
 
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý khuyến mãi"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   // Lấy danh sách khuyến mãi
   const fetchPromotions = async (currentPage = page, currentSize = pageSize) => {
     setLoading(true);

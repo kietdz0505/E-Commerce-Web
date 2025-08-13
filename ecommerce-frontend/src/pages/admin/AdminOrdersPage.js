@@ -25,6 +25,16 @@ export default function AdminOrdersPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
 
+
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý đơn hàng"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   const getTagColor = (status) => {
     switch (status) {
       case 'PENDING':

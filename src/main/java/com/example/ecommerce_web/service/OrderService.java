@@ -136,16 +136,23 @@ public class OrderService {
         return order.getStatus();
     }
 
-    @Transactional
     public OrderResponse cancelOrder(Long orderId, String userId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        System.out.println("Order date: " + order.getOrderDate());
+        System.out.println("Now: " + LocalDateTime.now());
+        System.out.println("Order status: " + order.getStatus());
+        System.out.println("Order userId: " + order.getUser().getId());
+        System.out.println("Request userId: " + userId);
 
         if (!order.getUser().getId().equals(userId)) {
             throw new RuntimeException("Access denied");
         }
 
         long hoursSinceOrder = Duration.between(order.getOrderDate(), LocalDateTime.now()).toHours();
+        System.out.println("Hours since order: " + hoursSinceOrder);
+
         if (!isCancelableByUser(order.getStatus(), hoursSinceOrder)) {
             throw new RuntimeException("You cannot cancel this order");
         }
@@ -180,17 +187,16 @@ public class OrderService {
         response.setStatus(order.getStatus().name());
         response.setOrderDate(order.getOrderDate());
         response.setTotalAmount(order.getTotalAmount());
-        response.setCancelLimitHours(cancelLimitHours); // ✅ Trả số giờ hủy tối đa ra FE
+        response.setCancelLimitHours(cancelLimitHours);
 
         if (order.getPromotion() != null) {
             response.setPromotionCode(order.getPromotion().getCode());
         }
 
-        // ✅ Tính toán có được hủy hay không
         boolean cancelable =
                 (order.getStatus() == OrderStatus.PENDING || order.getStatus() == OrderStatus.PAID) &&
                         LocalDateTime.now().isBefore(order.getOrderDate().plusHours(cancelLimitHours));
-
+        response.setCancelable(cancelable);  // <-- Thêm dòng này
 
         List<OrderItemResponse> items = order.getItems().stream().map(item -> {
             OrderItemResponse itemRes = new OrderItemResponse();
@@ -206,6 +212,7 @@ public class OrderService {
         return response;
     }
 
+
     public Page<OrderResponse> getAllOrders(int page, int size, String sortDirection) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         PageRequest pageable = PageRequest.of(page, size, Sort.by(direction, "orderDate"));
@@ -213,7 +220,6 @@ public class OrderService {
         return ordersPage.map(this::mapToOrderResponse);
     }
 
-    @Transactional
     public void updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -256,8 +262,6 @@ public class OrderService {
         };
     }
 
-
-    @Transactional
     public void updateOrderStatusByAdmin(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -276,8 +280,6 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-
-    @Transactional
     public void deleteOrderByAdmin(Long orderId) {
         if (!orderRepository.existsById(orderId)) {
             throw new RuntimeException("Order not found");

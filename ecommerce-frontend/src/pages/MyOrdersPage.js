@@ -8,6 +8,15 @@ const MyOrdersPage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Đơn hàng của tôi"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
+    useEffect(() => {
         fetchOrders(page);
     }, [page]);
 

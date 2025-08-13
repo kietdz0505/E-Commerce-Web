@@ -8,6 +8,15 @@ function UserProfile({ currentUser }) {
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Thông tin người dùng"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
+  useEffect(() => {
     if (!currentUser) {
       navigate('/');  // Navigate về trang chủ
     }

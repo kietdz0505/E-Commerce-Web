@@ -8,6 +8,10 @@ import axios from 'axios';
 import ProductReviews from '../components/ProductReviews';
 import ReviewForm from '../components/ReviewForm';
 import LoginPopup from '../components/LoginPopup';
+import { useCart } from '../shared/CartContext';
+import { useNotification } from '../shared/NotificationContext';
+
+
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -15,10 +19,36 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loginPopupOpen, setLoginPopupOpen] = useState(false);
+  const { addToCart } = useCart();
+  const { showNotification } = useNotification();
+
+
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = "Chi tiết mặt hàng";
+
+    return () => {
+      document.title = previousTitle;
+    };
+  }, []);
 
   const handleLoginClick = () => {
     setLoginPopupOpen(true);
   };
+
+  const handleAddToCart = (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    showNotification('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!', 'danger');
+    return;
+  }
+
+  addToCart({ id: product.id, product, price: product.price });
+  showNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+};
+
 
   useEffect(() => {
     const fetchProductDetail = async () => {
@@ -66,7 +96,7 @@ const ProductDetail = () => {
             Đánh giá: {product.averageRating ? parseFloat(Number(product.averageRating).toFixed(1)) : '0'} <i className="bi bi-star-fill text-warning"></i>
           </p>
           <div className="d-flex gap-2 mt-4">
-            <button className="btn btn-primary btn-lg">
+            <button className="btn btn-primary btn-lg" onClick={handleAddToCart}>
               <i className="bi bi-cart-plus me-2"></i>Thêm vào giỏ
             </button>
             <button className="btn btn-outline-secondary btn-lg">

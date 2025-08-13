@@ -15,6 +15,15 @@ export default function AdminBrandPage() {
   const [brandLogoUrl, setBrandLogoUrl] = useState('');
   const [showForm, setShowForm] = useState(false);
 
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = "Quản lý thương hiệu"; 
+
+    return () => {
+      document.title = previousTitle; 
+    };
+  }, []);
+
   const loadBrands = async () => {
     setLoading(true);
     try {
@@ -160,7 +169,7 @@ export default function AdminBrandPage() {
           />
 
           {/* Pagination */}
-          <div className="d-flex justify-content-center mt-3" style={{marginBottom: '20px'}}>
+          <div className="d-flex justify-content-center mt-3" style={{ marginBottom: '20px' }}>
             <Pagination
               current={page + 1}
               pageSize={size}

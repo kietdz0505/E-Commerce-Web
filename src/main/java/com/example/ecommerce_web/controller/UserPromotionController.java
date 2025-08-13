@@ -1,8 +1,10 @@
 package com.example.ecommerce_web.controller;
 
 import com.example.ecommerce_web.model.Promotion;
+import com.example.ecommerce_web.model.User;
 import com.example.ecommerce_web.service.PromotionService;
 import com.example.ecommerce_web.service.UserPromotionService;
+import com.example.ecommerce_web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ public class UserPromotionController {
 
     private final UserPromotionService userPromotionService;
     private final PromotionService promotionService;
+    private final UserService userService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -36,11 +39,14 @@ public class UserPromotionController {
     @PostMapping("/send-one/{promotionId}")
     public String sendPromotionToOne(@PathVariable Long promotionId, @RequestParam String email) {
         Promotion promo = promotionService.getById(promotionId);
-        boolean sent = userPromotionService.sendPromotionToUserByEmail(email, promo, baseUrl);
+        email = email.trim();
 
-        if (!sent) {
-            return "User not found with email: " + email;
+        try {
+            userPromotionService.sendPromotionToUserByEmail(email, promo, baseUrl);
+            return "Promotion sent to " + email;
+        } catch (RuntimeException ex) {
+            return ex.getMessage(); // sẽ trả "User not found with email: ..."
         }
-        return "Promotion sent to " + email;
     }
+
 }

@@ -2,10 +2,21 @@ import React from 'react';
 import { useCart } from '../shared/CartContext';
 import { useNavigate } from 'react-router-dom';
 import CartItemCard from '../components/CartItemCard';
+import { useEffect } from 'react';
+
 
 const CartPage = () => {
   const { cartItems } = useCart();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Giỏ hàng của tôi"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
 
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 

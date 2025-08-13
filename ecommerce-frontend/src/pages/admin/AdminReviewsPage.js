@@ -18,6 +18,16 @@ const AdminReviewsPage = () => {
   const [reviewsPageSize, setReviewsPageSize] = useState(5);
   const [reviewsTotal, setReviewsTotal] = useState(0);
 
+
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý đánh giá sản phẩm"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   // Lấy danh sách sản phẩm kèm số lượng review (bạn backend phải trả về hoặc gọi API riêng)
   const fetchProducts = async (page = productsPage) => {
     try {

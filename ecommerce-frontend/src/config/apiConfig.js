@@ -101,7 +101,7 @@ export const API_CONFIG = {
       UPDATE_ORDER_STATUS: (id, status) => `/api/admin/orders/${id}/status?status=${status}`,
       DELETE_ORDER: (id) => `/api/admin/orders/${id}`,
     },
-    ADMIN_BRANDS:{
+    ADMIN_BRANDS: {
       GET_ALL_BRANDS: (page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
         `/api/admin/brands?page=${page}&size=${size}`,
 
@@ -144,7 +144,13 @@ export const API_CONFIG = {
     },
     ADMIN_DASHBOARD: '/api/admin/dashboard-stats', // GET request for dashboard stats
 
-    ADMIN_STATS: '/api/admin/report/overview'
+    ADMIN_STATS: '/api/admin/report/overview',
+
+    ADMIN_SEND_PROMOTION : {
+      SEND_ALL: (promotionId) => `/api/admin/user-promotions/send-all/${promotionId}`,
+      SEND_BY_EMAIL: (promotionId, email) => `/api/admin/user-promotions/send-one/${promotionId}?email=${encodeURIComponent(email)}`
+    }
+
 
   },
 };

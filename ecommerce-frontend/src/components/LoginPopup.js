@@ -3,6 +3,7 @@ import { FaGoogle, FaFacebookF } from "react-icons/fa";
 import { getOAuthUrl } from '../config/apiConfig';
 
 function LoginPopup({ open, onClose, onSwitchToRegister }) {
+    
     const [formData, setFormData] = useState({
         username: '',
         password: ''

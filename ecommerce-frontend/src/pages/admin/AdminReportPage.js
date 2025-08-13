@@ -18,6 +18,15 @@ export default function AdminReportPage() {
         dayjs().endOf('month')
     ]);
 
+    useEffect(() => {
+        const previousTitle = document.title;
+        document.title = "Thống kê - báo cáo";
+
+        return () => {
+            document.title = previousTitle;
+        };
+    }, []);
+
     const loadReports = async () => {
         try {
             setLoading(true);
@@ -41,7 +50,7 @@ export default function AdminReportPage() {
 
     return (
         <div style={{ margin: 40 }}>
-            <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Báo cáo bán hàng</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Thống kê bán hàng</h2>
 
             <Row gutter={40} style={{ marginBottom: 20 }}>
                 <Col >

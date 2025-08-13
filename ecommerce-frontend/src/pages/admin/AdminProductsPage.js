@@ -19,6 +19,15 @@ export default function AdminProductsPage() {
 
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý sản phẩm"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   // Load danh sách sản phẩm
   const loadProducts = async () => {
     setLoading(true);

@@ -26,6 +26,15 @@ export default function AdminCategoriesPage() {
 
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý danh mục"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   const loadCategories = async () => {
     try {
       setLoading(true);

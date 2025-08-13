@@ -11,6 +11,15 @@ export default function AdminUsersPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const previousTitle = document.title; 
+    document.title = "Quản lý người dùng"; 
+
+    return () => {
+        document.title = previousTitle; 
+    };
+}, []);
+
   const loadUsers = async () => {
     setLoading(true);
     try {

@@ -33,6 +33,7 @@ import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminBrandPage from './pages/admin/AdminBrandPage';
 import AdminReportPage from './pages/admin/AdminReportPage';
+import AdminUserPromotionPage from './pages/admin/AdminUserPromotionPage';
 
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -128,6 +129,7 @@ const AppLayout = () => {
           <Route path="/admin" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminDashboardPage /></AdminRoute>} />
           <Route path="/admin/brands" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminBrandPage /></AdminRoute>} />
           <Route path="/admin/report" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReportPage /></AdminRoute>} />
+          <Route path="/admin/send-promotion-email" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUserPromotionPage /></AdminRoute>} />
 
         </Routes>
 
