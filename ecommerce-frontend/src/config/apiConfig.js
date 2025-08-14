@@ -2,7 +2,7 @@ import { UPDATE } from 'react-admin';
 import PaginationConfig from './paginationConfig';
 
 export const API_CONFIG = {
-  BASE_URL: 'https://e-commerce-web-xm8f.onrender.com/',
+  BASE_URL: 'https://e-commerce-web-xm8f.onrender.com',
 
   OAUTH: {
     FACEBOOK: '/oauth2/authorization/facebook',
