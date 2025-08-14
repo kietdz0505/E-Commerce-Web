@@ -1,4 +1,3 @@
-import { UPDATE } from 'react-admin';
 import PaginationConfig from './paginationConfig';
 
 export const API_CONFIG = {

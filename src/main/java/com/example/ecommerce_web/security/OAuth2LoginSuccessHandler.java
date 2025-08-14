@@ -40,7 +40,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
 
         // Redirect về Frontend kèm token (localhost:3000)
-        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token;
+        String redirectUrl = "https://e-commerce-web-ashy.vercel.app/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
     }
 
