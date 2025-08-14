@@ -1,8 +1,8 @@
 import PaginationConfig from './paginationConfig';
 
 export const API_CONFIG = {
-  // BASE_URL: 'https://e-commerce-web-xm8f.onrender.com',
-  BASE_URL: 'http://localhost:8080',
+  BASE_URL: 'https://e-commerce-web-xm8f.onrender.com',
+  // BASE_URL: 'http://localhost:8080',
 
 
   OAUTH: {
