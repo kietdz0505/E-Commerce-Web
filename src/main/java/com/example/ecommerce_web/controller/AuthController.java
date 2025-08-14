@@ -57,10 +57,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email already exists");
         }
 
-        String usernamePattern = "^[a-z0-9]+$";
-        if (!req.getUsername().matches(usernamePattern)) {
-            return ResponseEntity.badRequest().body("Username chỉ được chứa chữ thường (a-z) và số (0-9), không dấu, không khoảng trắng, không ký tự đặc biệt.");
+        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$";
+        if (!req.getPassword().matches(passwordPattern)) {
+            return ResponseEntity.badRequest().body(
+                    "Mật khẩu phải ít nhất 8 ký tự, chứa ít nhất 1 chữ số và 1 ký tự đặc biệt."
+            );
         }
+
 
         User user = new User();
         user.setId(java.util.UUID.randomUUID().toString());
@@ -71,15 +74,16 @@ public class AuthController {
         user.setPhone(req.getPhone());
         user.setPicture(req.getPicture());
         user.setAuthProvider(AuthProvider.LOCAL);
-        user.setCreatedAt(LocalDateTime.now());
+        user.setLocked(false);
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
-
         user.setRoles(Set.of(userRole));
+
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully");
+
     }
 
     @GetMapping("/login")
