@@ -26,7 +26,6 @@ target/
 /target/
 
 # Ignore application.properties (secret configs)
-src/main/resources/application.properties
 
 # Node modules (for React)
 /ecommerce-frontend/node_modules/
