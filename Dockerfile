@@ -1,5 +1,9 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 COPY . .
 RUN ./mvnw clean package -DskipTests
-CMD ["java", "-jar", "target/*.jar"]
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+CMD ["java", "-jar", "app.jar"]
