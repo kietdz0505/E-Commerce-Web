@@ -51,7 +51,7 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
       fd.append('password', formData.password);
       if (avatarFile) fd.append('picture', avatarFile); // key phải trùng @RequestPart/@RequestParam ở BE
 
-      const res = await fetch(`${API_CONFIG.BASE_URL}/api/auth/register`, {
+      const res = await fetch(`${API_CONFIG.BASE_URL}/auth/register`, {
         method: 'POST',
         body: fd,
         
