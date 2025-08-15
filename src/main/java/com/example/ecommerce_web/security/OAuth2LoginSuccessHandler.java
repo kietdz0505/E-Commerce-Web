@@ -19,17 +19,26 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private com.example.ecommerce_web.repository.UserRepository userRepository;  // Thêm dòng này để query user từ DB
+    private com.example.ecommerce_web.repository.UserRepository userRepository;
+
+    // Thêm dòng này để query user từ DB
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
+        if (email == null || email.isEmpty()) {
+            // Trường hợp Facebook không gửi email
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Email not found from Facebook account");
+            response.getWriter().flush();
+            return;
+        }
+
         com.example.ecommerce_web.model.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        // 🚫 Chặn login nếu bị khóa
         if (user.isLocked()) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Account is locked");
@@ -39,10 +48,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
 
-        // Redirect về Frontend kèm token (localhost:3000)
         String redirectUrl = "https://e-commerce-web-ashy.vercel.app/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
     }
+
 
 
 
