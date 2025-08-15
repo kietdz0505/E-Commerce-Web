@@ -19,7 +19,7 @@ public class UserPromotionController {
 
     @Value("${app.base-url}")
     private String baseUrl;
-    
+
     /**
      * Gửi khuyến mãi cho tất cả user
      */
