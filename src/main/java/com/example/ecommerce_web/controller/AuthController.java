@@ -57,46 +57,48 @@ public class AuthController {
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(
-            @RequestParam("name") String name,
-            @RequestParam("username") String username,
-            @RequestParam("email") String email,
-            @RequestParam("phone") String phone,
-            @RequestParam("password") String password,
+            @ModelAttribute RegisterRequest request,
             @RequestParam(value = "picture", required = false) MultipartFile pictureFile
     ) {
-        if (userRepository.existsByUsername(username)) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        System.out.println("Received username: " + request.getUsername());
+        System.out.println("Received pictureFile: " + (pictureFile != null ? pictureFile.getOriginalFilename() : "null"));
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body("Username đã tồn tại");
         }
-        if (userRepository.existsByEmail(email)) {
-            return ResponseEntity.badRequest().body("Email already exists");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body("Email đã tồn tại");
         }
 
         String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$";
-        if (!password.matches(passwordPattern)) {
+        if (!request.getPassword().matches(passwordPattern)) {
             return ResponseEntity.badRequest().body(
                     "Mật khẩu phải ít nhất 8 ký tự, chứa ít nhất 1 chữ số và 1 ký tự đặc biệt."
             );
         }
 
-        // Upload ảnh lên Cloudinary nếu có
         String pictureUrl = null;
         if (pictureFile != null && !pictureFile.isEmpty()) {
-            pictureUrl = cloudinaryService.uploadImage(pictureFile);
+            try {
+                pictureUrl = cloudinaryService.uploadImage(pictureFile);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Lỗi khi tải ảnh lên");
+            }
         }
 
         User user = new User();
         user.setId(UUID.randomUUID().toString());
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setName(name);
-        user.setPhone(phone);
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
         user.setPicture(pictureUrl);
         user.setAuthProvider(AuthProvider.LOCAL);
         user.setLocked(false);
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò mặc định"));
         user.setRoles(Set.of(userRole));
 
         userRepository.save(user);

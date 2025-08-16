@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { FaGoogle, FaFacebookF } from 'react-icons/fa';
-import { API_CONFIG} from '../config/apiConfig';
-
+import { API_CONFIG } from '../config/apiConfig';
 
 function RegisterPopup({ open, onClose, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
@@ -16,15 +15,29 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAvatarChange = (e) => setAvatarFile(e.target.files[0]);
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > 10 * 1024 * 1024) { // Giới hạn 10MB
+      setError('File quá lớn, tối đa 10MB.');
+      setAvatarFile(null);
+      return;
+    }
+    if (file && !file.type.startsWith('image/')) {
+      setError('Chỉ chấp nhận file ảnh.');
+      setAvatarFile(null);
+      return;
+    }
+    setAvatarFile(file);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+  const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
+  const phoneRegex = /^0[0-9]{9}$/; // Định dạng số điện thoại Việt Nam
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,6 +54,16 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
       setIsLoading(false);
       return;
     }
+    if (!emailRegex.test(formData.email)) {
+      setError('Email không hợp lệ.');
+      setIsLoading(false);
+      return;
+    }
+    if (!phoneRegex.test(formData.phone)) {
+      setError('Số điện thoại không hợp lệ.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const fd = new FormData();
@@ -49,20 +72,20 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
       fd.append('email', formData.email);
       fd.append('phone', formData.phone);
       fd.append('password', formData.password);
-      if (avatarFile) fd.append('picture', avatarFile); // key phải trùng @RequestPart/@RequestParam ở BE
+      if (avatarFile) fd.append('picture', avatarFile);
 
       const res = await fetch(`${API_CONFIG.BASE_URL}/auth/register`, {
         method: 'POST',
         body: fd,
-        
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || 'Đăng ký thất bại.');
+        const data = await res.json(); // Giả định backend trả về JSON
+        throw new Error(data.message || 'Đăng ký thất bại.');
       }
 
-      alert('Đăng ký thành công! Hãy đăng nhập.');
+      const data = await res.json(); // Lấy dữ liệu trả về (nếu có)
+      alert(`Đăng ký thành công! ID: ${data.id || 'N/A'}. Hãy đăng nhập.`);
       setFormData({ name: '', username: '', email: '', phone: '', password: '', confirmPassword: '' });
       setAvatarFile(null);
       setError('');
