@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -64,17 +65,18 @@ public class AuthController {
         System.out.println("Received pictureFile: " + (pictureFile != null ? pictureFile.getOriginalFilename() : "null"));
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Username đã tồn tại");
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Username đã tồn tại"));
+
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email đã tồn tại");
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Email đã tồn tại"));
+
         }
 
         String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-\\[\\]{};:'\"\\,.<>?/]).{8,}$";
         if (!request.getPassword().matches(passwordPattern)) {
-            return ResponseEntity.badRequest().body(
-                    "Mật khẩu phải ít nhất 8 ký tự, chứa ít nhất 1 chữ số và 1 ký tự đặc biệt."
-            );
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Mật khẩu phải ít nhất 8 ký tự, chứa ít nhất 1 chữ số và 1 ký tự đặc biệt."));
+
         }
 
         String pictureUrl = null;
@@ -82,7 +84,8 @@ public class AuthController {
             try {
                 pictureUrl = cloudinaryService.uploadImage(pictureFile);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Lỗi khi tải ảnh lên");
+                return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Lỗi khi tải ảnh lên"));
+
             }
         }
 
@@ -103,7 +106,8 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully"));
+
     }
 
 

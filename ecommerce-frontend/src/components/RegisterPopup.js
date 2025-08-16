@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaGoogle, FaFacebookF } from 'react-icons/fa';
 import { API_CONFIG } from '../config/apiConfig';
+import { useNavigate } from 'react-router-dom'
 
 function RegisterPopup({ open, onClose, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
   const [avatarFile, setAvatarFile] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -89,6 +91,7 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
       setFormData({ name: '', username: '', email: '', phone: '', password: '', confirmPassword: '' });
       setAvatarFile(null);
       setError('');
+      navigate('/');
       onSwitchToLogin();
     } catch (err) {
       setError(err.message);
