@@ -27,6 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+        if (requestURI.equals("/auth/register")) {
+            filterChain.doFilter(request, response); // Bỏ qua filter cho đăng ký
+            return;
+        }
 
         String token = getJwtFromRequest(request);
 
@@ -35,7 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             CustomUserDetails customPrincipal = (CustomUserDetails) userDetailsService.loadUserByUsername(email);
 
-            // 🚫 Chặn request nếu tài khoản bị khóa
             if (!customPrincipal.isAccountNonLocked()) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Account is locked");
@@ -53,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

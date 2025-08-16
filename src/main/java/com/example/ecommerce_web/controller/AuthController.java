@@ -70,7 +70,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email đã tồn tại");
         }
 
-        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$";
+        String passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-\\[\\]{};:'\"\\,.<>?/]).{8,}$";
         if (!request.getPassword().matches(passwordPattern)) {
             return ResponseEntity.badRequest().body(
                     "Mật khẩu phải ít nhất 8 ký tự, chứa ít nhất 1 chữ số và 1 ký tự đặc biệt."
