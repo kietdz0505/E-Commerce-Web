@@ -50,6 +50,25 @@ public class OrderController {
         }
     }
 
+
+    @PutMapping("/{id}/detail")
+    public ResponseEntity<?> updateOrderDetail(
+            @PathVariable Long id,
+            @RequestBody OrderRequest orderRequest,
+            Authentication authentication
+    ) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = userDetails.getUserId();
+
+        try {
+            OrderResponse updatedOrder = orderService.updateOrderDetailIfPending(id, userId, orderRequest);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
     @GetMapping("/my")
     public ResponseEntity<Page<OrderResponse>> getMyOrders(
             Authentication authentication,

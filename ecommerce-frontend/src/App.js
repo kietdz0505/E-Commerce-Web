@@ -21,6 +21,7 @@ import CartPage from './pages/CartPage';
 import MyOrdersPage from './pages/MyOrdersPage';
 import OrderCheckoutPage from './pages/OrderCheckoutPage';
 import OAuth2RedirectHandler from './OAuth2RedirectHandler';
+import OrderDetail from './pages/OrderDetail';
 
 // Admin pages
 import AdminRoute from './routers/AdminRoute';
@@ -118,6 +119,7 @@ const AppLayout = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrderCheckoutPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
+          <Route path="/order/:id" element={<OrderDetail />} />
 
           {/* Route admin */}
           <Route path="/admin/products" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminProductsPage /></AdminRoute>} />

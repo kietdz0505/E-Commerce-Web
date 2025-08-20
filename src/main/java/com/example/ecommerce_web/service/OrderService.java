@@ -31,7 +31,6 @@ public class OrderService {
     @Value("${order.cancel.limit-hours}")
     private int cancelLimitHours;
 
-    @Transactional
     public OrderResponse placeOrder(OrderRequest request, String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -174,6 +173,88 @@ public class OrderService {
             product.setStock(product.getStock() + item.getQuantity());
             productRepository.save(product);
         });
+    }
+
+    public OrderResponse updateOrderDetailIfPending(Long orderId, String userId, OrderRequest orderRequest) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        // Chỉ cho phép update nếu trạng thái là PENDING
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("Cannot update order. Status is not PENDING");
+        }
+
+        // Cập nhật thông tin người nhận
+        order.setReceiverName(orderRequest.getReceiverName());
+        order.setReceiverPhone(orderRequest.getReceiverPhone());
+        order.setDeliveryAddress(orderRequest.getDeliveryAddress());
+        if (orderRequest.getPaymentMethod() != null) {
+            order.setPaymentMethod(PaymentMethod.valueOf(orderRequest.getPaymentMethod().toUpperCase()));
+        }
+
+        // Reset lại items
+        order.getItems().clear();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        // Nếu có items mới thì thêm vào
+        if (orderRequest.getItems() != null && !orderRequest.getItems().isEmpty()) {
+            for (OrderItemRequest itemReq : orderRequest.getItems()) {
+                Product product = productRepository.findById(itemReq.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+                // Kiểm tra tồn kho
+                if (product.getStock() < itemReq.getQuantity()) {
+                    throw new IllegalArgumentException("Not enough stock for product: " + product.getName());
+                }
+
+                BigDecimal originalPrice = BigDecimal.valueOf(product.getPrice());
+                BigDecimal discountedPrice = originalPrice;
+
+                // Nếu có promotion và áp dụng cho sản phẩm này
+                if (orderRequest.getPromotionCode() != null) {
+                    Promotion promotion = promotionRepository.findByCode(orderRequest.getPromotionCode())
+                            .orElseThrow(() -> new IllegalArgumentException("Promotion not found with code: " + orderRequest.getPromotionCode()));
+
+                    if (promotion.isActive() &&
+                            promotion.getProducts().stream().anyMatch(p -> p.getId().equals(product.getId()))) {
+                        BigDecimal discount = originalPrice.multiply(promotion.getDiscountPercent())
+                                .divide(BigDecimal.valueOf(100));
+                        discountedPrice = originalPrice.subtract(discount);
+                        order.setPromotion(promotion);
+                    }
+                }
+
+                // Tạo OrderItem mới
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(itemReq.getQuantity());
+                orderItem.setUnitPrice(originalPrice);
+                orderItem.setDiscountedUnitPrice(discountedPrice);
+
+                order.getItems().add(orderItem);
+
+                // Cộng dồn vào total
+                totalPrice = totalPrice.add(discountedPrice.multiply(BigDecimal.valueOf(itemReq.getQuantity())));
+            }
+        }
+
+        // Nếu không truyền promotionCode thì xóa khuyến mãi cũ
+        if (orderRequest.getPromotionCode() == null) {
+            order.setPromotion(null);
+        }
+
+        // Cập nhật tổng tiền
+        order.setTotalAmount(totalPrice);
+
+        orderRepository.save(order);
+        return mapToOrderResponse(order);
+    }
+
+    public String getOrderPaymentMethod(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+        return order.getPaymentMethod().name(); // trả về "MOMO", "VNPAY", "COD"
     }
 
 

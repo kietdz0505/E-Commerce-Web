@@ -6,6 +6,7 @@ import com.example.ecommerce_web.model.PaymentTransaction;
 import com.example.ecommerce_web.repository.PaymentTransactionRepository;
 import com.example.ecommerce_web.util.MomoSignatureUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class MomoPaymentService {
     @Value("${momo.endpoint}")
     private String endpoint;
 
-    public MomoPaymentResponse createPayment(Long orderId, String orderInfo) {
+    public MomoPaymentResponse createPayment(Long orderId, String orderInfo, HttpServletRequest request) {
         Long amount = orderService.getOrderAmount(orderId); // ✅ LẤY TỪ DB
 
         if (amount == null || amount <= 0) {

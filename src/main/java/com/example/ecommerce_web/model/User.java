@@ -30,7 +30,10 @@ public class User {
 
     private String name;
     private String email;
+
+    @Column(columnDefinition = "TEXT")
     private String picture;
+
     private String phone;
     private String address;
     private String gender;

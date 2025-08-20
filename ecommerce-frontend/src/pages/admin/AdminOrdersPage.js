@@ -27,13 +27,13 @@ export default function AdminOrdersPage() {
 
 
   useEffect(() => {
-    const previousTitle = document.title; 
-    document.title = "Quản lý đơn hàng"; 
+    const previousTitle = document.title;
+    document.title = "Quản lý đơn hàng";
 
     return () => {
-        document.title = previousTitle; 
+      document.title = previousTitle;
     };
-}, []);
+  }, []);
 
   const getTagColor = (status) => {
     switch (status) {
@@ -114,9 +114,10 @@ export default function AdminOrdersPage() {
       title: 'Tổng tiền',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
-      render: (value) => `${value} VND`,
-      width: 130,
+      render: (value) => `${Number(value).toLocaleString('vi-VN')} VND`,
+      width: 200,
     },
+
     {
       title: 'Trạng thái',
       dataIndex: 'status',

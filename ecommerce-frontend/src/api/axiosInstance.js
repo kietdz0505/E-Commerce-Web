@@ -15,13 +15,13 @@ apiClient.interceptors.request.use((config) => {
     return config;
 }, (error) => Promise.reject(error));
 
-// src/api/axiosInstance.js
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/'; // tự logout
+            alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+            window.location.href = '/';
         }
         return Promise.reject(error);
     }

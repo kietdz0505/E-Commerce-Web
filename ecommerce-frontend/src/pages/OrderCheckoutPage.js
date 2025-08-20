@@ -92,10 +92,10 @@ const OrderCheckoutPage = () => {
 
             if (form.paymentMethod === 'MOMO') {
                 const momoPayment = await createMomoPayment(orderResponse.id);
-                window.location.href = momoPayment.payUrl;  // Redirect to Momo Gateway
+                window.location.href = momoPayment.data;
             } else if (form.paymentMethod === 'VNPAY') {
                 const vnpayPayment = await createVnpayPayment(orderResponse.id);
-                window.location.href = vnpayPayment.paymentUrl;  // Redirect to VNPay Gateway
+                window.location.href = vnpayPayment.data;  // Redirect to VNPay Gateway
             } else {
                 navigate('/my-orders');  // Cash on delivery, go to orders page
             }

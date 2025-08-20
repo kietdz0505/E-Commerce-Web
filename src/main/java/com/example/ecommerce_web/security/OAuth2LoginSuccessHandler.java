@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -24,6 +25,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final JwtTokenProvider jwtTokenProvider;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -70,7 +74,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         // Tạo token và redirect về FE
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
-        response.sendRedirect("https://e-commerce-web-ashy.vercel.app/oauth2/redirect?token=" + token);
+        response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + token);
+
     }
 
 }

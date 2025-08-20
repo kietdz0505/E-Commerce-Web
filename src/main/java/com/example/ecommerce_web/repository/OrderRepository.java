@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -40,4 +41,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Lấy danh sách đơn hàng theo User ID (chú ý User_Id)
     Page<Order> findByUser_Id(String userId, Pageable pageable);
+
+    Optional<Order> findByIdAndUserId(Long id, String userId);
+
 }

@@ -14,6 +14,11 @@ public class VndBigDecimalSerializer extends JsonSerializer<BigDecimal> {
 
     @Override
     public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(formatter.format(value));
+        if (value != null) {
+            gen.writeNumber(value.longValue()); // số nguyên VND
+        } else {
+            gen.writeNull();
+        }
     }
+
 }
