@@ -1,7 +1,12 @@
-Website Bán Hàng Điện Tử Kết Hợp Chatbot Hỗ Trợ Tư Vấn Khách Hàng
-Mô tả dự án
+# 📚 Hệ Thống Quản Lý Bán Hàng Công Nghệ Trực Tuyến
 
-Dự án là một website thương mại điện tử chuyên bán các sản phẩm điện tử như điện thoại, laptop, phụ kiện, kết hợp với chatbot thông minh hỗ trợ tư vấn khách hàng. Chatbot sử dụng AI hoặc Rule-based để trả lời các câu hỏi về sản phẩm, thông tin bảo hành, tra cứu đơn hàng và hỗ trợ khách hàng trong quá trình mua sắm.
+## 📝 Giới thiệu
+
+Dự án là một website thương mại điện tử chuyên bán các sản phẩm điện tử như điện thoại, laptop, phụ kiện, kết hợp với chatbot thông minh hỗ trợ tư vấn khách hàng. Chatbot sử dụng AI hoặc Rule-based để trả lời các câu hỏi về sản phẩm, thông tin bảo hành, tra cứu đơn hàng và hỗ trợ khách hàng trong quá trình mua sắm. Ngoài ra, hệ thống còn cung cấp giao diện quản trị giúp quản trị viên dễ dàng quản lý sản phẩm, đon hàng, xem thống kê, doanh thu,... 
+
+## 🔧 Các chức năng chính
+
+### Đối với khách hàng:
 
 | Nhóm chức năng                | Mô tả chi tiết                                                           |
 | ----------------------------- | ------------------------------------------------------------------------ |
@@ -20,6 +25,9 @@ Dự án là một website thương mại điện tử chuyên bán các sản p
 | Nhận khuyến mãi, thông báo    | Nhận popup/banner/Email hoặc chatbot push về khuyến mãi mới nhất         |
 
 
+### Đối với quản trị viên (admin):
+
+
 
 | Nhóm chức năng               | Mô tả chi tiết                                                            |
 | ---------------------------- | ------------------------------------------------------------------------- |
@@ -32,7 +40,15 @@ Dự án là một website thương mại điện tử chuyên bán các sản p
 | Quản lý nội dung chatbot     | Thêm/sửa câu hỏi – trả lời mặc định, huấn luyện thêm dữ liệu FAQ          |
 | Thống kê – báo cáo           | Tổng số đơn hàng, doanh thu, sản phẩm bán chạy, số lượng tồn kho          |
 
+## 🏗️ Công nghệ sử dụng
+
+- Frontend: ReactJS, HTML, CSS, Javascript
+- Backend: Java Spring Boot ( JDK 21 )
+- Database: MySQL
+
 
 Cách chạy dự án
 
+Link demo chức năng quan trọng đã có: https://e-commerce-web-ashy.vercel.app/
+(Do không có request trong một khoản thời gian nên hệ thống sẽ sleep sau đó hãy chờ 1-2p để hệ thống hoạt động trở lại )
 Hướng dẫn cài đặt, cấu hình môi trường, chạy server backend, frontend, tích hợp chatbot và thanh toán sẽ được cập nhật chi tiết ở phần sau.
