@@ -1,4 +1,4 @@
-# 📚 Hệ Thống Quản Lý Bán Hàng Công Nghệ Trực Tuyến
+# 📱 Hệ Thống Quản Lý Bán Hàng Công Nghệ Trực Tuyến
 
 ## 📝 Giới thiệu
 
@@ -51,4 +51,4 @@ Cách chạy dự án
 
 Link demo chức năng quan trọng đã có: https://e-commerce-web-ashy.vercel.app/
 (Do không có request trong một khoản thời gian nên hệ thống sẽ sleep sau đó hãy chờ 1-2p để hệ thống hoạt động trở lại )
-Hướng dẫn cài đặt, cấu hình môi trường, chạy server backend, frontend, tích hợp chatbot và thanh toán sẽ được cập nhật chi tiết ở phần sau.
+Hướng dẫn cài đặt, cấu hình môi trường, tích hợp chatbot và thanh toán sẽ được cập nhật chi tiết ở phần sau.
