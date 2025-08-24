@@ -3,8 +3,11 @@ import com.example.ecommerce_web.dto.PromotionDTO;
 import com.example.ecommerce_web.dto.SimpleProductDTO;
 import com.example.ecommerce_web.model.Product;
 import com.example.ecommerce_web.model.Promotion;
+import com.example.ecommerce_web.model.User;
+import com.example.ecommerce_web.model.UserPromotion;
 import com.example.ecommerce_web.repository.ProductRepository;
 import com.example.ecommerce_web.repository.PromotionRepository;
+import com.example.ecommerce_web.repository.UserPromotionRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class PromotionService {
 
     private final PromotionRepository promotionRepository;
     private final ProductRepository productRepository;
+    private final UserPromotionRepository userPromotionRepository;
 
     public List<PromotionDTO> getPromotionsWithApplicableProducts(List<Long> productIds) {
         LocalDateTime now = LocalDateTime.now();
@@ -180,4 +184,7 @@ public class PromotionService {
                 .orElseThrow(() -> new RuntimeException("Promotion not found with id: " + id));
     }
 
+    public Page<UserPromotion> getPromotionsForUser(User user, Pageable pageable) {
+        return userPromotionRepository.findByUser(user, pageable);
+    }
 }

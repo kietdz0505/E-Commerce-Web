@@ -13,3 +13,11 @@ export const getPromotionsByProducts = async (productIds) => {
   }
 };
 
+export const getMyPromotions = async (page = 0, size) => {
+  const response = await apiClient.get(API_CONFIG.API.GET_MY_PROMOTIONS, {
+    params: size ? { page, size } : { page }
+  });
+  return response.data;
+};
+
+

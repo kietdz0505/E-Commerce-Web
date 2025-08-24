@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getAllCategories } from "../api/categoryApi";
 import { getApiUrl } from '../config/apiConfig';
 import PaginationConfig from "../config/paginationConfig";
@@ -29,7 +29,6 @@ function Home() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedRating, setSelectedRating] = useState(null);
-
 
 
   useEffect(() => {
@@ -144,6 +143,14 @@ function Home() {
       });
   };
 
+  const handleBuyNowClick = () => {
+    const productListSection = document.getElementById("product-list-section");
+    if (productListSection) {
+      productListSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+
   const handleBrandClick = (brandId) => {
     setSelectedBrandId(brandId);
     fetchProductsByCategoryAndBrand(selectedCategoryId, brandId, 0);
@@ -195,7 +202,7 @@ function Home() {
       <LoginPopup open={showLogin} onClose={() => setShowLogin(false)} onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true); }} />
       <RegisterPopup open={showRegister} onClose={() => setShowRegister(false)} onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true); }} />
 
-      <HeroBanner currentUser={currentUser} />
+      <HeroBanner currentUser={currentUser} onBuyNowClick={handleBuyNowClick} />
       <SearchBar onSearch={handleSearch} />
 
       <div className="container">
@@ -207,7 +214,9 @@ function Home() {
       <section className="py-4 bg-white" style={{ marginTop: '2rem' }}>
         <div className="container">
           <h2 className="mb-4 text-center fw-bold">Danh mục sản phẩm</h2>
-          <CategoryList categories={categories} selectedCategoryId={selectedCategoryId} onCategoryClick={loadProductsByCategory} />
+          <section id="product-list-section">
+            <CategoryList categories={categories} selectedCategoryId={selectedCategoryId} onCategoryClick={loadProductsByCategory} />
+          </section>
           <BrandList brands={brands} selectedBrandId={selectedBrandId} onBrandClick={handleBrandClick} />
         </div>
       </section>

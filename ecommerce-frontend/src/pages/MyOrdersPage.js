@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getMyOrders } from '../services/OrderService';
+import { getMyOrders } from '../services/orderService';
 import OrderCard from '../components/OrderCard';
 
 const MyOrdersPage = () => {

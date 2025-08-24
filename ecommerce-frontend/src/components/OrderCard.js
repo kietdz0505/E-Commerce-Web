@@ -1,5 +1,5 @@
 import React from 'react';
-import { cancelOrder } from '../services/OrderService';
+import { cancelOrder } from '../services/orderService';
 import { getApiUrl } from '../config/apiConfig';
 import { useNavigate } from 'react-router-dom';
 

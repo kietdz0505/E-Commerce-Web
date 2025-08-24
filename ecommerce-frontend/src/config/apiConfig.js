@@ -41,6 +41,8 @@ export const API_CONFIG = {
 
     GET_CART_ITEMS: '/api/cart/items',
 
+    GET_MY_PROMOTIONS: '/api/promotions/my',
+
     ADD_TO_CART: (productId, quantity) =>
       `/api/cart/add?productId=${productId}&quantity=${quantity}`,
 
@@ -84,6 +86,16 @@ export const API_CONFIG = {
 
       return `/api/products/search?${params.toString()}`;
     },
+
+    CHAT_BOT: {
+      CREATE_QUESTION: `/api/chatbot/contents`, // POST
+      GET_ALL_QUESTIONS: `/api/chatbot/contents`, // GET
+      UPDATE_QUESTION: (id) => `/api/chatbot/contents/${id}`, // PUT
+      DELETE_QUESTION: (id) => `/api/chatbot/contents/${id}`, // DELETE
+      ANSWER_QUESTION: (ask) => `/api/chatbot/ask?question=${encodeURIComponent(ask)}` // POST
+    },
+
+
 
     ADMIN_CATEGORIES: {
       // Category management
@@ -147,7 +159,7 @@ export const API_CONFIG = {
 
     ADMIN_STATS: '/api/admin/report/overview',
 
-    ADMIN_SEND_PROMOTION : {
+    ADMIN_SEND_PROMOTION: {
       SEND_ALL: (promotionId) => `/api/admin/user-promotions/send-all/${promotionId}`,
       SEND_BY_EMAIL: (promotionId, email) => `/api/admin/user-promotions/send-one/${promotionId}?email=${encodeURIComponent(email)}`
     }

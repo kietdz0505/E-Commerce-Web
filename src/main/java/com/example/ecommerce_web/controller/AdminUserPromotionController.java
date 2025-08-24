@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/user-promotions")
 @RequiredArgsConstructor
-public class UserPromotionController {
+public class AdminUserPromotionController {
 
     private final UserPromotionService userPromotionService;
     private final PromotionService promotionService;

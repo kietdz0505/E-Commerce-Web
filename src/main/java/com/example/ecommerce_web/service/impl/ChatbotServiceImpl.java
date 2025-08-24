@@ -7,6 +7,7 @@ import com.example.ecommerce_web.service.ChatbotService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +17,23 @@ public class ChatbotServiceImpl implements ChatbotService {
 
     public ChatbotServiceImpl(ChatbotRepository chatbotRepository) {
         this.chatbotRepository = chatbotRepository;
+    }
+
+    @Override
+    public Optional<ChatbotContentDTO> findByExactQuestion(String question) {
+        return chatbotRepository.findByQuestionContainingIgnoreCase(question)
+                .stream()
+                .filter(q -> q.getQuestion().equalsIgnoreCase(question.trim()))
+                .findFirst()
+                .map(q -> new ChatbotContentDTO(q.getId(), q.getQuestion(), q.getAnswer()));
+    }
+
+    @Override
+    public List<ChatbotContentDTO> searchByQuestion(String keyword) {
+        return chatbotRepository.findByQuestionContainingIgnoreCase(keyword)
+                .stream()
+                .map(q -> new ChatbotContentDTO(q.getId(), q.getQuestion(), q.getAnswer()))
+                .collect(Collectors.toList());
     }
 
     @Override

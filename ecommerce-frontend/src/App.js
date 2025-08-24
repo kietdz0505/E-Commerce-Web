@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { NotificationProvider } from './shared/NotificationContext';
 import { CartProvider, useCart } from './shared/CartContext';
 import { getApiUrl } from './config/apiConfig';
-
+import ChatbotWidget from './shared/ChatbotWidget';  // thêm import
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './api/axiosInstance';
@@ -35,6 +35,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminBrandPage from './pages/admin/AdminBrandPage';
 import AdminReportPage from './pages/admin/AdminReportPage';
 import AdminUserPromotionPage from './pages/admin/AdminUserPromotionPage';
+import UserPromotionPage from './pages/UserPromotionPage';
 
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -120,6 +121,7 @@ const AppLayout = () => {
           <Route path="/orders" element={<OrderCheckoutPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
           <Route path="/order/:id" element={<OrderDetail />} />
+          <Route path="/promotions/my" element={<UserPromotionPage currentUser={currentUser} />} />
 
           {/* Route admin */}
           <Route path="/admin/products" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminProductsPage /></AdminRoute>} />
@@ -138,6 +140,7 @@ const AppLayout = () => {
         <Footer />
 
         <LoginPopup open={loginPopupOpen} onClose={handleCloseLoginPopup} onSwitchToRegister={() => { }} />
+        <ChatbotWidget />
       </div>
     </>
   );

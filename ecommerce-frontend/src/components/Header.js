@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FiUser, FiLogOut, FiShoppingCart, FiPackage } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiShoppingCart, FiPackage, FiTag } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../shared/CartContext';
 
@@ -8,8 +8,8 @@ function Header({ onLoginClick, currentUser }) {
   const { cartCount, clearCartContext } = useCart();
 
   const handleOrdersClick = () => {
-        navigate('/my-orders');  // Đường dẫn tới trang đơn hàng của bạn
-    };
+    navigate('/my-orders');  // Đường dẫn tới trang đơn hàng của bạn
+  };
   const handleLogout = () => {
     localStorage.removeItem('token');  // Xóa token để logout
     clearCartContext();
@@ -19,6 +19,10 @@ function Header({ onLoginClick, currentUser }) {
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handlePromotionsClick = () => {
+    navigate("/promotions/my"); // hoặc đường dẫn bạn muốn
   };
 
   return (
@@ -58,6 +62,14 @@ function Header({ onLoginClick, currentUser }) {
                         onClick={handleOrdersClick}
                       >
                         <FiPackage /> Đơn hàng của tôi
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item d-flex align-items-center gap-2"
+                        onClick={handlePromotionsClick}
+                      >
+                        <FiTag />Khuyến mãi của tôi
                       </button>
                     </li>
                     <li><hr className="dropdown-divider" /></li>
