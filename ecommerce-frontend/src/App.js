@@ -22,6 +22,8 @@ import MyOrdersPage from './pages/MyOrdersPage';
 import OrderCheckoutPage from './pages/OrderCheckoutPage';
 import OAuth2RedirectHandler from './OAuth2RedirectHandler';
 import OrderDetail from './pages/OrderDetail';
+import UserPromotionPage from './pages/UserPromotionPage';
+
 
 // Admin pages
 import AdminRoute from './routers/AdminRoute';
@@ -35,7 +37,8 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminBrandPage from './pages/admin/AdminBrandPage';
 import AdminReportPage from './pages/admin/AdminReportPage';
 import AdminUserPromotionPage from './pages/admin/AdminUserPromotionPage';
-import UserPromotionPage from './pages/UserPromotionPage';
+import AdminChatbotPage from './pages/admin/AdminChatbotPage';
+
 
 const AppLayout = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -134,6 +137,7 @@ const AppLayout = () => {
           <Route path="/admin/brands" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminBrandPage /></AdminRoute>} />
           <Route path="/admin/report" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminReportPage /></AdminRoute>} />
           <Route path="/admin/send-promotion-email" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminUserPromotionPage /></AdminRoute>} />
+          <Route path="/admin/chatbot" element={<AdminRoute currentUser={currentUser} loading={loadingUser}><AdminChatbotPage /></AdminRoute>} />
 
         </Routes>
 

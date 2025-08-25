@@ -7,6 +7,7 @@ import {
 import adminService from '../../services/admin/adminService';
 import CountUp from 'react-countup';
 import { MdMail } from 'react-icons/md';
+import { FaMessage } from 'react-icons/fa6';
 
 const AdminDashboardPage = () => {
   const [open, setOpen] = useState(false);
@@ -53,7 +54,8 @@ const AdminDashboardPage = () => {
     { to: '/admin/users', label: 'Quản lý người dùng', icon: <FaUsers size={28} /> },
     { to: '/admin/brands', label: 'Quản lý thương hiệu', icon: <FaTag size={28} /> },
     { to: '/admin/report', label: 'Thống kê báo cáo', icon: <FaChartBar size={28} /> },
-    { to: '/admin/send-promotion-email', label: 'Gửi thông báo khuyến mãi qua Email', icon: <MdMail size={28}/>}
+    { to: '/admin/send-promotion-email', label: 'Gửi thông báo khuyến mãi qua Email', icon: <MdMail size={28}/>},
+    { to: '/admin/chatbot', label: 'Quản lý Chatbot' , icon: <FaMessage size={28}/>}
   ];
 
   return (
