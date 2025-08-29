@@ -11,7 +11,6 @@ import './api/axiosInstance';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import LoginPopup from './components/LoginPopup';
-
 import Home from './user/Home';
 import UserProfile from './pages/UserProfile';
 import EditProfile from './user/EditProfile';
@@ -50,7 +49,7 @@ const AppLayout = () => {
     const token = localStorage.getItem('token');
 
     if (token) {
-      fetch(getApiUrl('PROFILE'), {
+      fetch(getApiUrl('profile'), {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -75,7 +74,7 @@ const AppLayout = () => {
   const fetchUserProfile = () => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch(getApiUrl('PROFILE'), {
+      fetch(getApiUrl('profile'), {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

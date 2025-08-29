@@ -17,16 +17,24 @@ function OAuth2RedirectHandler() {
       axios.get(getApiUrl('profile'), {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(response => {
-        localStorage.setItem('currentUser', JSON.stringify(response.data));
-        navigate('/');
-      })
-      .catch(() => {
-        navigate('/login');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        .then(response => {
+          const user = response.data;
+          localStorage.setItem('currentUser', JSON.stringify(user));
+
+          const hasAdminRole = Array.isArray(user.roles) && user.roles.includes("ROLE_ADMIN");
+
+          if (hasAdminRole) {
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
+        })
+        .catch(() => {
+          navigate('/login');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
 
     } else {
       navigate('/login');

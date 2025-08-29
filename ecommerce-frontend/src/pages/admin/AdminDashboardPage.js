@@ -60,7 +60,7 @@ const AdminDashboardPage = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4 text-primary fw-bold">🌟 Admin Dashboard 🌟</h1>
+      <h1 className="mb-4 fw-bold">🌟 Admin Dashboard 🌟</h1>
       <p className="lead mb-4">Chào mừng bạn đến trang quản trị, hãy chọn mục cần quản lý bên dưới.</p>
 
       {/* Thống kê */}

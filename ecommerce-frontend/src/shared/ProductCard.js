@@ -49,7 +49,17 @@ const ProductCard = ({ prod, isHot }) => {
               style={{ height: '180px', objectFit: 'contain', background: '#f8f9fa' }}
             />
             <div className="w-100 mt-3">
-              <h5 className="card-title text-center">{prod.name}</h5>
+              <h5
+                className="card-title text-center text-truncate"
+                style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {prod.name}
+              </h5>
+
               <p className="card-text text-danger fw-bold text-center fs-5">
                 {prod.price ? prod.price.toLocaleString("vi-VN") + "₫" : "Liên hệ"}
               </p>

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FaGoogle, FaFacebookF } from "react-icons/fa";
-import { getOAuthUrl } from '../config/apiConfig';
+import { getOAuthUrl, getApiUrl } from '../config/apiConfig';
 
 function LoginPopup({ open, onClose, onSwitchToRegister }) {
-    
+
     const [formData, setFormData] = useState({
         username: '',
         password: ''
@@ -19,33 +19,53 @@ function LoginPopup({ open, onClose, onSwitchToRegister }) {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);  // Start loading
+        setIsSubmitting(true);
         setError('');
 
-        fetch(getOAuthUrl('local'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error('Tên đăng nhập hoặc mật khẩu không chính xác!');
-                }
-                return res.json();
-            })
-            .then((data) => {
-                localStorage.setItem('token', data.token); // Save token
-                window.location.reload(); // Reload to get profile
-            })
-            .catch((err) => {
-                setError(err.message);
-                setIsSubmitting(false);  // Stop loading if failed
+        try {
+            // 1. Login
+            const res = await fetch(getOAuthUrl('local'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             });
+
+            if (!res.ok) throw new Error('Tên đăng nhập hoặc mật khẩu không chính xác!');
+
+            const data = await res.json();
+            const token = data.token;
+            if (!token) throw new Error('Không tìm thấy token!');
+
+            localStorage.setItem('token', token);
+
+            // 2. Lấy profile ngay lập tức
+            const profileRes = await fetch(getApiUrl('PROFILE'), {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!profileRes.ok) throw new Error('Không lấy được thông tin user!');
+
+            const user = await profileRes.json();
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            console.log('✅ Login thành công:', user);
+
+            // 3. Chuyển hướng dựa trên role
+            const hasAdminRole = Array.isArray(user.roles) && user.roles.includes('ROLE_ADMIN');
+            if (hasAdminRole) {
+                window.location.href = '/admin';
+            } else {
+                window.location.href = '/';
+            }
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
 
     if (!open) return null;
 

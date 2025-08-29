@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState} from "react";
 import { getAllCategories } from "../api/categoryApi";
 import { getApiUrl } from '../config/apiConfig';
 import PaginationConfig from "../config/paginationConfig";
