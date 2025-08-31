@@ -9,9 +9,15 @@ export const API_CONFIG = {
     GOOGLE: '/oauth2/authorization/google',
     LOCAL: '/auth/login',
     REGISTER: '/auth/register',
+
   },
 
   API: {
+
+    FORGOT_PASSWORD: '/auth/forgot-password',   // gửi OTP
+    VERIFY_OTP: '/auth/verify-otp',             // xác minh OTP
+    RESET_PASSWORD: '/auth/reset-password',     // đặt lại mật khẩu
+
     BRANDS_BY_CATEGORY: (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) =>
       `/api/brands/category/${categoryId}?page=${page}&size=${size}`,
 

@@ -59,6 +59,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserPromotion> userPromotions = new HashSet<>();
 
+    // ====== Bổ sung cho quên mật khẩu ======
+    private String resetOtp;
+
+    private LocalDateTime resetOtpExpiry;
+
+    // ====== Helper ======
     public boolean isAdmin() {
         return roles.stream().anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN);
     }
