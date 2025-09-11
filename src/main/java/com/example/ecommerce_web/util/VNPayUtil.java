@@ -4,26 +4,33 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Utility class for VNPay HMAC-SHA256 signature generation.
+ */
 public class VNPayUtil {
-    public static String hmacSHA512(String key, String data) {
-        if (key == null || data == null) {
-            throw new IllegalArgumentException("Key and data must not be null");
-        }
 
+    /**
+     * Generate HMAC-SHA256 signature.
+     *
+     * @param key  Secret key from VNPay
+     * @param data Data string to sign (sorted query string without SecureHash)
+     * @return Hexadecimal string of signature
+     */
+    public static String hmacSHA256(String key, String data) {
         try {
-            Mac hmac512 = Mac.getInstance("HmacSHA512");
-            byte[] hmacKeyBytes = key.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
-            hmac512.init(secretKey);
-            byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-            byte[] result = hmac512.doFinal(dataBytes);
-            StringBuilder sb = new StringBuilder(2 * result.length);
-            for (byte b : result) {
-                sb.append(String.format("%02x", b & 0xff));
+            Mac hmac256 = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            hmac256.init(secretKey);
+            byte[] bytes = hmac256.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hash = new StringBuilder();
+            for (byte b : bytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hash.append('0');
+                hash.append(hex);
             }
-            return sb.toString();
-        } catch (Exception ex) {
-            throw new RuntimeException("Error generating HMAC-SHA512 hash", ex);
+            return hash.toString().toLowerCase();
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi tạo chữ ký VNPay", e);
         }
     }
 }

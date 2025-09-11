@@ -4,31 +4,57 @@ import { confirmDelete } from '../shared/ConfirmDialog';
 import { FaTrash } from 'react-icons/fa';
 
 const CartItemCard = ({ item }) => {
-  const { incrementItem, decrementItem, updateItemQuantity, removeItem } = useCart();
+  const { updateItemQuantity, removeItem } = useCart();
   const stock = item.product.stock;
   const [inputQty, setInputQty] = useState(item.quantity);
 
+  // Đồng bộ nếu quantity thay đổi từ context (trường hợp cập nhật bên ngoài)
   useEffect(() => {
     setInputQty(item.quantity);
   }, [item.quantity]);
 
-  // Xử lý khi user nhập số lượng trực tiếp
+  // Khi user nhập trực tiếp
   const handleQuantityChange = (e) => {
-    let value = e.target.value.replace(/\D/, ''); // chỉ cho nhập số
+    let value = e.target.value.replace(/\D/g, ''); // chỉ giữ số
     if (value === '') {
       setInputQty('');
       return;
     }
     let num = parseInt(value, 10);
+    if (num < 1) num = 1;
+    if (num > stock) num = stock;
+    setInputQty(num);
+  };
 
+  // Commit số lượng vào CartContext
+  const commitQuantity = () => {
+    let num = inputQty === '' ? 1 : inputQty;
     if (num < 1) num = 1;
     if (num > stock) num = stock;
 
     setInputQty(num);
-    updateItemQuantity(item.id, num); // cập nhật vào CartContext
+    if (num !== item.quantity) {
+      updateItemQuantity(item.id, num);
+    }
   };
 
-  
+  // Giảm số lượng (nút -)
+  const handleDecrement = () => {
+    if (inputQty > 1) {
+      const newQty = inputQty - 1;
+      setInputQty(newQty); // cập nhật local trước
+      updateItemQuantity(item.id, newQty); // sync vào context
+    }
+  };
+
+  // Tăng số lượng (nút +)
+  const handleIncrement = () => {
+    if (inputQty < stock) {
+      const newQty = inputQty + 1;
+      setInputQty(newQty); // cập nhật local trước
+      updateItemQuantity(item.id, newQty); // sync vào context
+    }
+  };
 
   return (
     <div className="card mb-4 shadow-sm border-0 rounded-4">
@@ -55,31 +81,28 @@ const CartItemCard = ({ item }) => {
             <div className="d-flex align-items-center mt-2">
               <button
                 className="btn btn-outline-secondary btn-sm"
-                onClick={() => {
-                  if (item.quantity > 1) decrementItem(item.id);
-                }}
-                disabled={item.quantity <= 1}
+                onClick={handleDecrement}
+                disabled={inputQty <= 1}
               >
                 -
               </button>
 
-              {/* Input số lượng */}
               <input
                 type="number"
                 className="form-control mx-2 text-center"
                 style={{ width: '80px' }}
                 value={inputQty}
                 onChange={handleQuantityChange}
+                onBlur={commitQuantity}
+                onKeyDown={(e) => e.key === 'Enter' && commitQuantity()}
                 min="1"
                 max={stock}
               />
 
               <button
                 className="btn btn-outline-secondary btn-sm"
-                onClick={() => {
-                  if (item.quantity < stock) incrementItem(item.id);
-                }}
-                disabled={item.quantity >= stock}
+                onClick={handleIncrement}
+                disabled={inputQty >= stock}
               >
                 +
               </button>
@@ -111,3 +134,4 @@ const CartItemCard = ({ item }) => {
 };
 
 export default CartItemCard;
+

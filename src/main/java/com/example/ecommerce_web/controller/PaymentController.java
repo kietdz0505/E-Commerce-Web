@@ -34,7 +34,7 @@ public class PaymentController {
             );
         }
 
-        String orderInfo = "Thanh toán đơn hàng #" + orderId;
+        String orderInfo = "Thanh_toan_don_hang_" + orderId;
         MomoPaymentResponse response = momoPaymentService.createPayment(orderId, orderInfo, request);
 
         if (response == null || response.getPayUrl() == null) {
@@ -69,7 +69,7 @@ public class PaymentController {
 
     @PostMapping("/vnpay")
     public ResponseEntity<PaymentResponse> createVNPayPayment(@RequestParam Long orderId) {
-        // Kiểm tra phương thức thanh toán
+        // Kiểm tra phương thức thanh toán của đơn hàng
         String paymentMethod = orderService.getOrderPaymentMethod(orderId);
         if (!"VNPAY".equalsIgnoreCase(paymentMethod)) {
             return ResponseEntity.badRequest().body(
@@ -77,18 +77,26 @@ public class PaymentController {
             );
         }
 
-        String orderInfo = "Thanh toán đơn hàng #" + orderId;
-        String paymentUrl = vnPaymentService.createVNPayPayment(orderId, orderInfo);
+        // Tạo orderInfo an toàn cho VNPay
+        String orderInfo = "Thanh_toan_don_hang_" + orderId;
 
-        if (paymentUrl == null || paymentUrl.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    PaymentResponse.error("Failed to generate VNPay payment URL")
+        try {
+            String paymentUrl = vnPaymentService.createVNPayPayment(orderId, orderInfo);
+
+            if (paymentUrl == null || paymentUrl.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        PaymentResponse.error("Failed to generate VNPay payment URL")
+                );
+            }
+
+            return ResponseEntity.ok(
+                    PaymentResponse.success("VNPay payment URL generated", paymentUrl)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(
+                    PaymentResponse.error("Error generating VNPay payment URL: " + e.getMessage())
             );
         }
-
-        return ResponseEntity.ok(
-                PaymentResponse.success("VNPay payment URL generated", paymentUrl)
-        );
     }
 
     @GetMapping("/vnpay-return")
