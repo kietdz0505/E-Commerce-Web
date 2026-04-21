@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+ 
+
+.az-hero {
+    font-family: 'Kanit', sans-serif;
+    position: relative;
+    overflow: hidden;
+    padding: 7rem 0 5.5rem;
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 55%, #24243e 100%);
+  }
+
+  /* Animated mesh blobs */
+  .az-hero-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: blobFloat 8s ease-in-out infinite alternate;
+  }
+
+  .az-hero-blob-1 {
+    width: 500px; height: 500px;
+    background: rgba(100,120,255,0.12);
+    top: -150px; right: -100px;
+    animation-delay: 0s;
+  }
+
+  .az-hero-blob-2 {
+    width: 350px; height: 350px;
+    background: rgba(249,200,70,0.07);
+    bottom: -100px; left: -50px;
+    animation-delay: -3s;
+  }
+
+  .az-hero-blob-3 {
+    width: 250px; height: 250px;
+    background: rgba(80,200,200,0.07);
+    top: 40%; left: 40%;
+    animation-delay: -5s;
+  }
+
+  @keyframes blobFloat {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, -20px) scale(1.07); }
+  }
+
+  /* Grid lines overlay */
+  .az-hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* Top bar gradient accent */
+  .az-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(100,120,255,0.8) 35%, rgba(249,200,70,0.9) 65%, transparent 100%);
+  }
+
+  /* Content */
+  .az-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Badge above heading */
+  .az-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(249,200,70,0.1);
+    border: 1px solid rgba(249,200,70,0.3);
+    border-radius: 50px;
+    padding: 0.35rem 1rem;
+    color: rgba(249,200,70,0.9);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeSlideDown 0.7s ease both;
+  }
+
+  .az-hero-badge-dot {
+    width: 6px; height: 6px;
+    background: #f9c846;
+    border-radius: 50%;
+    animation: pulseDot 1.8s infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+
+  /* Heading */
+  .az-hero-heading {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.1;
+    color: #fff;
+    letter-spacing: -2px;
+    margin-bottom: 1.2rem;
+    animation: fadeSlideDown 0.7s ease 0.1s both;
+  }
+
+  .az-hero-heading .highlight {
+    background: linear-gradient(135deg, #f9c846 20%, #ff9a3c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+  }
+
+  .az-hero-heading .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f9c846, #ff9a3c);
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+
+  /* Sub */
+  .az-hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    animation: fadeSlideDown 0.7s ease 0.2s both;
+  }
+
+  /* CTA Button */
+  .az-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #f9c846 0%, #ff9a3c 100%);
+    color: #1a1a1a !important;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 14px;
+    padding: 0.85rem 2rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(249,200,70,0.3);
+    animation: fadeSlideDown 0.7s ease 0.3s both;
+    letter-spacing: 0.1px;
+  }
+
+  .az-hero-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .az-hero-cta:hover::before { left: 100%; }
+
+  .az-hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(249,200,70,0.45);
+  }
+
+  .az-hero-cta:active { transform: translateY(-1px); }
+
+  .az-hero-cta-icon {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Decorative floating chips */
+  .az-hero-chip {
+  position: absolute;
+
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.12);
+
+  /* tăng độ rõ của glass */
+  background: rgba(255,255,255,0.08);
+
+  /* blur rõ hơn */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* text dễ đọc hơn */
+  color: rgba(255,255,255,0.6);
+
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  letter-spacing: 0.5px;
+
+  pointer-events: none;
+
+  animation: chipFloat 6s ease-in-out infinite alternate;
+}
+  .az-hero-chip-1 { top: 22%; left: 5%; animation-delay: 0s; }
+  .az-hero-chip-2 { bottom: 22%; right: 6%; animation-delay: -2s; }
+  .az-hero-chip-3 { top: 65%; left: 8%; animation-delay: -4s; }
+
+  @keyframes chipFloat {
+    from { transform: translateY(0); opacity: 0.4; }
+    to   { transform: translateY(-12px); opacity: 0.7; }
+  }
+
+  /* Stats row */
+  .az-hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    animation: fadeSlideDown 0.7s ease 0.45s both;
+  }
+
+  .az-hero-stat {
+    text-align: center;
+  }
+
+  .az-hero-stat-num {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .az-hero-stat-num span {
+    color: #f9c846;
+  }
+
+  .az-hero-stat-label {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+
+  .az-hero-stat-sep {
+    width: 1px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    align-self: center;
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }

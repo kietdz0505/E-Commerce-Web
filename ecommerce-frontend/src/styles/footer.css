@@ -1,0 +1,286 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
+
+  .az-footer {
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Admin Footer ── */
+  .az-footer-admin {
+    background: #0d0d0d;
+    border-top: 1px solid #222;
+    padding: 1rem 0;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.8rem;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── User Footer ── */
+  .az-footer-user {
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 60%, #24243e 100%);
+    border-top: 1px solid rgba(100,120,255,0.15);
+    padding: 2.5rem 0 1.8rem;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .az-footer-user::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100,120,255,0.5), rgba(249,200,70,0.4), transparent);
+  }
+
+  .az-footer-logo {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 30%, #f9c846 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    margin-bottom: 0.3rem;
+  }
+
+  .az-footer-tagline {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Social icons */
+  .az-social-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .az-social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .az-social-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .az-social-fb {
+    background: rgba(24,119,242,0.12);
+    border: 1px solid rgba(24,119,242,0.25);
+    color: #5b9cf6;
+  }
+  .az-social-fb::before { background: rgba(24,119,242,0.15); }
+  .az-social-fb:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(24,119,242,0.3); border-color: rgba(24,119,242,0.5); }
+  .az-social-fb:hover::before { opacity: 1; }
+
+  .az-social-ig {
+    background: rgba(225,48,108,0.1);
+    border: 1px solid rgba(225,48,108,0.2);
+    color: #e8758a;
+  }
+  .az-social-ig::before { background: linear-gradient(135deg, rgba(240,148,51,0.15), rgba(225,48,108,0.15)); }
+  .az-social-ig:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(225,48,108,0.25); border-color: rgba(225,48,108,0.5); }
+  .az-social-ig:hover::before { opacity: 1; }
+
+  .az-social-msg {
+    background: rgba(0,132,255,0.1);
+    border: 1px solid rgba(0,132,255,0.2);
+    color: #60a9f6;
+  }
+  .az-social-msg::before { background: rgba(0,132,255,0.15); }
+  .az-social-msg:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,132,255,0.25); border-color: rgba(0,132,255,0.5); }
+  .az-social-msg:hover::before { opacity: 1; }
+
+  /* Divider */
+  .az-footer-divider {
+    border: none;
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 0 auto 1.2rem;
+    width: 60%;
+    max-width: 320px;
+  }
+
+  .az-footer-copy {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.4px;
+  }
+
+  .az-footer-copy span {
+    color: rgba(249,200,70,0.6);
+  }
+
+  /* Decorative orb */
+  .az-footer-orb {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100,120,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .az-footer-orb-left { bottom: -60px; left: -60px; }
+  .az-footer-orb-right { bottom: -80px; right: -40px; background: radial-gradient(circle, rgba(249,200,70,0.05) 0%, transparent 70%); }
+  .az-footer {
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Admin Footer ── */
+  .az-footer-admin {
+    background: #0d0d0d;
+    border-top: 1px solid #222;
+    padding: 1rem 0;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.8rem;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── User Footer ── */
+  .az-footer-user {
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 60%, #24243e 100%);
+    border-top: 1px solid rgba(100,120,255,0.15);
+    padding: 2.5rem 0 1.8rem;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .az-footer-user::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100,120,255,0.5), rgba(249,200,70,0.4), transparent);
+  }
+
+  .az-footer-logo {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 30%, #f9c846 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    margin-bottom: 0.3rem;
+  }
+
+  .az-footer-tagline {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Social icons */
+  .az-social-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .az-social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .az-social-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .az-social-fb {
+    background: rgba(24,119,242,0.12);
+    border: 1px solid rgba(24,119,242,0.25);
+    color: #5b9cf6;
+  }
+  .az-social-fb::before { background: rgba(24,119,242,0.15); }
+  .az-social-fb:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(24,119,242,0.3); border-color: rgba(24,119,242,0.5); }
+  .az-social-fb:hover::before { opacity: 1; }
+
+  .az-social-ig {
+    background: rgba(225,48,108,0.1);
+    border: 1px solid rgba(225,48,108,0.2);
+    color: #e8758a;
+  }
+  .az-social-ig::before { background: linear-gradient(135deg, rgba(240,148,51,0.15), rgba(225,48,108,0.15)); }
+  .az-social-ig:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(225,48,108,0.25); border-color: rgba(225,48,108,0.5); }
+  .az-social-ig:hover::before { opacity: 1; }
+
+  .az-social-msg {
+    background: rgba(0,132,255,0.1);
+    border: 1px solid rgba(0,132,255,0.2);
+    color: #60a9f6;
+  }
+  .az-social-msg::before { background: rgba(0,132,255,0.15); }
+  .az-social-msg:hover { color: #fff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,132,255,0.25); border-color: rgba(0,132,255,0.5); }
+  .az-social-msg:hover::before { opacity: 1; }
+
+  /* Divider */
+  .az-footer-divider {
+    border: none;
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 0 auto 1.2rem;
+    width: 60%;
+    max-width: 320px;
+  }
+
+  .az-footer-copy {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.4px;
+  }
+
+  .az-footer-copy span {
+    color: rgba(249,200,70,0.6);
+  }
+
+  /* Decorative orb */
+  .az-footer-orb {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100,120,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .az-footer-orb-left { bottom: -60px; left: -60px; }
+  .az-footer-orb-right { bottom: -80px; right: -40px; background: radial-gradient(circle, rgba(249,200,70,0.05) 0%, transparent 70%); }

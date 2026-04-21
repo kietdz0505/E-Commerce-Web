@@ -1,7 +1,7 @@
 import PaginationConfig from './paginationConfig';
 
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_BASE_URL,
+   BASE_URL: import.meta.env.VITE_API_BASE_URL,
 
 
   OAUTH: {

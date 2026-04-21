@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+.az-navbar {
+    font-family: 'DM Sans', sans-serif;
+    background: transparent !important;
+    padding: 0;
+    border-bottom: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+}
+
+.az-navbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 50%, #24243e 100%);
+    z-index: -1;
+}
+
+.az-navbar.admin-mode::before {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+.az-navbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100, 120, 255, 0.6), rgba(255, 180, 50, 0.5), transparent);
+}
+
+.az-brand {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 800;
+    font-size: 1.7rem !important;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 30%, #f9c846 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    text-decoration: none !important;
+    transition: opacity 0.2s;
+}
+
+.az-brand:hover {
+    opacity: 0.85;
+}
+
+.az-brand .brand-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #f9c846;
+    border-radius: 50%;
+    margin-left: 2px;
+    vertical-align: super;
+    -webkit-text-fill-color: #f9c846;
+    animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.7;
+    }
+}
+
+.az-nav-link {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75) !important;
+    padding: 0.4rem 0.9rem !important;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.az-nav-link:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.az-nav-link.active-link {
+    color: #fff !important;
+    background: rgba(100, 120, 255, 0.18);
+}
+
+/* Cart Button */
+.az-cart-btn {
+    background: rgba(249, 200, 70, 0.15);
+    border: 1px solid rgba(249, 200, 70, 0.4);
+    color: #f9c846 !important;
+    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    padding: 0;
+}
+
+.az-cart-btn:hover {
+    background: rgba(249, 200, 70, 0.3);
+    border-color: #f9c846;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 200, 70, 0.25);
+}
+
+.az-cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0f0c29;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Login Button */
+.az-login-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 10px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.az-login-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #fff !important;
+}
+
+/* User Dropdown */
+.az-user-btn {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    padding: 0.3rem 0.85rem 0.3rem 0.35rem;
+    font-size: 0.87rem;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.az-user-btn:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.az-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(249, 200, 70, 0.6);
+    object-fit: cover;
+}
+
+.az-dropdown-menu {
+    background: #1a1a3e;
+    border: 1px solid rgba(100, 120, 255, 0.2);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    min-width: 200px;
+    margin-top: 8px !important;
+}
+
+.az-dropdown-item {
+    border-radius: 9px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.87rem;
+    font-weight: 500;
+    padding: 0.5rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: all 0.18s ease;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.az-dropdown-item:hover {
+    background: rgba(100, 120, 255, 0.15);
+    color: #fff !important;
+}
+
+.az-dropdown-item.logout:hover {
+    background: rgba(255, 60, 60, 0.12);
+    color: #ff6b6b !important;
+}
+
+.az-divider {
+    border-color: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+}
+
+.az-toggler {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 5px 8px;
+}
+
+.az-toggler:focus {
+    box-shadow: none;
+}
+
+.az-container {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.dropdown-arrow {
+    display: none;
+}
+
+.az-user-btn::after {
+    display: none !important;
+}

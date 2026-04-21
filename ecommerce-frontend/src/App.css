@@ -25,3 +25,18 @@
 .product-hover:hover .product-img-hover {
   transform: scale(1.05);
 }
+
+/* Chuẩn W3C, dùng được cho Chrome, Edge, Safari mới */
+input[type=number] {
+  appearance: textfield;
+}
+
+
+/* Chrome, Safari, Edge cũ */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+

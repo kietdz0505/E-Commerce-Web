@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaComments, FaPaperPlane } from "react-icons/fa";
-import chatbotService from "../services/chatbotService";
+import chatbotService from "../services/user/chatbotService";
 
 function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
