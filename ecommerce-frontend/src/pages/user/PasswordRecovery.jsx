@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import apiClient from "../api/axiosInstance";
-import { API_CONFIG } from "../config/apiConfig";
+import apiClient from "../../api/axiosInstance";
+import { API_CONFIG } from "../../config/apiConfig";
 
 function PasswordRecovery({ onBackToLogin }) {
   const [step, setStep] = useState("email"); // email | otp | reset

@@ -21,8 +21,9 @@ public class ProductDTO {
     @Positive(message = "Price phải lớn hơn 0")
     private Double price;
 
-    @Min(value = 0, message = "Stock phải lớn hoặc bằng 0")
-    private int stock;
+    @NotNull(message = "Stock không được để trống")
+    @Min(value = 0, message = "Stock phải >= 0")
+    private Integer stock;
 
     private boolean available;
 

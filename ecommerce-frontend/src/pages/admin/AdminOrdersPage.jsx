@@ -181,7 +181,7 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="container" style={{ marginTop: 40 }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý đơn hàng</h2>
+      <h2 className="mt-4" style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý đơn hàng</h2>
 
       <Spin spinning={loading}>
         <Table
@@ -207,7 +207,7 @@ export default function AdminOrdersPage() {
 
       <Modal
         title="Xác nhận xóa đơn hàng"
-        visible={showDeleteModal}
+        open={showDeleteModal}
         onCancel={() => setShowDeleteModal(false)}
         onOk={handleDelete}
         okText="Xóa"

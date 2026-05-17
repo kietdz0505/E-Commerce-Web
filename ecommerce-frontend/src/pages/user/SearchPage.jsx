@@ -3,6 +3,8 @@ import axios from 'axios';
 import { getApiUrl } from '../../config/apiConfig';
 import ProductCard from '../../shared/ProductCard';
 import SearchBar from '../../components/SearchBar';
+import '../../styles/searchPage.css';
+
 
 const SearchPage = () => {
   const [products, setProducts] = useState([]);
@@ -10,17 +12,14 @@ const SearchPage = () => {
   const [error, setError] = useState(null);
 
   const handleSearch = async (filters) => {
-    console.log('Filters received in SearchPage:', filters); // Debug filters khi nhận
+    console.log('Filters received in SearchPage:', filters);
     try {
       setLoading(true);
       setError(null);
       const apiUrl = getApiUrl('SEARCH', filters);
-      console.log('API URL:', apiUrl); // Debug URL
-      const res = await axios.get(apiUrl, {
-        // Thêm header nếu cần token
-        // headers: { Authorization: `Bearer YOUR_TOKEN_HERE` },
-      });
-      console.log('API Response:', res.data); // Debug response
+      console.log('API URL:', apiUrl);
+      const res = await axios.get(apiUrl);
+      console.log('API Response:', res.data);
       if (!res.data || typeof res.data !== 'object') {
         throw new Error('Phản hồi từ server không hợp lệ.');
       }
@@ -39,34 +38,56 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="container py-4">
-      <h2 className="text-center mb-4">Tìm kiếm sản phẩm</h2>
-      <SearchBar onSearch={handleSearch} />
+    <>
+      <div className="az-searchpage">
 
-      {loading ? (
-        <div className="text-center mt-5" role="status" aria-live="polite">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Đang tải...</span>
+        {/* Hero header */}
+        <div className="az-searchpage-hero">
+          <div className="container text-center pb-0 pt-2">
+            <h1 className="az-searchpage-title">
+              Tìm kiếm <span>sản phẩm</span>
+            </h1>
+            <p className="az-searchpage-sub">Khám phá hàng ngàn sản phẩm chính hãng</p>
+          </div>
+          <SearchBar onSearch={handleSearch} />
+        </div>
+
+        {/* Results */}
+        <div className="az-searchpage-body">
+          <div className="container position-relative">
+            {loading ? (
+              <div className="az-sp-loading" role="status" aria-live="polite">
+                <div className="az-sp-spinner" />
+                <span className="az-sp-loading-text">Đang tìm kiếm sản phẩm...</span>
+              </div>
+            ) : error ? (
+              <div className="az-sp-error" role="alert">
+                <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: '1.1rem', flexShrink: 0 }} />
+                {error}
+              </div>
+            ) : products.length > 0 ? (
+              <>
+                <div className="az-sp-count" aria-live="polite">
+                  Tìm thấy <strong>{products.length}</strong> sản phẩm
+                </div>
+                <div className="az-sp-grid">
+                  {products.map((prod) => (
+                    <ProductCard key={prod.id} prod={prod} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="az-sp-empty" aria-live="polite">
+                <div className="az-sp-empty-icon">
+                  <i className="bi bi-search" />
+                </div>
+                <span className="az-sp-empty-text">Không tìm thấy sản phẩm phù hợp.</span>
+              </div>
+            )}
           </div>
         </div>
-      ) : error ? (
-        <div className="alert alert-danger text-center" role="alert">
-          {error}
-        </div>
-      ) : (
-        <div className="row g-4">
-          {products.length > 0 ? (
-            products.map((prod) => (
-              <ProductCard key={prod.id} prod={prod} />
-            ))
-          ) : (
-            <p className="text-center" aria-live="polite">
-              Không tìm thấy sản phẩm.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 

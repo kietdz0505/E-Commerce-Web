@@ -3,193 +3,170 @@ import { useParams } from "react-router-dom";
 import apiClient from "../../api/axiosInstance";
 import { getApiUrl } from "../../config/apiConfig";
 
+import {
+  HiOutlineUser,
+  HiOutlinePhone,
+  HiOutlineMapPin,
+  HiOutlineCreditCard,
+  HiOutlineCalendarDays,
+  HiOutlinePencilSquare,
+  HiOutlineCheckCircle
+} from "react-icons/hi2";
+
+import {
+  FaBoxOpen,
+  FaMoneyBillWave,
+  FaTag
+} from "react-icons/fa";
+
+import "../../styles/orderDetail.css";
+
 const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(false); // 🔥 thêm loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const res = await apiClient.get(getApiUrl("GET_ORDER_BY_ID", id));
-        setOrder(res.data);
-      } catch (err) {
-        console.error("Lỗi khi lấy chi tiết đơn hàng:", err);
-      }
-    };
     fetchOrder();
   }, [id]);
 
-  const handleSave = async () => {
-    setLoading(true); // 🔥 bắt đầu loading
+  const fetchOrder = async () => {
     try {
-      const payload = {
-        receiverName: order.receiverName,
-        receiverPhone: order.receiverPhone,
-        deliveryAddress: order.deliveryAddress,
-        paymentMethod: order.paymentMethod,
-        promotionCode: order.promotionCode,
-        items: order.items?.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          discountedUnitPrice: item.discountedUnitPrice,
-        })),
-      };
-
-      const res = await apiClient.put(getApiUrl("UPDATE_ORDER_INFO", id), payload);
+      const res = await apiClient.get(getApiUrl("GET_ORDER_BY_ID", id));
       setOrder(res.data);
-      setEditMode(false);
-      alert("✅ Cập nhật đơn hàng thành công!");
     } catch (err) {
-      console.error("Lỗi khi cập nhật đơn hàng:", err);
-      alert("❌ Không thể cập nhật đơn hàng");
-    } finally {
-      setLoading(false); // 🔥 kết thúc loading
+      console.error(err);
     }
   };
 
-  if (!order) return <p className="text-center mt-5">⏳ Đang tải đơn hàng...</p>;
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const res = await apiClient.put(getApiUrl("UPDATE_ORDER_INFO", id), order);
+      setOrder(res.data);
+      setEditMode(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
+  if (!order) return <div className="az-loading">Đang tải...</div>;
+
+  const getStatus = () => {
+    switch (order.status) {
       case "PENDING":
-        return <span className="badge bg-warning text-dark">Chờ xử lý</span>;
+        return <span className="status pending">Chờ xử lý</span>;
       case "COMPLETED":
-        return <span className="badge bg-success">Hoàn thành</span>;
+        return <span className="status success">Hoàn thành</span>;
       case "CANCELLED":
-        return <span className="badge bg-danger">Đã hủy</span>;
+        return <span className="status cancel">Đã hủy</span>;
       default:
-        return <span className="badge bg-secondary">{status}</span>;
+        return <span className="status">{order.status}</span>;
     }
   };
 
   return (
-    <div className="container mt-4">
-      <div className="card shadow p-4">
-        <h3 className="mb-3">🛒 Đơn hàng #{order.id}</h3>
+    <div className="az-order-detail">
 
-        {/* Thông tin đơn hàng */}
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label className="form-label fw-bold">Tên người nhận</label>
-            <input
-              type="text"
-              className="form-control"
-              value={order.receiverName || ""}
-              onChange={(e) => setOrder({ ...order, receiverName: e.target.value })}
-              disabled={!editMode}
-            />
+      {/* HEADER */}
+      <div className="az-order-header">
+        <div className="az-order-header-content">
+            <h2><FaBoxOpen /> Chi tiết đơn hàng #{order.id}</h2>
+            {getStatus()}
           </div>
 
-          <div className="col-md-6 mb-3">
-            <label className="form-label fw-bold">Số điện thoại</label>
-            <input
-              type="text"
-              className="form-control"
-              value={order.receiverPhone || ""}
-              onChange={(e) => setOrder({ ...order, receiverPhone: e.target.value })}
-              disabled={!editMode}
-            />
-          </div>
-        </div>
 
-        <div className="mb-3">
-          <label className="form-label fw-bold">Địa chỉ giao hàng</label>
+      </div>
+
+      {/* INFO */}
+      <div className="az-order-card">
+
+        <div className="az-form-row">
+          <label><HiOutlineUser /> Người nhận</label>
           <input
-            type="text"
-            className="form-control"
-            value={order.deliveryAddress || ""}
-            onChange={(e) => setOrder({ ...order, deliveryAddress: e.target.value })}
+            value={order.receiverName || ""}
+            onChange={e => setOrder({ ...order, receiverName: e.target.value })}
             disabled={!editMode}
           />
         </div>
 
-        <div className="mt-3">
-          <p>
-            <strong>Phương thức thanh toán:</strong> {order.paymentMethod}
-          </p>
-          <p>
-            <strong>Trạng thái:</strong> {getStatusBadge(order.status)}
-          </p>
-          <p>
-            <strong>Ngày đặt:</strong>{" "}
-            {new Date(order.orderDate).toLocaleString("vi-VN")}
-          </p>
-          <p>
-            <strong>Mã khuyến mãi:</strong>{" "}
-            <span className="text-primary">
-              {order.promotionCode || "Không có"}
-            </span>
-          </p>
-          <h4 className="text-success fw-bold">
-            Tổng tiền:{" "}
-            {order.totalAmount !== undefined
-              ? Number(order.totalAmount).toLocaleString("vi-VN") + " VND"
-              : "0 VND"}
-          </h4>
+        <div className="az-form-row">
+          <label><HiOutlinePhone /> Số điện thoại</label>
+          <input
+            value={order.receiverPhone || ""}
+            onChange={e => setOrder({ ...order, receiverPhone: e.target.value })}
+            disabled={!editMode}
+          />
         </div>
 
-        <div className="mt-4">
-          {editMode ? (
-            <button
-              className="btn btn-success"
-              onClick={handleSave}
-              disabled={loading} // 🔥 khóa nút khi loading
-            >
-              {loading ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-2"
-                    role="status"
-                  ></span>
-                  Đang lưu...
-                </>
-              ) : (
-                "💾 Lưu thay đổi"
-              )}
-            </button>
-          ) : (
-            <button className="btn btn-warning" onClick={() => setEditMode(true)} disabled={order.status !== "PENDING"}>
-              ✏️ Chỉnh sửa đơn hàng
-            </button>
-          )}
+        <div className="az-form-row">
+          <label><HiOutlineMapPin /> Địa chỉ</label>
+          <input
+            value={order.deliveryAddress || ""}
+            onChange={e => setOrder({ ...order, deliveryAddress: e.target.value })}
+            disabled={!editMode}
+          />
         </div>
+
+        {/* META */}
+        <div className="az-meta">
+          <div><HiOutlineCreditCard /> {order.paymentMethod}</div>
+          <div><HiOutlineCalendarDays /> {new Date(order.orderDate).toLocaleString("vi-VN")}</div>
+          <div><FaMoneyBillWave /> <strong>{Number(order.totalAmount).toLocaleString("vi-VN")}₫</strong></div>
+          <div><FaTag /> {order.promotionCode || "Không có mã"}</div>
+        </div>
+
+        {/* BUTTON */}
+        <button
+          className={`az-btn ${editMode ? "save" : "edit"}`}
+          onClick={editMode ? handleSave : () => setEditMode(true)}
+          disabled={loading}
+        >
+          {loading ? "Đang lưu..." : editMode ? (
+            <>
+              <HiOutlineCheckCircle /> Lưu
+            </>
+          ) : (
+            <>
+              <HiOutlinePencilSquare /> Chỉnh sửa
+            </>
+          )}
+        </button>
+
       </div>
 
-      {/* Bảng sản phẩm */}
-      <div className="card shadow p-4 mt-4">
-        <h5>📦 Sản phẩm trong đơn hàng</h5>
-        <table className="table table-hover mt-3 align-middle">
-          <thead className="table-light">
+      {/* TABLE */}
+      <div className="az-order-table">
+        <h4><FaBoxOpen /> Sản phẩm trong đơn</h4>
+
+        <table>
+          <thead>
             <tr>
               <th>Sản phẩm</th>
-              <th>Số lượng</th>
-              <th>Đơn giá gốc</th>
-              <th>Đơn giá sau giảm</th>
+              <th>SL</th>
+              <th>Giá gốc</th>
+              <th>Giá KM</th>
               <th>Thành tiền</th>
             </tr>
           </thead>
+
           <tbody>
-            {order.items?.map((item, index) => {
-              const unitPrice = Number(item.unitPrice || 0);
-              const discountedPrice = Number(item.discountedUnitPrice || 0);
-              return (
-                <tr key={index}>
-                  <td>{item.productName}</td>
-                  <td>{item.quantity}</td>
-                  <td>{unitPrice.toLocaleString("vi-VN")} VND</td>
-                  <td>{discountedPrice.toLocaleString("vi-VN")} VND</td>
-                  <td className="fw-bold text-end text-success">
-                    {(discountedPrice * item.quantity).toLocaleString("vi-VN")} VND
-                  </td>
-                </tr>
-              );
-            })}
+            {order.items?.map((item, i) => (
+              <tr key={i}>
+                <td className="name">{item.productName}</td>
+                <td>{item.quantity}</td>
+                <td>{Number(item.unitPrice).toLocaleString("vi-VN")}₫</td>
+                <td className="discount">{Number(item.discountedUnitPrice).toLocaleString("vi-VN")}₫</td>
+                <td className="total">
+                  {(item.discountedUnitPrice * item.quantity).toLocaleString("vi-VN")}₫
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
+
     </div>
   );
 };

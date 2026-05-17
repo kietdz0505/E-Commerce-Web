@@ -153,6 +153,7 @@ export default function AdminPromotionsPage() {
         onOk={handleSubmit}
         okText="Lưu"
         cancelText="Hủy"
+        destroyOnHidden
       >
         <Form
           form={form}

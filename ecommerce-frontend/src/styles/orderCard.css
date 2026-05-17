@@ -1,0 +1,169 @@
+.az-order-card {
+  background: linear-gradient(145deg, #16152e, #1b1a3a);
+  border-radius: 18px;
+  padding: 18px;
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+
+  transition: 0.25s;
+}
+
+.az-order-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+}
+
+/* HEADER */
+.az-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.az-order-header .left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* STATUS */
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status.pending {
+  background: rgba(255,193,7,0.2);
+  color: #ffc107;
+}
+
+.status.success {
+  background: rgba(0,230,167,0.2);
+  color: #00e6a7;
+}
+
+.status.cancel {
+  background: rgba(255,80,80,0.2);
+  color: #ff5050;
+}
+.status.shipped {
+  background: rgba(91,108,255,0.2);
+  color: #5b6cff;
+}
+
+.status.paid {
+  background: rgba(0,200,150,0.2);
+  color: #00c896;
+}
+
+.status.failed {
+  background: rgba(255,51,51,0.2);
+  color: #ff3333;
+}
+
+/* INFO */
+.az-order-info {
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 10px;
+}
+
+/* TOTAL */
+.az-order-total {
+  margin: 10px 0;
+  font-weight: 600;
+  color:antiquewhite;
+}
+
+.az-order-total span {
+  margin-left: 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #00e6a7;
+}
+
+/* ITEMS */
+.az-order-items {
+  margin-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 10px;
+  color:antiquewhite;
+}
+
+.az-order-items .item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  gap: 1rem;
+  padding: 4px 0;
+}
+
+.az-orders-header h2{
+    color:#16152e;
+}
+
+.az-order-items .name {
+  font-weight: 600;
+}
+
+.az-order-items .meta {
+  color: rgba(255,255,255,0.6);
+}
+
+/* ACTION */
+.az-order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.az-order-actions .btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  transition: 0.2s;
+}
+
+/* CANCEL */
+.az-order-actions .cancel {
+  background: linear-gradient(135deg, #ff5f6d, #ff3d3d);
+  color: white;
+}
+
+.az-order-actions .cancel:hover {
+  transform: translateY(-2px);
+}
+
+/* VIEW */
+.az-order-actions .view {
+  background: linear-gradient(135deg, #5b6cff, #7f8cff);
+  color: white;
+}
+
+.az-order-actions .view:hover {
+  transform: translateY(-2px);
+}
+
+.az-order-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.left{
+    color: antiquewhite;
+}

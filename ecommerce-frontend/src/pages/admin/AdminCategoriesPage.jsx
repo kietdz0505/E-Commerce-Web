@@ -147,7 +147,7 @@ export default function AdminCategoriesPage() {
 
   return (
     <div style={{ maxWidth: 900, margin: '40px auto' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý danh mục</h2>
+      <h2 className='mt-4' style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý danh mục</h2>
 
       <Button
         type="primary"
@@ -183,10 +183,10 @@ export default function AdminCategoriesPage() {
 
       <Modal
         title={editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
-        visible={showForm}
+        open={showForm}
         onCancel={() => setShowForm(false)}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={form}

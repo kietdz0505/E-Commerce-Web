@@ -4,33 +4,29 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Utility class for VNPay HMAC-SHA256 signature generation.
- */
 public class VNPayUtil {
 
     /**
-     * Generate HMAC-SHA256 signature.
-     *
-     * @param key  Secret key from VNPay
-     * @param data Data string to sign (sorted query string without SecureHash)
-     * @return Hexadecimal string of signature
+     * Tạo chữ ký HMAC-SHA512 chuẩn VNPay.
      */
-    public static String hmacSHA256(String key, String data) {
+    public static String hmacSHA512(String key, String data) {
         try {
-            Mac hmac256 = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            hmac256.init(secretKey);
-            byte[] bytes = hmac256.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            Mac hmac512 = Mac.getInstance("HmacSHA512");
+            SecretKeySpec secretKey = new SecretKeySpec(
+                    key.getBytes(StandardCharsets.UTF_8),
+                    "HmacSHA512"
+            );
+            hmac512.init(secretKey);
+            byte[] bytes = hmac512.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
             StringBuilder hash = new StringBuilder();
             for (byte b : bytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hash.append('0');
-                hash.append(hex);
+                hash.append(String.format("%02x", b));
             }
-            return hash.toString().toLowerCase();
+            return hash.toString();
+
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi tạo chữ ký VNPay", e);
+            throw new RuntimeException("Error generating HMAC-SHA512", e);
         }
     }
 }

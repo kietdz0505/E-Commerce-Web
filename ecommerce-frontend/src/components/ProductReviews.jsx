@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { fetchProductReviews, deleteReview, updateReview } from '../api/reviewApi';
 import PaginationConfig from '../config/paginationConfig';
 import ReviewItem from './ReviewItem';
+import '../styles/productReview.css';
 
 const ProductReviews = ({ productId, appendedReviews = [] }) => {
   const [reviews, setReviews] = useState([]);
@@ -72,19 +73,38 @@ const ProductReviews = ({ productId, appendedReviews = [] }) => {
   );
 
   return (
-    <div className="mt-5">
-      <h4>Đánh giá sản phẩm</h4>
+    <div className="az-review-container">
+      <div className="az-review-header">
+        <h3>Đánh giá sản phẩm</h3>
+        <span className="az-review-count">
+          {combinedReviews.length} đánh giá
+        </span>
+      </div>
+
       {combinedReviews.length === 0 ? (
-        <p>Chưa có đánh giá nào.</p>
+        <div className="az-review-empty">
+          Chưa có đánh giá nào.
+        </div>
       ) : (
-        combinedReviews.map(review => (
-          <ReviewItem key={review.id} review={review} onDelete={handleDeleteReview} onUpdate={handleUpdateReview} />
-        ))
+        <div className="az-review-list">
+          {combinedReviews.map(review => (
+            <ReviewItem
+              key={review.id}
+              review={review}
+              onDelete={handleDeleteReview}
+              onUpdate={handleUpdateReview}
+            />
+          ))}
+        </div>
       )}
 
       {hasMore && (
-        <div className="text-center mt-3">
-          <button className="btn btn-outline-primary" onClick={handleLoadMore} disabled={loading}>
+        <div className="az-review-loadmore">
+          <button
+            className="az-loadmore-btn"
+            onClick={handleLoadMore}
+            disabled={loading}
+          >
             {loading ? 'Đang tải...' : 'Xem thêm đánh giá'}
           </button>
         </div>

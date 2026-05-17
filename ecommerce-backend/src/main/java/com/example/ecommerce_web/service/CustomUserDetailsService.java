@@ -16,30 +16,54 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService
+        implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public UserDetails loadUserByUsername(
+            String identifier
+    ) throws UsernameNotFoundException {
 
-        Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
-                .collect(Collectors.toSet());
+        String normalized = identifier
+                .trim()
+                .toLowerCase();
 
-        String password = (user.getPassword() != null && !user.getPassword().isEmpty())
-                ? user.getPassword()
-                : "N/A";
+        User user = userRepository
+                .findByEmailOrUsername(
+                        normalized,
+                        normalized
+                )
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "User not found"
+                        )
+                );
 
-        // Truyền isLocked vào CustomUserDetails để Spring Security chặn nếu bị khóa
+        if (user.isLocked()) {
+            throw new UsernameNotFoundException(
+                    "Account is locked"
+            );
+        }
+
+        Set<GrantedAuthority> authorities =
+                user.getRoles()
+                        .stream()
+                        .map(role ->
+                                new SimpleGrantedAuthority(
+                                        role.getName().name()
+                                )
+                        )
+                        .collect(Collectors.toSet());
+
         return new CustomUserDetails(
                 user.getId(),
-                user.getEmail(),
-                password,
-                user.isLocked(), // true = bị khóa, false = không khóa
-                authorities
+                user.getUsername(),
+                user.getPassword(),
+                user.isLocked(),
+                authorities,
+                user.getRoles()
         );
     }
 }

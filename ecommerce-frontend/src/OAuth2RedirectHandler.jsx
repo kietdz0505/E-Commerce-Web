@@ -1,51 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getApiUrl } from './config/apiConfig';
+import { useAuth } from './shared/AuthContext';
 
 function OAuth2RedirectHandler() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const { login } = useAuth();
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    const handleOAuthLogin = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
 
-    if (token) {
-      localStorage.setItem('token', token);
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-      axios.get(getApiUrl('profile'), {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(response => {
-          const user = response.data;
-          localStorage.setItem('currentUser', JSON.stringify(user));
+      try {
+        await login(token);
 
-          const hasAdminRole = Array.isArray(user.roles) && user.roles.includes("ROLE_ADMIN");
-
-          if (hasAdminRole) {
-            navigate('/admin');
-          } else {
-            navigate('/');
-          }
-        })
-        .catch(() => {
-          navigate('/login');
-        })
-        .finally(() => {
-          setLoading(false);
+        const res = await axios.get(getApiUrl('PROFILE'), {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-    } else {
-      navigate('/login');
-    }
-  }, [navigate]);
+        const user = res.data;
 
-  if (loading) {
-    return <div>Đang đăng nhập...</div>;
-  }
+        const isAdmin =
+          Array.isArray(user.roles) &&
+          user.roles.includes("ROLE_ADMIN");
 
-  return null;
+        if (isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+
+      } catch (error) {
+        console.error("OAuth error:", error);
+        navigate('/login');
+      }
+    };
+
+    handleOAuthLogin();
+  }, [navigate, login]);
+
+  return (
+    <div style={{ padding: "40px", textAlign: "center" }}>
+      <h4>Đang đăng nhập...</h4>
+    </div>
+  );
 }
 
 export default OAuth2RedirectHandler;

@@ -1,0 +1,223 @@
+/* Container */
+.az-detail-container {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 16px;
+}
+
+/* Loading & error */
+.az-loading,
+.az-error {
+  text-align: center;
+  margin: 5rem 0;
+  color: white;
+}
+
+/* Card */
+.az-detail-card {
+  background: linear-gradient(145deg, #16152e, #1b1a3a);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    0 25px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.5s ease;
+}
+
+.az-detail-card::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(100,120,255,0.15), transparent);
+  top: -120px;
+  right: -120px;
+}
+
+/* Grid */
+.az-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+/* IMAGE */
+.az-detail-img-box {
+  background: radial-gradient(circle at top, #232255, #151432);
+  border-radius: 18px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.az-detail-img {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  transition: transform 0.4s ease, filter 0.3s;
+}
+
+.az-detail-img:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6));
+}
+
+/* INFO */
+.az-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Title */
+.az-detail-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.3;
+}
+
+/* Price */
+.az-detail-price {
+  font-size: 2.2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #f9c846, #ff9a3c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Meta */
+.az-detail-meta {
+  display: flex;
+  gap: 12px;
+}
+
+.az-detail-meta span {
+  background: rgba(255,255,255,0.06);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Rating */
+.az-detail-rating {
+  display: inline-flex;       
+  align-items: center;
+  width: fit-content;         
+  padding: 6px 10px;           
+  background: rgba(255, 209, 102, 0.12);
+  border: 1px solid rgba(255, 209, 102, 0.25);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #ffd166;
+}
+
+/* icon chung */
+.az-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* icon trong button */
+.az-btn-icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* star */
+.az-star {
+  color: #ffd166;
+  margin-right: 6px;
+  font-size: 0.9rem;
+}
+
+/* Description */
+.az-detail-desc {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 10px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+}
+
+/* Buttons */
+.az-detail-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+}
+
+.az-btn-primary {
+  background: linear-gradient(135deg, #5b6cff, #7f8cff);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.az-btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(100,120,255,0.5);
+}
+
+.az-btn-primary:active {
+  transform: scale(0.96);
+}
+
+.az-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.7);
+  padding: 0.8rem 1.6rem;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.az-btn-outline:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+
+/* Back link */
+.az-back-link {
+  margin-top: 10px;
+  color: #a0aaff;
+  text-decoration: none;
+}
+
+.az-back-link:hover {
+  text-decoration: underline;
+}
+
+/* Review */
+.az-detail-review {
+  margin-top: 3rem;
+}
+
+/* Animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .az-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

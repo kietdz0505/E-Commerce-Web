@@ -1,0 +1,70 @@
+/* Wrapper */
+.az-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Info text */
+.az-page-info {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.az-page-info b {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Button */
+.az-page-btn {
+  background: rgba(100, 120, 255, 0.12);
+  border: 1px solid rgba(100, 120, 255, 0.3);
+  border-radius: 12px;
+  color: #a0aaff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effect giống button của bạn */
+.az-page-btn:hover:not(:disabled) {
+  background: rgba(100, 120, 255, 0.25);
+  border-color: rgba(100, 120, 255, 0.6);
+  color: #c8d0ff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(100, 120, 255, 0.2);
+}
+
+/* Shine effect */
+.az-page-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.4s ease;
+}
+
+.az-page-btn:hover::before {
+  left: 100%;
+}
+
+/* Disabled */
+.az-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

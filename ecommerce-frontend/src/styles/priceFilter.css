@@ -1,0 +1,53 @@
+
+  .az-pricefilter {
+    font-family: 'DM Sans', sans-serif;
+    padding: 1rem 0;
+  }
+
+  .az-pricefilter-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(249,200,70,0.65);
+    margin-bottom: 0.7rem;
+    display: block;
+  }
+
+  .az-price-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 50px;
+    padding: 0.38rem 0.95rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.175,0.885,0.32,1.275);
+    border: 1px solid rgba(100,120,255,0.25);
+    color: rgba(180,190,255,0.8);
+    background: transparent;
+    white-space: nowrap;
+  }
+
+  .az-price-chip:hover {
+    border-color: rgba(100,120,255,0.55);
+    color: #c8d0ff;
+    background: rgba(100,120,255,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100,120,255,0.15);
+  }
+
+  .az-price-chip.active {
+    background: linear-gradient(135deg, rgba(100,120,255,0.28), rgba(80,100,230,0.2));
+    border-color: rgba(100,120,255,0.7);
+    color: #d0d8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(100,120,255,0.22);
+  }
+
+  .az-price-chip-check {
+    font-size: 0.7rem;
+    color: #a0aaff;
+  }

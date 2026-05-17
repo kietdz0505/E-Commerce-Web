@@ -144,7 +144,7 @@ export default function AdminBrandPage() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: 900 }}>
-      <h2 className="mb-4 text-center">Quản lý thương hiệu (Brand)</h2>
+      <h2 className="mb-4 mt-4 text-center">Quản lý thương hiệu (Brand)</h2>
 
       <Button type="primary" className="mb-3" onClick={openCreateForm}>
         Thêm thương hiệu mới

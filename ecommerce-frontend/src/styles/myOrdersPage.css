@@ -1,0 +1,70 @@
+.az-orders-container {
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 0 16px;
+}
+
+/* HEADER */
+.az-orders-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 25px;
+}
+
+.az-orders-header svg {
+  font-size: 28px;
+  color: #7c8cff;
+}
+
+/* LIST */
+.az-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* PAGINATION */
+.az-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 30px;
+}
+
+.az-pagination button {
+  background: linear-gradient(135deg, #5b6cff, #7f8cff);
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: 0.2s;
+}
+
+.az-pagination button:hover {
+  transform: translateY(-2px);
+}
+
+.az-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* STATES */
+.az-loading,
+.az-error {
+  text-align: center;
+  margin-top: 100px;
+  color: #fff;
+}

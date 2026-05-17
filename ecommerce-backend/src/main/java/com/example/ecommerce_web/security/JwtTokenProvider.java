@@ -3,6 +3,9 @@ package com.example.ecommerce_web.security;
 import com.example.ecommerce_web.model.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,19 +17,26 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    private static final String SECRET_KEY = "x9BqK7pD5Yc3MvWzV4Xt7fAqP1NzQwRgL6Js4ThY8Du2FrHtSeCvBnLaKwPo1XyZ"; // 64 ký tự
-    private static final long EXPIRATION_TIME = 86400000; // 1 ngày
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.access-expiration}")
+    private long accessExpiration;
+
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Tạo token từ userId và email
-    public String generateToken(String userId, String email, Set<Role> roles) {
+    // ================= ACCESS TOKEN =================
+    public String generateAccessToken(String userId, String email, Set<Role> roles) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiryDate = new Date(now.getTime() + accessExpiration);
 
-        // Thêm "ROLE_" prefix để tương thích với Spring Security
         var roleNames = roles.stream()
                 .map(role -> "ROLE_" + role.getName().name())
                 .collect(Collectors.toList());
@@ -35,41 +45,65 @@ public class JwtTokenProvider {
                 .setSubject(email)
                 .claim("userId", userId)
                 .claim("roles", roleNames)
+                .setIssuer("ecommerce-app")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    // Lấy userId từ token
+    // ================= REFRESH TOKEN =================
+    public String generateRefreshToken(String userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshExpiration);
+
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuer("ecommerce-app")
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    // ================= EXTRACT =================
     public String getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.get("userId", String.class);
+        return getClaims(token).get("userId", String.class);
     }
 
-    // Lấy email từ token
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+        return getClaims(token).getSubject();
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();
     }
 
-    // Kiểm tra token hợp lệ
+    // ================= VALIDATE =================
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Invalid JWT: " + e.getMessage());
-            return false;
-        }
-    }
 
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT unsupported: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.error("JWT malformed: {}", e.getMessage());
+        } catch (SignatureException e) {
+            logger.error("JWT invalid signature: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT empty or null: {}", e.getMessage());
+        }
+
+        return false;
+    }
 }

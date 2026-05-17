@@ -5,12 +5,15 @@ import {
   FaBox, FaTags, FaShoppingCart, FaGift, FaStar, FaUsers, FaTag, FaChevronDown, FaChartBar
 } from 'react-icons/fa';
 import adminService from '../../services/admin/adminService';
-import CountUp from 'react-countup';
+import CountUpLib from 'react-countup';
 import { MdMail } from 'react-icons/md';
 import { FaMessage } from 'react-icons/fa6';
+import '../../styles/adminDashboardPage.css';
 
 const AdminDashboardPage = () => {
   const [open, setOpen] = useState(false);
+  const CountUp = CountUpLib.default;
+
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalCategories: 0,
@@ -60,7 +63,7 @@ const AdminDashboardPage = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4 fw-bold">🌟 Admin Dashboard 🌟</h1>
+      <h1 className="mb-4 fw-bold">Admin Dashboard </h1>
       <p className="lead mb-4">Chào mừng bạn đến trang quản trị, hãy chọn mục cần quản lý bên dưới.</p>
 
       {/* Thống kê */}

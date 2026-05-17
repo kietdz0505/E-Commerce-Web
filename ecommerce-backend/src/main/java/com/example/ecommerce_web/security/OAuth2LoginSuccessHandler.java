@@ -1,13 +1,10 @@
 package com.example.ecommerce_web.security;
 
-import com.example.ecommerce_web.model.Role;
-import com.example.ecommerce_web.model.RoleName;
-import com.example.ecommerce_web.model.User;
+import com.example.ecommerce_web.model.*;
 import com.example.ecommerce_web.repository.RoleRepository;
 import com.example.ecommerce_web.repository.UserRepository;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -25,9 +23,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final JwtTokenProvider jwtTokenProvider;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+
     @Value("${app.frontend.url}")
     private String frontendUrl;
-
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -36,46 +34,45 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String rawEmail = oAuth2User.getAttribute("email");
 
-        // Nếu Facebook không trả email thì tạo email giả
         if (rawEmail == null || rawEmail.isEmpty()) {
             String facebookId = oAuth2User.getAttribute("id");
             rawEmail = "fb_" + facebookId + "@facebook.local";
         }
 
         final String finalEmail = rawEmail;
-        final OAuth2User finalOAuth2User = oAuth2User;
 
-        // Lấy user hoặc tạo mới
         User user = userRepository.findByEmail(finalEmail)
                 .orElseGet(() -> {
                     User newUser = new User();
+                    newUser.setId(UUID.randomUUID().toString());
                     newUser.setEmail(finalEmail);
+                    newUser.setUsername(finalEmail);
 
-                    String name = finalOAuth2User.getAttribute("name");
-                    if (name == null || name.isEmpty()) {
-                        name = "Facebook User";
-                    }
-                    newUser.setName(name);
+                    String name = oAuth2User.getAttribute("name");
+                    newUser.setName(name != null ? name : "OAuth2 User");
 
-                    newUser.setPassword(null); // OAuth2 user => không set password
+                    newUser.setPassword(null);
 
-                    Role customerRole = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
+                    Role role = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
                             .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
-                    newUser.setRoles(Collections.singleton(customerRole));
+
+                    newUser.setRoles(Collections.singleton(role));
+                    newUser.setLocked(false);
 
                     return userRepository.save(newUser);
                 });
 
-        // Nếu tài khoản bị khóa
         if (user.isLocked()) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Account is locked");
             return;
         }
 
-        // Tạo token và redirect về FE
-        String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
+        String token = jwtTokenProvider.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRoles()
+        );
+
         response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + token);
-
     }
-
 }

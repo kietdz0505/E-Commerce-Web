@@ -1,0 +1,135 @@
+.az-productlist-section {
+  font-family: 'DM Sans', sans-serif;
+  background: #0e0d1f;
+  padding: 3rem 0 4rem;
+  position: relative;
+  min-height: 320px;
+}
+
+.product-wrapper {
+  display: flex;
+  flex-wrap: wrap;        
+  gap: 2rem;
+  justify-content: center;  
+}
+
+
+/* Subtle background grid */
+.az-productlist-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}
+
+/* ── Section header ── */
+.az-productlist-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.az-productlist-eyebrow {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(249, 200, 70, 0.7);
+  margin-bottom: 0.6rem;
+}
+
+.az-productlist-title {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  letter-spacing: -1px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.az-productlist-title-bar {
+  display: inline-block;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #6478ff, #f9c846);
+  border-radius: 3px;
+  margin-top: 10px;
+}
+
+/* ── Loading state ── */
+.az-loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 4rem 0;
+}
+
+.az-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(100, 120, 255, 0.15);
+  border-top-color: #6478ff;
+  border-radius: 50%;
+  animation: azSpin 0.8s linear infinite;
+}
+
+@keyframes azSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.az-loading-text {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.3px;
+}
+
+/* ── Empty state ── */
+.az-empty-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 4rem 0;
+}
+
+.az-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: rgba(255, 80, 80, 0.08);
+  border: 1px solid rgba(255, 80, 80, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: rgba(255, 120, 120, 0.5);
+}
+
+.az-empty-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+
+@keyframes fadeGridIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

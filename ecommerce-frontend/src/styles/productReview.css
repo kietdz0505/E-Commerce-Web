@@ -1,0 +1,75 @@
+/* ===== REVIEW CONTAINER ===== */
+.az-review-container {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(145deg, #16152e, #1b1a3a);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ===== HEADER ===== */
+.az-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.az-review-header h3 {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.az-review-count {
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(100,120,255,0.15);
+  color: #c8d0ff;
+  border: 1px solid rgba(100,120,255,0.3);
+}
+
+/* ===== LIST ===== */
+.az-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== EMPTY ===== */
+.az-review-empty {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255,255,255,0.6);
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 12px;
+}
+
+/* ===== LOAD MORE ===== */
+.az-review-loadmore {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.az-loadmore-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.8);
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.az-loadmore-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+}
+
+.az-loadmore-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

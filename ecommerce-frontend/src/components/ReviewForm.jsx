@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { submitReview } from '../api/reviewApi';
+import { FaStar } from "react-icons/fa";
+import '../styles/reviewForm.css';
 
 const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
   const [comment, setComment] = useState('');
@@ -24,22 +26,19 @@ const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
 
     const formData = new FormData();
     formData.append('comment', comment);
-    formData.append('rating', rating); // vẫn là string, backend tự cast int
-    if (image) {
-      formData.append('image', image);
-    }
+    formData.append('rating', rating);
+    if (image) formData.append('image', image);
 
     try {
       setIsSubmitting(true);
-      const response = await submitReview(productId, formData);
-      onReviewSubmitted(response.data);
+      const res = await submitReview(productId, formData);
+      onReviewSubmitted(res.data);
 
-      // Reset form
       setComment('');
       setRating(5);
       setImage(null);
     } catch (err) {
-      console.error('Failed to submit review', err);
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -47,52 +46,58 @@ const ReviewForm = ({ productId, onReviewSubmitted, onLoginClick }) => {
 
   if (!isLoggedIn) {
     return (
-      <div className="alert alert-warning mt-4">
-        Vui lòng <button onClick={onLoginClick} className="btn btn-link p-0">đăng nhập</button> để viết đánh giá.
+      <div className="az-review-login">
+        Vui lòng{' '}
+        <span onClick={onLoginClick}>
+          đăng nhập
+        </span>{' '}
+        để viết đánh giá
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <h5>Viết đánh giá</h5>
-      <div className="mb-3">
-        <label className="form-label">Số sao</label>
-        <div>
-          {[1, 2, 3, 4, 5].map((val) => (
-            <i
-              key={val}
-              className={`bi ${val <= rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'} fs-4 me-1`}
-              style={{ cursor: 'pointer' }}
-              onClick={() => setRating(val)}
-            ></i>
-          ))}
-        </div>
+    <form onSubmit={handleSubmit} className="az-review-form">
+      <h4 className="az-review-form-title">Viết đánh giá</h4>
+
+      {/* RATING */}
+      <div className="az-review-stars-input">
+        {[1, 2, 3, 4, 5].map((val) => (
+          <FaStar
+            key={val}
+            className={val <= rating ? 'filled' : ''}
+            onClick={() => setRating(val)}
+          />
+        ))}
       </div>
 
-      <div className="mb-3">
-        <label className="form-label">Bình luận</label>
-        <textarea
-          className="form-control"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          rows="3"
-          required
-        ></textarea>
+      {/* COMMENT */}
+      <textarea
+        placeholder="Chia sẻ trải nghiệm của bạn..."
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        required
+      />
+
+      {/* IMAGE */}
+      <div className="az-review-upload">
+        <label>
+          📷 Thêm ảnh (tuỳ chọn)
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+        </label>
+
+        {image && <span className="az-file-name">{image.name}</span>}
       </div>
-      <div className="mb-3">
-        <label className="form-label">Ảnh (tuỳ chọn)</label>
-        <input
-          type="file"
-          className="form-control"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
-      </div>
+
+      {/* ACTION */}
       <button
         type="submit"
-        className="btn btn-primary"
         disabled={isSubmitting || !comment.trim()}
+        className="az-submit-btn"
       >
         {isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá'}
       </button>

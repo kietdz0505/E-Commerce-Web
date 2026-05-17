@@ -1,0 +1,51 @@
+/* giảm chiều cao thêm */
+.az-modal {
+  width: 380px;
+  padding: 18px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* form gọn hơn */
+.az-form {
+  gap: 8px;
+}
+
+.az-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+  border-radius: 8px;
+
+  font-weight: 500;
+}
+
+.az-form input {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+/* forgot */
+.az-forgot {
+  text-align: right;
+  margin-top: 6px;
+}
+
+.az-forgot span {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.az-forgot span:hover {
+  color: #7f8cff;
+}
+
+/* button */
+.az-submit {
+  padding: 8px;
+  font-size: 0.9rem;
+}

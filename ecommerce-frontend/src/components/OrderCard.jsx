@@ -3,66 +3,124 @@ import { cancelOrder } from '../services/user/orderService';
 import { getApiUrl } from '../config/apiConfig';
 import { useNavigate } from 'react-router-dom';
 
+import {
+  HiOutlineClock,
+  HiOutlineCreditCard,
+  HiOutlineTag,
+  HiOutlineEye
+} from "react-icons/hi2";
+
+import { FaBoxOpen, FaTimesCircle } from "react-icons/fa";
+
+import '../styles/orderCard.css';
+
 const OrderCard = ({ order, onCancelSuccess }) => {
     const navigate = useNavigate();
 
     const handleCancel = async () => {
-        console.log("Hủy đơn:", order.id);
         if (window.confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
             try {
-                console.log("Gửi yêu cầu hủy đến:", getApiUrl('CANCEL_ORDER', order.id));
                 const message = await cancelOrder(order.id);
-                console.log("Phản hồi từ server:", message);
                 alert(message);
                 onCancelSuccess();
             } catch (error) {
-                console.error("Lỗi:", error);
                 alert(error.message || 'Có lỗi xảy ra');
             }
         }
     };
 
+    // ===== STATUS STYLE =====
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 'PENDING':
+                return 'pending';
+            case 'COMPLETED':
+                return 'success';
+            case 'CANCELLED':
+                return 'cancel';
+            case 'SHIPPED':
+                return 'shipped';
+            case 'PAID':
+                return 'paid';
+            case 'FAILED':
+                return 'failed';
+            default:
+                return '';
+        }
+    };
+
     return (
-        <div className="card mb-3">
-            <div className="card-header d-flex justify-content-between">
-                <div>Đơn hàng #{order.id}</div>
+        <div className="az-order-card">
+
+            {/* HEADER */}
+            <div className="az-order-header">
+                <div className="left">
+                    <FaBoxOpen />
+                    Đơn hàng #{order.id}
+                </div>
+
+                <div className={`status ${getStatusClass(order.status)}`}>
+                    {order.status}
+                </div>
+            </div>
+
+            {/* INFO */}
+            <div className="az-order-info">
                 <div>
-                    Trạng thái: <span className="fw-bold">{order.status}</span>
+                    <HiOutlineClock /> {new Date(order.orderDate).toLocaleString()}
+                </div>
+
+                <div>
+                    <HiOutlineCreditCard /> {order.paymentMethod || 'Chưa rõ'}
+                </div>
+
+                <div>
+                    <HiOutlineTag /> {order.promotionCode || 'Không có mã'}
                 </div>
             </div>
-            <div className="card-body">
-                <p><strong>Ngày đặt:</strong> {new Date(order.orderDate).toLocaleString()}</p>
-                <p><strong>Phương thức thanh toán:</strong> {order.paymentMethod || 'Chưa rõ'}</p>
-                <p><strong>Mã khuyến mãi:</strong> {order.promotionCode || 'Không'}</p>
-                <p><strong>Tổng tiền: </strong> 
-                    {order.totalAmount ? `${order.totalAmount.toLocaleString('vi-VN')} VNĐ` : 'Đang tính toán...'}
-                </p>
 
-                <p><strong>Sản phẩm:</strong></p>
-                <ul>
-                    {(order.items || []).map((item, index) => (
-                        <li key={index}>
-                            {item.productName} - SL: {item.quantity} - Giá: {item.unitPrice.toLocaleString('vi-VN')} VNĐ
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="d-flex gap-2 mt-3">
-                    <button
-                        className="btn btn-danger"
-                        onClick={handleCancel}
-                        disabled={!order.cancelable}
-                    >
-                        Hủy đơn hàng
-                    </button>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => navigate(`/order/${order.id}`)} 
-                    >
-                        Xem chi tiết đơn hàng
-                    </button>
-                </div>
+            {/* TOTAL */}
+            <div className="az-order-total">
+                Tổng tiền:
+                <span>
+                    {order.totalAmount
+                        ? order.totalAmount.toLocaleString('vi-VN') + '₫'
+                        : 'Đang tính...'}
+                </span>
             </div>
+
+            {/* ITEMS */}
+            <div className="az-order-items">
+                {(order.items || []).map((item, index) => (
+                    <div key={index} className="item">
+                        <div className="name">{item.productName}</div>
+                        <div className="meta">
+                            x{item.quantity} • {item.unitPrice.toLocaleString('vi-VN')}₫
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ACTION */}
+            <div className="az-order-actions">
+                <button
+                    className="btn cancel"
+                    onClick={handleCancel}
+                    disabled={!order.cancelable}
+                >
+                    <FaTimesCircle />
+                    Hủy
+                </button>
+
+                <button
+                    className="btn view"
+                    onClick={() => navigate(`/order/${order.id}`)}
+                >
+                    <HiOutlineEye />
+                    Chi tiết
+                </button>
+            </div>
+
         </div>
     );
 };

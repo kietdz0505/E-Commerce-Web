@@ -4,6 +4,7 @@ import com.example.ecommerce_web.dto.ChangePasswordDTO;
 import com.example.ecommerce_web.dto.UserDTO;
 import com.example.ecommerce_web.dto.UserProfileResponseDTO;
 import com.example.ecommerce_web.dto.UserProfileUpdateDTO;
+import com.example.ecommerce_web.security.CustomUserDetails;
 import com.example.ecommerce_web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class UserController {
 
     private final UserService userService;
@@ -30,14 +31,23 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserDTO getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public UserDTO getCurrentUser(
+            Authentication authentication
+    ) {
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
             throw new RuntimeException("Chưa đăng nhập");
         }
 
-        String email = authentication.getName();
-        return userService.getUserByEmail(email);
+        CustomUserDetails userDetails =
+                (CustomUserDetails)
+                        authentication.getPrincipal();
+
+        return userService.getUserById(
+                userDetails.getUserId()
+        );
     }
 
     @PostMapping("/change-password")

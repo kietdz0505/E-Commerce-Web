@@ -1,5 +1,5 @@
 import React from 'react';
-import { getOAuthUrl } from "../config/apiConfig";
+import { getOAuthUrl } from "../../config/apiConfig";
 
 const Login = () => {
   const handleGoogleLogin = () => {

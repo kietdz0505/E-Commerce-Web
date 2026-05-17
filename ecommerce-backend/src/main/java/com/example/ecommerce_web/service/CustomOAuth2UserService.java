@@ -118,9 +118,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
-                "oauth2user",
-                Boolean.TRUE.equals(user.isLocked()),
+                "",
+                user.isLocked(),
                 authorities,
+                user.getRoles(),
                 attributes
         );
 

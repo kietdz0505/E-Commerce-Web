@@ -61,7 +61,7 @@ public class OrderController {
         String userId = userDetails.getUserId();
 
         try {
-            OrderResponse updatedOrder = orderService.updateOrderDetailIfPending(id, userId, orderRequest);
+            OrderResponse updatedOrder = orderService.updateOrder(id, userId, orderRequest);
             return ResponseEntity.ok(updatedOrder);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

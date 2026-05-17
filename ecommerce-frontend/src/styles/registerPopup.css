@@ -1,0 +1,139 @@
+/* Overlay */
+.az-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 25, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Modal */
+.az-modal {
+  width: 420px;
+  background: linear-gradient(145deg, #16152e, #1c1b3d);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  color: white;
+  animation: fadeUp 0.3s ease;
+}
+
+/* Header */
+.az-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.az-modal-header h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.az-modal-header button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Form */
+.az-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.az-form input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: white;
+  transition: 0.2s;
+}
+
+.az-form input:focus {
+  border-color: #6c7cff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(108,124,255,0.2);
+}
+
+/* File */
+.az-file {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Error */
+.az-error-text {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Button */
+.az-submit {
+  margin-top: 10px;
+  background: linear-gradient(135deg, #5b6cff, #7f8cff);
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.az-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(100,120,255,0.5);
+}
+
+/* Switch */
+.az-switch {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.az-switch span {
+  color: #7f8cff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Divider */
+.az-divider {
+  text-align: center;
+  margin: 16px 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* Social */
+.az-social {
+  display: flex;
+  gap: 10px;
+}
+
+.az-social a {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.az-social a:hover {
+  background: rgba(255,255,255,0.08);
+}

@@ -1,0 +1,108 @@
+.az-summary-box {
+  background: linear-gradient(145deg, #16152e, #1b1a3a);
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* TITLE */
+.az-summary-title {
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+/* LIST */
+.az-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* ITEM */
+.az-summary-item {
+  display: flex;
+  gap: 10px;
+
+  padding: 10px;
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.03);
+  transition: 0.2s;
+}
+
+.az-summary-item:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateX(3px);
+}
+
+/* IMAGE */
+.az-summary-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* INFO */
+.az-summary-info {
+  flex: 1;
+}
+
+.az-summary-name {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.az-summary-text {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+}
+
+/* TOTAL */
+.az-summary-total {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.az-summary-total .old {
+  text-decoration: line-through;
+  margin: 0 6px;
+  color: rgba(255,255,255,0.4);
+}
+
+.az-summary-total .new {
+  color: #00e6a7;
+  font-weight: 800;
+}
+
+/* FOOTER */
+.az-summary-footer {
+  margin-top: 12px;
+}
+
+.az-summary-final {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.az-summary-final span {
+  color: #ff5c7a;
+}
+
+.az-summary-promo {
+  margin-top: 8px;
+  color: #7aa2ff;
+  font-size: 0.85rem;
+}

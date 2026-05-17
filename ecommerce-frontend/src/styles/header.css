@@ -11,6 +11,108 @@
     z-index: 1030;
 }
 
+/* ===== USER BUTTON ===== */
+.az-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 12px;
+  border-radius: 999px;
+
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.az-user-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* avatar */
+.az-user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+/* username */
+.az-user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* ===== DROPDOWN MENU ===== */
+.az-dropdown-menu {
+  background: rgba(20, 20, 40, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+
+  padding: 8px;
+  min-width: 200px;
+
+  animation: dropdownFade 0.2s ease;
+}
+
+/* items */
+.az-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 10px 12px;
+
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+
+  border-radius: 10px;
+  transition: all 0.2s ease;
+
+  font-size: 14px;
+}
+
+.az-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+/* logout highlight */
+.az-dropdown-item.logout {
+  color: #ff5c5c;
+}
+
+.az-dropdown-item.logout:hover {
+  background: rgba(255, 80, 80, 0.15);
+}
+
+/* divider */
+.az-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+/* animation */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .az-navbar::before {
     content: '';
     position: absolute;

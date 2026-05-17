@@ -1,0 +1,135 @@
+.az-checkout-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 16px;
+  animation: fadeUp 0.3s ease;
+}
+
+/* HEADER */
+.az-checkout-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.g-4{
+    width: 1000px;
+}
+.az-checkout-header h2 {
+  font-size: 26px;
+  color: #111;
+}
+
+.az-checkout-header svg {
+  font-size: 28px;
+  color: #6366f1;
+}
+
+/* CARD FORM */
+.az-checkout-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid #eee;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.az-checkout-card:hover {
+  transform: translateY(-2px);
+}
+
+/* STICKY SUMMARY */
+.az-checkout-summary {
+  position: sticky;
+  top: 90px;
+}
+
+/* INPUT */
+.az-checkout-card input,
+.az-checkout-card select,
+.az-checkout-card textarea {
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+.az-checkout-card input:focus,
+.az-checkout-card select:focus,
+.az-checkout-card textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* LABEL */
+.az-checkout-card label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* PROMO */
+.promo-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px;
+  transition: 0.2s;
+}
+
+.promo-btn:hover {
+  transform: translateY(-2px);
+  border-color: #6366f1;
+}
+
+.promo-btn.active {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+}
+
+/* SUMMARY */
+.az-checkout-summary {
+  background: #111827;
+  color: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+/* BUTTON */
+.btn-checkout {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00c896, #00e6a7);
+  color: white;
+  transition: 0.2s;
+}
+
+.btn-checkout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,200,150,0.3);
+}
+
+/* ANIMATION */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .az-checkout-summary {
+    position: static;
+  }
+}

@@ -2,81 +2,124 @@ import { Link } from 'react-router-dom';
 import { FaShoppingCart } from "react-icons/fa";
 import { useCart } from '../shared/CartContext';
 import { useNotification } from '../shared/NotificationContext';
-import StarRating from '../config/StarRating'; // hoặc điều chỉnh path phù hợp
+import { useAuth } from '../shared/AuthContext';
 
+import { toast } from 'react-toastify';
+
+import StarRating from '../config/StarRating';
+import '../styles/productCard.css';
 
 const ProductCard = ({ prod, isHot }) => {
   const { addToCart } = useCart();
-  const { showNotification } = useNotification();
+  const { success, error, warning } = useNotification();
+  const { currentUser } = useAuth();
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      showNotification('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!', 'danger');
+    // ❌ chưa login
+    if (!currentUser) {
+      warning('Vui lòng đăng nhập để thêm vào giỏ hàng');
       return;
     }
 
-    addToCart({ id: prod.id, product: prod, price: prod.price });
-    showNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+    // ❌ hết hàng
+    if (!prod.stock || prod.stock <= 0) {
+      error('Sản phẩm đã hết hàng');
+      return;
+    }
+
+    // 🔥 loading toast
+    const toastId = toast.loading("Đang thêm...");
+
+    try {
+      addToCart({
+        id: prod.id,
+        product: prod,
+        price: prod.price
+      });
+
+      toast.update(toastId, {
+        render: "Đã thêm vào giỏ!",
+        type: "success",
+        isLoading: false,
+        autoClose: 1200
+      });
+
+    } catch (err) {
+      console.error(err);
+
+      toast.update(toastId, {
+        render: "Lỗi khi thêm sản phẩm!",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000
+      });
+    }
   };
 
   return (
-    <div className="col-12 col-sm-6 col-md-4 col-lg-3">
-      <div className="card h-100 border-0 shadow-sm rounded-4 position-relative"
-        style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.03)';
-          e.currentTarget.classList.add('shadow');
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.classList.remove('shadow');
-        }}>
-        {isHot && (
-          <span className="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2 fs-6 rounded-pill">
-            Hot
-          </span>
-        )}
+    <div className="az-pcard-outer">
+      <div className="az-pcard">
 
-        <Link to={`/product/${prod.id}`} className="text-decoration-none text-dark">
-          <div className="p-3 d-flex flex-column align-items-center">
+        {/* HOT BADGE */}
+        {isHot && <span className="az-pcard-hot">🔥 Hot</span>}
+
+        {/* IMAGE */}
+        <Link to={`/product/${prod.id}`} className="text-decoration-none">
+          <div className="az-pcard-img-wrap">
             <img
               src={prod.imageUrl || "https://via.placeholder.com/200x200?text=No+Image"}
               alt={prod.name}
-              className="img-fluid rounded-3"
-              style={{ height: '180px', objectFit: 'contain', background: '#f8f9fa' }}
+              className="az-pcard-img"
             />
-            <div className="w-100 mt-3">
-              <h5
-                className="card-title text-center text-truncate"
-                style={{
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {prod.name}
-              </h5>
-
-              <p className="card-text text-danger fw-bold text-center fs-5">
-                {prod.price ? prod.price.toLocaleString("vi-VN") + "₫" : "Liên hệ"}
-              </p>
-            </div>
-            <div className="d-flex justify-content-center align-items-center gap-1 mb-2">
-              <span className="text-dark fw-semibold">{(prod.averageRating || 0).toFixed(1)}</span>
-              <StarRating rating={prod.averageRating || 0} />
-              <span className="text-muted ms-1">({prod.reviewCount || 0})</span>
-            </div>
           </div>
         </Link>
 
-        <div className="card-body pt-0">
-          <button className="btn btn-primary w-100" onClick={handleAddToCart}>
-            <FaShoppingCart className="me-2 mb-1" />Thêm vào giỏ hàng
+        {/* BODY */}
+        <div className="az-pcard-body">
+
+          <Link
+            to={`/product/${prod.id}`}
+            className="az-pcard-name"
+            title={prod.name}
+          >
+            {prod.name}
+          </Link>
+
+          <div className="az-pcard-price">
+            {prod.price
+              ? prod.price.toLocaleString("vi-VN") + "₫"
+              : "Liên hệ"}
+          </div>
+
+          <div className="az-pcard-rating">
+            <span className="az-pcard-rating-num">
+              {(prod.averageRating || 0).toFixed(1)}
+            </span>
+
+            <StarRating rating={prod.averageRating || 0} />
+
+            <span className="az-pcard-rating-count">
+              ({prod.reviewCount || 0})
+            </span>
+          </div>
+
+        </div>
+
+        {/* CTA */}
+        <div className="az-pcard-footer">
+          <button
+            className="az-pcard-btn"
+            onClick={handleAddToCart}
+            disabled={!prod.stock}
+          >
+            <FaShoppingCart size={13} />
+
+            {!prod.stock ? "Hết hàng" : "Thêm vào giỏ"}
           </button>
         </div>
+
       </div>
     </div>
   );

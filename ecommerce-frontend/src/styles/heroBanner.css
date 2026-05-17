@@ -200,11 +200,6 @@
   /* tăng độ rõ của glass */
   background: rgba(255,255,255,0.08);
 
-  /* blur rõ hơn */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  /* text dễ đọc hơn */
   color: rgba(255,255,255,0.6);
 
   font-size: 0.7rem;

@@ -29,7 +29,8 @@ public class Promotion {
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
 
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "promotion_products",
             joinColumns = @JoinColumn(name = "promotion_id"),
@@ -40,10 +41,28 @@ public class Promotion {
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserPromotion> userPromotions = new HashSet<>();
 
+
     public boolean isActive() {
         LocalDateTime now = LocalDateTime.now();
-        return validFrom != null && validTo != null
+
+        boolean timeValid = validFrom != null && validTo != null
                 && validFrom.isBefore(now)
                 && validTo.isAfter(now);
+
+        if (!timeValid) return false;
+
+
+        if (usageLimit != null) {
+            int usedCount = userPromotions == null ? 0 : userPromotions.size();
+            return usedCount < usageLimit;
+        }
+
+        return true;
+    }
+
+
+    public boolean appliesToProduct(Long productId) {
+        if (products == null || products.isEmpty()) return false;
+        return products.stream().anyMatch(p -> p.getId().equals(productId));
     }
 }

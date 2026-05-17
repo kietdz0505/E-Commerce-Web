@@ -107,10 +107,17 @@ public class CartService {
 
     @Transactional
     public void clearCart(String userId) {
-        Cart cart = getCartForUser(userId);
+
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElse(null);
+
+        if (cart == null) {
+            return;
+        }
+
         cartItemRepository.deleteAll(cart.getItems());
+
         cart.getItems().clear();
-        cartRepository.save(cart);
     }
 
     public Double calculateCartTotal(String userId) {

@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { getMyPromotions } from "../../services/user/promotionService"// API đã viết ở trên
+import { getMyPromotions } from "../../services/user/promotionService";
 import { useNavigate } from "react-router-dom";
+
+import {
+  HiOutlineGift,
+  HiOutlineCalendarDays,
+  HiOutlineTicket,
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight
+} from "react-icons/hi2";
+
+import "../../styles/userPromotionPage.css";
 
 const UserPromotionPage = () => {
   const [promotions, setPromotions] = useState([]);
   const [page, setPage] = useState(0);
-  const [size] = useState(5); // có thể lấy từ backend config, hoặc cho người dùng chọn
+  const [size] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
 
   const navigate = useNavigate();
@@ -20,70 +30,91 @@ const UserPromotionPage = () => {
       setPromotions(data.content);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error("Error fetching promotions:", error);
+      console.error(error);
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "ACTIVE":
+        return "active";
+      case "EXPIRED":
+        return "expired";
+      default:
+        return "inactive";
     }
   };
 
   return (
-    <div className="container mt-4">
-      <h2>🎁 Khuyến mãi của bạn</h2>
+    <div className="az-promo-container">
 
+      {/* HEADER */}
+      <div className="az-promo-header">
+        <h2><HiOutlineGift /> Khuyến mãi của bạn</h2>
+      </div>
+
+      {/* LIST */}
       {promotions.length === 0 ? (
-        <p>Bạn chưa có khuyến mãi nào.</p>
+        <div className="az-empty">Bạn chưa có khuyến mãi nào</div>
       ) : (
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Mô tả</th>
-              <th>Giảm (%)</th>
-              <th>Thời gian</th>
-              <th>Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {promotions.map((promo) => (
-              <tr key={promo.promotionId}>
-                <td>{promo.code}</td>
-                <td>{promo.description}</td>
-                <td>{promo.discountPercent}</td>
-                <td>
+        <div className="az-promo-grid">
+          {promotions.map((promo) => (
+            <div key={promo.promotionId} className="az-promo-card">
+
+              <div className="az-promo-top">
+                <span className={`status ${getStatusClass(promo.status)}`}>
+                  {promo.status}
+                </span>
+              </div>
+
+              <div className="az-promo-body">
+
+                <h4>
+                  <HiOutlineTicket /> {promo.code}
+                </h4>
+
+                <p className="desc">{promo.description}</p>
+
+                <div className="discount">
+                  -{promo.discountPercent}%
+                </div>
+
+                <div className="date">
+                  <HiOutlineCalendarDays />
                   {promo.validFrom} → {promo.validTo}
-                </td>
-                <td>{promo.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+
+              </div>
+
+            </div>
+          ))}
+        </div>
       )}
 
-      {/* Pagination */}
-      <div className="d-flex justify-content-between align-items-center mt-3">
+      {/* PAGINATION */}
+      <div className="az-pagination">
         <button
-          className="btn btn-outline-primary"
+          onClick={() => setPage(p => p - 1)}
           disabled={page === 0}
-          onClick={() => setPage(page - 1)}
         >
-          ⬅ Trang trước
+          <HiOutlineChevronLeft /> Trang trước
         </button>
-        <span>
-          Trang {page + 1} / {totalPages}
-        </span>
+
+        <span>Trang {page + 1} / {totalPages}</span>
+
         <button
-          className="btn btn-outline-primary"
+          onClick={() => setPage(p => p + 1)}
           disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}
         >
-          Trang sau ➡
+          Trang sau <HiOutlineChevronRight />
         </button>
       </div>
 
-      <button
-        className="btn btn-secondary mt-3"
-        onClick={() => navigate("/")}
-      >
-        ⬅ Quay lại
+      {/* BACK */}
+      <button className="az-back-btn" onClick={() => navigate("/")}>
+        ← Quay lại
       </button>
+
     </div>
   );
 };

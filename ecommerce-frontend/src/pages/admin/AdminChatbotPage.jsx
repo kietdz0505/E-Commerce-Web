@@ -125,7 +125,7 @@ export default function AdminChatbotPage() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: 1000 }}>
-      <h2 className="mb-4 text-center">Quản lý Chatbot</h2>
+      <h2 className="mb-4 mt-4 text-center">Quản lý Chatbot</h2>
 
       <Button type="primary" className="mb-3" onClick={openCreate}>
         Thêm câu hỏi
@@ -166,6 +166,7 @@ export default function AdminChatbotPage() {
         onOk={handleFormSubmit}
         okText="Lưu"
         cancelText="Hủy"
+        destroyOnHidden
       >
         <Form form={form} layout="vertical">
           <Form.Item

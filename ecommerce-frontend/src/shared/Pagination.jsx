@@ -1,23 +1,26 @@
 import React from 'react';
+import '../styles/pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => (
-  <div className="d-flex justify-content-center mt-4">
+  <div className="az-pagination">
     <button
-      className="btn btn-outline-secondary mx-1"
+      className="az-page-btn"
       disabled={currentPage === 0}
       onClick={() => onPageChange(currentPage - 1)}
     >
-      Trước
+      ← Trước
     </button>
-    <span className="mx-2 align-self-center">
-      Trang {currentPage + 1} / {totalPages}
+
+    <span className="az-page-info">
+      Trang <b>{currentPage + 1}</b> / {totalPages}
     </span>
+
     <button
-      className="btn btn-outline-secondary mx-1"
+      className="az-page-btn"
       disabled={currentPage === totalPages - 1}
       onClick={() => onPageChange(currentPage + 1)}
     >
-      Tiếp
+      Tiếp →
     </button>
   </div>
 );
