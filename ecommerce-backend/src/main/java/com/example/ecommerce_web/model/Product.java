@@ -19,7 +19,9 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Version
+    @Column(nullable = false)
+    private Long version;
     private String name;
     private String description;
     private String imageUrl;

@@ -30,7 +30,7 @@ const OrderCheckoutPage = () => {
 
   const [promotions, setPromotions] = useState([]);
   const [selectedPromotionId, setSelectedPromotionId] = useState(null);
-
+  const [submitting, setSubmitting] = useState(false);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
@@ -157,38 +157,76 @@ const OrderCheckoutPage = () => {
       0
     );
 
-  // SUBMIT
   const handleSubmit = async () => {
-    const selectedPromotion = getSelectedPromotion();
-    const order = await placeOrder(
-      {
-        ...form,
-        deliveryAddress: fullAddress,
-        promotionCode: selectedPromotion?.code || null
-      },
-      cartItems
-    );
 
-    if (!order) return;
+    // CHẶN DOUBLE CLICK
+    if (submitting) return;
 
-    // CASH
-    if (form.paymentMethod === 'CASH') {
-      await clearCart();
-      navigate('/my-orders');
-      return;
-    }
+    try {
 
-    // MOMO
-    if (form.paymentMethod === 'MOMO') {
-      const res = await createMomoPayment(order.id);
-      window.location.href = res.data;
-      return;
-    }
+      setSubmitting(true);
 
-    // VNPAY
-    if (form.paymentMethod === 'VNPAY') {
-      const res = await createVnpayPayment(order.id);
-      window.location.href = res.data;
+      const selectedPromotion =
+        getSelectedPromotion();
+
+      const order = await placeOrder(
+        {
+          ...form,
+          deliveryAddress: fullAddress,
+          promotionCode:
+            selectedPromotion?.code || null
+        },
+        cartItems
+      );
+
+      if (!order) {
+        setSubmitting(false);
+        return;
+      }
+
+      // CASH
+      if (form.paymentMethod === 'CASH') {
+
+        await clearCart();
+
+        navigate('/my-orders');
+
+        return;
+      }
+
+      // MOMO
+      if (form.paymentMethod === 'MOMO') {
+
+        const res =
+          await createMomoPayment(order.id);
+
+        window.location.href = res.data;
+
+        return;
+      }
+
+      // VNPAY
+      if (form.paymentMethod === 'VNPAY') {
+
+        const res =
+          await createVnpayPayment(order.id);
+
+        window.location.href = res.data;
+
+        return;
+      }
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error(
+        'Đặt hàng thất bại'
+      );
+
+    } finally {
+
+      setSubmitting(false);
     }
   };
 
@@ -221,6 +259,7 @@ const OrderCheckoutPage = () => {
               selectedPromotionId={selectedPromotionId}
               onPromotionSelect={handlePromotionSelect}
               onSubmit={handleSubmit}
+              submitting={submitting}
             />
           </div>
         </div>

@@ -1,58 +1,147 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback
+} from "react";
+
+import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../config/apiConfig";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({
+  children
+}) => {
 
-  // ===== FETCH USER =====
-  const fetchUser = async () => {
-    const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
+  const [currentUser, setCurrentUser] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  // =========================================
+  // LOGOUT
+  // =========================================
+
+  const logout = useCallback((
+    redirect = true
+  ) => {
+
+    localStorage.removeItem("token");
+
+    setCurrentUser(null);
+
+    if (redirect) {
+      navigate("/login");
+    }
+
+  }, [navigate]);
+
+  // =========================================
+  // FETCH USER
+  // =========================================
+
+  const fetchUser = useCallback(async () => {
+
+    const token =
+      localStorage.getItem("token");
+
+    // NO TOKEN
     if (!token) {
+
       setCurrentUser(null);
       setLoading(false);
+
       return;
     }
 
     try {
-      const res = await fetch(getApiUrl("PROFILE"), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      if (!res.ok) throw new Error("Unauthorized");
+      const res = await fetch(
+        getApiUrl("PROFILE"),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
-      const data = await res.json();
+      // TOKEN INVALID / EXPIRED
+      if (
+        res.status === 401
+      ) {
+
+        logout(false);
+
+        return;
+      }
+
+      if (!res.ok) {
+
+        throw new Error(
+          "Failed to fetch profile"
+        );
+      }
+
+      const data =
+        await res.json();
+
       setCurrentUser(data);
+
     } catch (err) {
-      console.error("Auth error:", err);
-      localStorage.removeItem("token");
-      setCurrentUser(null);
+
+      console.error(
+        "Fetch user error:",
+        err
+      );
+
+      // NETWORK ERROR
+      // KHÔNG logout user
+      // vì có thể backend tạm thời down
+
     } finally {
+
       setLoading(false);
     }
-  };
 
-  // ===== INIT =====
+  }, [logout]);
+
+  // =========================================
+  // INIT
+  // =========================================
+
   useEffect(() => {
+
     fetchUser();
-  }, []);
 
-  // ===== LOGIN (FIX CHÍNH) =====
-  const login = async (token) => {
-    localStorage.setItem("token", token);
-    await fetchUser(); 
+  }, [fetchUser]);
+
+  // =========================================
+  // LOGIN
+  // =========================================
+
+  const login = async (
+    token
+  ) => {
+
+    localStorage.setItem(
+      "token",
+      token
+    );
+
+    await fetchUser();
   };
 
-  // ===== LOGOUT =====
-  const logout = () => {
-    localStorage.removeItem("token");
-    setCurrentUser(null);
-  };
+  // =========================================
+  // CONTEXT
+  // =========================================
 
   return (
+
     <AuthContext.Provider
       value={{
         currentUser,
@@ -62,9 +151,12 @@ export const AuthProvider = ({ children }) => {
         fetchUser
       }}
     >
+
       {children}
+
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () =>
+  useContext(AuthContext);

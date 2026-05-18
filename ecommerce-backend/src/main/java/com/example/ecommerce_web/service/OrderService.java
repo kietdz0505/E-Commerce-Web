@@ -12,6 +12,7 @@ import com.example.ecommerce_web.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,65 +36,134 @@ public class OrderService {
     @Value("${order.cancel.limit-hours}")
     private int cancelLimitHours;
 
-    // =========================================================
-    // PLACE ORDER
-    // =========================================================
-
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String userId) {
-
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Promotion promotion = resolvePromotion(request.getPromotionCode());
-
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+        Promotion promotion =
+                resolvePromotion(
+                        request.getPromotionCode()
+                );
         Order order = new Order();
-        order.setReceiverName(request.getReceiverName());
-        order.setReceiverPhone(request.getReceiverPhone());
-        order.setDeliveryAddress(request.getDeliveryAddress());
-        order.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod().toUpperCase()));
+        order.setReceiverName(
+                request.getReceiverName()
+        );
+        order.setReceiverPhone(
+                request.getReceiverPhone()
+        );
+        order.setDeliveryAddress(
+                request.getDeliveryAddress()
+        );
+        order.setPaymentMethod(
+                PaymentMethod.valueOf(
+                        request.getPaymentMethod()
+                                .toUpperCase()
+                )
+        );
+
         order.setStatus(OrderStatus.PENDING);
-        order.setOrderDate(LocalDateTime.now());
+        order.setOrderDate(
+                LocalDateTime.now()
+        );
         order.setUser(user);
         order.setPromotion(promotion);
 
+        List<OrderItem> items =
+                new ArrayList<>();
 
+        BigDecimal total =
+                BigDecimal.ZERO;
 
+        for (OrderItemRequest itemReq :
+                request.getItems()) {
 
-        List<OrderItem> items = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO;
+            Product product =
+                    productRepository.findById(
+                            itemReq.getProductId()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
+                                    "Product not found"
+                            )
+                    );
 
-        for (OrderItemRequest itemReq : request.getItems()) {
+            int currentStock =
+                    product.getStock();
 
-            Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            int buyQuantity =
+                    itemReq.getQuantity();
 
-            if (product.getStock() < itemReq.getQuantity()) {
-                throw new RuntimeException("Not enough stock for product: " + product.getName());
+            if (currentStock < buyQuantity) {
+
+                throw new RuntimeException(
+                        "Sản phẩm đã hết hàng: "
+                                + product.getName()
+                );
+            }
+            product.setStock(
+                    currentStock - buyQuantity
+            );
+
+            try {
+                productRepository.saveAndFlush(product);
+
+            } catch (
+                    ObjectOptimisticLockingFailureException e
+            ) {
+
+                throw new RuntimeException(
+                        "Sản phẩm vừa được mua bởi người khác: "
+                                + product.getName()
+                );
             }
 
-            product.setStock(product.getStock() - itemReq.getQuantity());
-            productRepository.save(product);
+            BigDecimal originalPrice =
+                    BigDecimal.valueOf(
+                            product.getPrice()
+                    );
 
-            BigDecimal originalPrice   = BigDecimal.valueOf(product.getPrice());
-            BigDecimal discountedPrice = applyPromotion(promotion, product, originalPrice);
+            BigDecimal discountedPrice =
+                    applyPromotion(
+                            promotion,
+                            product,
+                            originalPrice
+                    );
+            OrderItem item =
+                    new OrderItem();
 
-            OrderItem item = new OrderItem();
             item.setOrder(order);
+
             item.setProduct(product);
-            item.setQuantity(itemReq.getQuantity());
-            item.setUnitPrice(originalPrice);
-            item.setDiscountedUnitPrice(discountedPrice);
+
+            item.setQuantity(
+                    buyQuantity
+            );
+
+            item.setUnitPrice(
+                    originalPrice
+            );
+
+            item.setDiscountedUnitPrice(
+                    discountedPrice
+            );
+
             items.add(item);
-
-            total = total.add(discountedPrice.multiply(BigDecimal.valueOf(itemReq.getQuantity())));
+            total = total.add(
+                    discountedPrice.multiply(
+                            BigDecimal.valueOf(
+                                    buyQuantity
+                            )
+                    )
+            );
         }
-
         order.setItems(items);
-        order.setTotalAmount(total);
-        orderRepository.save(order);
 
-        return mapToOrderResponse(order);
+        order.setTotalAmount(total);
+
+        Order savedOrder =
+                orderRepository.save(order);
+
+        return mapToOrderResponse(savedOrder);
     }
 
     private Promotion resolvePromotion(String promotionCode) {
@@ -101,7 +171,6 @@ public class OrderService {
         return promotionRepository.findByCode(promotionCode)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
     }
-
 
     private BigDecimal applyPromotion(Promotion promotion, Product product, BigDecimal originalPrice) {
         if (promotion == null
@@ -115,16 +184,7 @@ public class OrderService {
         return originalPrice.subtract(discount);
     }
 
-
-
-    // =========================================================
-    // GET ORDER
-    // =========================================================
-
-    public OrderResponse getOrderById(
-            Long id,
-            String userId
-    ) {
+    public OrderResponse getOrderById(Long id, String userId) {
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() ->
@@ -145,7 +205,6 @@ public class OrderService {
     }
 
     public String getOrderPaymentMethod(Long orderId) {
-
         return getOrderEntity(orderId)
                 .getPaymentMethod()
                 .name();
@@ -164,16 +223,7 @@ public class OrderService {
                 .getStatus();
     }
 
-    // =========================================================
-    // USER ORDERS
-    // =========================================================
-
-    public Page<OrderResponse> getUserOrders(
-            String userId,
-            int page,
-            int size,
-            String sortDirection
-    ) {
+    public Page<OrderResponse> getUserOrders(String userId, int page, int size, String sortDirection) {
 
         Sort.Direction direction =
                 sortDirection.equalsIgnoreCase("asc")
@@ -194,15 +244,8 @@ public class OrderService {
                 .map(this::mapToOrderResponse);
     }
 
-    // =========================================================
-    // CANCEL ORDER
-    // =========================================================
-
     @Transactional
-    public OrderResponse cancelOrder(
-            Long orderId,
-            String userId
-    ) {
+    public OrderResponse cancelOrder(Long orderId, String userId) {
 
         Order order = getOrderEntity(orderId);
 
@@ -236,35 +279,23 @@ public class OrderService {
         );
     }
 
-    // =========================================================
-    // UPDATE ORDER
-    // =========================================================
-
     @Transactional
-    public OrderResponse updateOrder(
-            Long orderId,
-            String userId,
-            OrderRequest request
-    ) {
+    public OrderResponse updateOrder(Long orderId, String userId, OrderRequest request) {
 
         Order order = orderRepository
                 .findByIdAndUserId(orderId, userId)
                 .orElseThrow(() ->
                         new RuntimeException("Order not found"));
 
-        /*
-         * ================================
-         * VALIDATE STATUS
-         * ================================
-         */
 
-        OrderStatus status = order.getStatus();
+        OrderStatus status =
+                order.getStatus();
 
-        // Không cho sửa nếu đã đi vào fulfillment cuối
+        // Không cho sửa nếu đã hoàn tất flow
         if (
-                status == OrderStatus.SHIPPED ||
-                        status == OrderStatus.COMPLETED ||
-                        status == OrderStatus.CANCELLED
+                status == OrderStatus.SHIPPED
+                        || status == OrderStatus.COMPLETED
+                        || status == OrderStatus.CANCELLED
         ) {
 
             throw new RuntimeException(
@@ -272,11 +303,9 @@ public class OrderService {
             );
         }
 
-        /*
-         * ================================
-         * UPDATE SHIPPING INFO
-         * ================================
-         */
+        // =====================================================
+        // UPDATE SHIPPING INFO
+        // =====================================================
 
         order.setReceiverName(
                 request.getReceiverName()
@@ -290,48 +319,68 @@ public class OrderService {
                 request.getDeliveryAddress()
         );
 
-        /*
-         * ================================
-         * PAID ORDER:
-         * chỉ cho sửa thông tin nhận hàng
-         * ================================
-         */
+        // =====================================================
+        // PAID:
+        // chỉ cho sửa thông tin giao hàng
+        // =====================================================
 
         if (status == OrderStatus.PAID) {
 
-            return mapToOrderResponse(order);
+            Order savedOrder =
+                    orderRepository.save(order);
+
+            return mapToOrderResponse(savedOrder);
         }
 
-        /*
-         * ================================
-         * CHỈ PENDING / FAILED
-         * ĐƯỢC FULL UPDATE
-         * ================================
-         */
+        // =====================================================
+        // RESTORE OLD STOCK
+        // =====================================================
 
-        // restore stock cũ
-        for (OrderItem oldItem : order.getItems()) {
+        for (OrderItem oldItem :
+                order.getItems()) {
 
-            Product product = oldItem.getProduct();
+            Product product =
+                    productRepository.findById(
+                            oldItem.getProduct().getId()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
+                                    "Product not found"
+                            )
+                    );
 
             product.setStock(
                     product.getStock()
                             + oldItem.getQuantity()
             );
+
+            try {
+
+                productRepository.saveAndFlush(product);
+
+            } catch (
+                    ObjectOptimisticLockingFailureException e
+            ) {
+
+                throw new RuntimeException(
+                        "Sản phẩm vừa được cập nhật: "
+                                + product.getName()
+                );
+            }
         }
 
-        // xóa item cũ
+        // =====================================================
+        // CLEAR OLD ITEMS
+        // =====================================================
+
         order.getItems().clear();
 
-        /*
-         * ================================
-         * PAYMENT METHOD
-         * ================================
-         */
+        // =====================================================
+        // PAYMENT METHOD
+        // =====================================================
 
         if (
-                request.getPaymentMethod() != null &&
-                        !request.getPaymentMethod().isBlank()
+                request.getPaymentMethod() != null
+                        && !request.getPaymentMethod().isBlank()
         ) {
 
             order.setPaymentMethod(
@@ -342,25 +391,25 @@ public class OrderService {
             );
         }
 
-        /*
-         * ================================
-         * PROMOTION
-         * ================================
-         */
+        // =====================================================
+        // PROMOTION
+        // =====================================================
 
         Promotion promotion = null;
 
         if (
-                request.getPromotionCode() != null &&
-                        !request.getPromotionCode().isBlank()
+                request.getPromotionCode() != null
+                        && !request.getPromotionCode().isBlank()
         ) {
 
             promotion = promotionRepository
-                    .findByCode(request.getPromotionCode())
-                    .orElseThrow(() ->
-                            new RuntimeException(
+                    .findByCode(
+                            request.getPromotionCode()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
                                     "Promotion not found"
-                            ));
+                            )
+                    );
 
             if (!promotion.isActive()) {
 
@@ -372,47 +421,71 @@ public class OrderService {
 
         order.setPromotion(promotion);
 
-        /*
-         * ================================
-         * REBUILD ORDER ITEMS
-         * ================================
-         */
+        // =====================================================
+        // REBUILD ITEMS
+        // =====================================================
 
-        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal total =
+                BigDecimal.ZERO;
+
+        List<OrderItem> newItems =
+                new ArrayList<>();
 
         for (OrderItemRequest itemReq :
                 request.getItems()) {
 
-            Product product = productRepository
-                    .findById(itemReq.getProductId())
-                    .orElseThrow(() ->
-                            new RuntimeException(
+            Product product =
+                    productRepository.findById(
+                            itemReq.getProductId()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
                                     "Product not found"
-                            ));
+                            )
+                    );
 
-            /*
-             * CHECK STOCK
-             */
+            int currentStock =
+                    product.getStock();
 
-            if (
-                    product.getStock()
-                            < itemReq.getQuantity()
-            ) {
+            int buyQuantity =
+                    itemReq.getQuantity();
+
+            // =================================================
+            // CHECK STOCK
+            // =================================================
+
+            if (currentStock < buyQuantity) {
 
                 throw new RuntimeException(
-                        "Not enough stock for product: "
+                        "Sản phẩm đã hết hàng: "
                                 + product.getName()
                 );
             }
 
-            /*
-             * REDUCE STOCK
-             */
+            // =================================================
+            // RESERVE STOCK AGAIN
+            // =================================================
 
             product.setStock(
-                    product.getStock()
-                            - itemReq.getQuantity()
+                    currentStock - buyQuantity
             );
+
+            try {
+
+                productRepository.saveAndFlush(product);
+
+            } catch (
+                    ObjectOptimisticLockingFailureException e
+            ) {
+
+                throw new RuntimeException(
+                        "Sản phẩm vừa được mua bởi người khác: "
+                                + product.getName()
+                );
+            }
+
+            // =================================================
+            // PRICE
+            // =================================================
 
             BigDecimal originalPrice =
                     BigDecimal.valueOf(
@@ -420,44 +493,25 @@ public class OrderService {
                     );
 
             BigDecimal discountedPrice =
-                    originalPrice;
+                    applyPromotion(
+                            promotion,
+                            product,
+                            originalPrice
+                    );
 
-            /*
-             * APPLY PROMOTION
-             */
-
-            if (
-                    promotion != null &&
-                            promotion.getProducts()
-                                    .stream()
-                                    .anyMatch(p ->
-                                            p.getId()
-                                                    .equals(product.getId()))
-            ) {
-
-                BigDecimal discount =
-                        originalPrice.multiply(
-                                promotion.getDiscountPercent()
-                                        .divide(
-                                                BigDecimal.valueOf(100)
-                                        )
-                        );
-
-                discountedPrice =
-                        originalPrice.subtract(discount);
-            }
-
-            /*
-             * CREATE ORDER ITEM
-             */
+            // =================================================
+            // CREATE ITEM
+            // =================================================
 
             OrderItem orderItem =
                     new OrderItem();
 
             orderItem.setOrder(order);
+
             orderItem.setProduct(product);
+
             orderItem.setQuantity(
-                    itemReq.getQuantity()
+                    buyQuantity
             );
 
             orderItem.setUnitPrice(
@@ -468,34 +522,28 @@ public class OrderService {
                     discountedPrice
             );
 
-            order.getItems().add(orderItem);
+            newItems.add(orderItem);
 
-            /*
-             * CALCULATE TOTAL
-             */
+            // =================================================
+            // TOTAL
+            // =================================================
 
             total = total.add(
                     discountedPrice.multiply(
                             BigDecimal.valueOf(
-                                    itemReq.getQuantity()
+                                    buyQuantity
                             )
                     )
             );
         }
 
-        /*
-         * ================================
-         * UPDATE TOTAL
-         * ================================
-         */
+        // =====================================================
+        // SAVE ORDER
+        // =====================================================
+
+        order.setItems(newItems);
 
         order.setTotalAmount(total);
-
-        /*
-         * ================================
-         * SAVE
-         * ================================
-         */
 
         Order savedOrder =
                 orderRepository.save(order);
@@ -503,27 +551,27 @@ public class OrderService {
         return mapToOrderResponse(savedOrder);
     }
 
-    // =========================================================
-    // UPDATE STATUS
-    // =========================================================
-
     @Transactional
-    public void updateOrderStatus(
-            Long orderId,
-            OrderStatus newStatus
-    ) {
+    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
 
         Order order = getOrderEntity(orderId);
 
         OrderStatus oldStatus =
                 order.getStatus();
 
+        // =====================================================
         // IDEMPOTENT
+        // tránh callback payment gọi nhiều lần
+        // =====================================================
+
         if (oldStatus == newStatus) {
             return;
         }
 
-        // VALIDATION
+        // =====================================================
+        // VALIDATE STATUS FLOW
+        // =====================================================
+
         if (!isValidTransition(
                 oldStatus,
                 newStatus
@@ -537,43 +585,66 @@ public class OrderService {
             );
         }
 
-        order.setStatus(newStatus);
+        try {
 
-        orderRepository.save(order);
+            // =================================================
+            // PAYMENT SUCCESS
+            // =================================================
+            // Stock đã reserve từ lúc tạo order
+            // nên ở đây KHÔNG trừ stock nữa
+            // =================================================
 
-        // CLEAR CART AFTER PAID
-        if (oldStatus != OrderStatus.PAID
-                && newStatus == OrderStatus.PAID) {
+            if (newStatus == OrderStatus.PAID) {
 
-            cartService.clearCart(
-                    order.getUser().getId()
+                // clear cart sau khi thanh toán thành công
+                cartService.clearCart(
+                        order.getUser().getId()
+                );
+            }
+
+            // =================================================
+            // PAYMENT FAILED / CANCELLED
+            // =================================================
+            // Trả stock lại
+            // Chỉ restore nếu trước đó chưa restore
+            // =================================================
+
+            if (
+                    (
+                            newStatus == OrderStatus.FAILED
+                                    || newStatus == OrderStatus.CANCELLED
+                    )
+
+                            &&
+
+                            oldStatus != OrderStatus.FAILED
+                            &&
+
+                            oldStatus != OrderStatus.CANCELLED
+            ) {
+
+                restoreStock(order);
+            }
+
+            // =================================================
+            // UPDATE STATUS
+            // =================================================
+
+            order.setStatus(newStatus);
+
+            orderRepository.save(order);
+
+        } catch (
+                ObjectOptimisticLockingFailureException e
+        ) {
+
+            throw new RuntimeException(
+                    "Có sản phẩm vừa được cập nhật bởi giao dịch khác."
             );
-        }
-
-        // RESTORE STOCK ON CANCEL
-        if (oldStatus != OrderStatus.CANCELLED
-                && newStatus == OrderStatus.CANCELLED) {
-
-            restoreStock(order);
-        }
-
-        // RESTORE STOCK ON FAILED
-        if (oldStatus != OrderStatus.FAILED
-                && newStatus == OrderStatus.FAILED) {
-
-            restoreStock(order);
         }
     }
 
-    // =========================================================
-    // ADMIN
-    // =========================================================
-
-    public Page<OrderResponse> getAllOrders(
-            int page,
-            int size,
-            String sortDirection
-    ) {
+    public Page<OrderResponse> getAllOrders(int page, int size, String sortDirection) {
 
         Sort.Direction direction =
                 sortDirection.equalsIgnoreCase("desc")
@@ -591,9 +662,7 @@ public class OrderService {
                 .map(this::mapToOrderResponse);
     }
 
-    public OrderResponse getOrderByIdForAdmin(
-            Long id
-    ) {
+    public OrderResponse getOrderByIdForAdmin(Long id) {
 
         return mapToOrderResponse(
                 getOrderEntity(id)
@@ -601,10 +670,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrderStatusByAdmin(
-            Long orderId,
-            OrderStatus status
-    ) {
+    public void updateOrderStatusByAdmin(Long orderId, OrderStatus status) {
 
         updateOrderStatus(orderId, status);
     }
@@ -619,16 +685,18 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    // =========================================================
-    // HELPERS
-    // =========================================================
-
     private void restoreStock(Order order) {
 
-        order.getItems().forEach(item -> {
+        for (OrderItem item : order.getItems()) {
 
             Product product =
-                    item.getProduct();
+                    productRepository.findById(
+                            item.getProduct().getId()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
+                                    "Product not found"
+                            )
+                    );
 
             product.setStock(
                     product.getStock()
@@ -636,13 +704,10 @@ public class OrderService {
             );
 
             productRepository.save(product);
-        });
+        }
     }
 
-    private boolean isCancelableByUser(
-            OrderStatus status,
-            long hoursSinceOrder
-    ) {
+    private boolean isCancelableByUser(OrderStatus status, long hoursSinceOrder) {
 
         return (
                 status == OrderStatus.PENDING
@@ -650,10 +715,7 @@ public class OrderService {
         ) && hoursSinceOrder <= cancelLimitHours;
     }
 
-    private boolean isValidTransition(
-            OrderStatus oldStatus,
-            OrderStatus newStatus
-    ) {
+    private boolean isValidTransition(OrderStatus oldStatus, OrderStatus newStatus) {
 
         return switch (oldStatus) {
 
@@ -673,9 +735,45 @@ public class OrderService {
         };
     }
 
-    private OrderResponse mapToOrderResponse(
-            Order order
-    ) {
+    private void reduceStock(Order order) {
+
+        for (OrderItem item : order.getItems()) {
+
+            Product product =
+                    productRepository.findById(
+                            item.getProduct().getId()
+                    ).orElseThrow(
+                            () -> new RuntimeException(
+                                    "Product not found"
+                            )
+                    );
+
+            int currentStock =
+                    product.getStock();
+
+            int buyQuantity =
+                    item.getQuantity();
+
+            // =====================================
+            // CHECK AGAIN
+            // =====================================
+            if (currentStock < buyQuantity) {
+
+                throw new RuntimeException(
+                        "Sản phẩm đã hết hàng: "
+                                + product.getName()
+                );
+            }
+
+            product.setStock(
+                    currentStock - buyQuantity
+            );
+
+            productRepository.save(product);
+        }
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
 
         OrderResponse response =
                 new OrderResponse();

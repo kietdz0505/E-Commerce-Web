@@ -18,6 +18,17 @@
   font-weight: 800;
 }
 
+.az-form-group input {
+    color: white;
+    background: transparent;
+    border-color: rgba(255,255,255,0.2);
+}
+
+.az-form-group input::placeholder {
+    color: rgba(255,255,255,0.7);
+    opacity: 1;
+}
+
 /* INPUT */
 .az-form-group {
   display: flex;

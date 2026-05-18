@@ -1,5 +1,6 @@
 package com.example.ecommerce_web.repository;
 
+import com.example.ecommerce_web.model.OrderStatus;
 import com.example.ecommerce_web.model.Product;
 import com.example.ecommerce_web.model.Order;
 import org.springframework.data.domain.Page;
@@ -43,5 +44,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByUser_Id(String userId, Pageable pageable);
 
     Optional<Order> findByIdAndUserId(Long id, String userId);
+
+    List<Order> findByStatusAndOrderDateBefore(
+            OrderStatus status,
+            LocalDateTime time
+    );
 
 }

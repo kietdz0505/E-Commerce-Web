@@ -2,6 +2,7 @@ package com.example.ecommerce_web.controller;
 
 import com.example.ecommerce_web.dto.MomoPaymentResponse;
 import com.example.ecommerce_web.dto.PaymentResponse;
+import com.example.ecommerce_web.model.OrderStatus;
 import com.example.ecommerce_web.service.MomoPaymentService;
 import com.example.ecommerce_web.service.OrderService;
 import com.example.ecommerce_web.service.VNPaymentService;
@@ -32,46 +33,156 @@ public class PaymentController {
             @RequestParam Long orderId,
             HttpServletRequest request
     ) {
-        String paymentMethod = orderService.getOrderPaymentMethod(orderId);
+
+        String paymentMethod =
+                orderService.getOrderPaymentMethod(orderId);
 
         if (!"MOMO".equalsIgnoreCase(paymentMethod)) {
+
             return ResponseEntity.badRequest().body(
-                    PaymentResponse.error("Order is not set to pay with MoMo")
+                    PaymentResponse.error(
+                            "Order is not set to pay with MoMo"
+                    )
             );
         }
 
-        String orderInfo = "Thanh_toan_don_hang_" + orderId;
+        String orderInfo =
+                "Thanh_toan_don_hang_" + orderId;
 
-        MomoPaymentResponse response = momoPaymentService.createPayment(orderId, orderInfo, request);
+        MomoPaymentResponse response =
+                momoPaymentService.createPayment(
+                        orderId,
+                        orderInfo,
+                        request
+                );
 
-        if (response == null || response.getPayUrl() == null) {
+        if (
+                response == null ||
+                        response.getPayUrl() == null
+        ) {
+
             return ResponseEntity.badRequest().body(
-                    PaymentResponse.error("Failed to generate MoMo payment URL")
+                    PaymentResponse.error(
+                            "Failed to generate MoMo payment URL"
+                    )
             );
         }
 
         return ResponseEntity.ok(
-                PaymentResponse.success("MoMo payment URL generated", response.getPayUrl())
+                PaymentResponse.success(
+                        "MoMo payment URL generated",
+                        response.getPayUrl()
+                )
         );
     }
 
     @PostMapping("/momo-notify")
-    public ResponseEntity<String> momoNotify(@RequestBody Map<String, String> payload) {
-        log.info("===== MOMO NOTIFY ===== {}", payload);
+    public ResponseEntity<String> momoNotify(
+            @RequestBody Map<String, Object> payload
+    ) {
+
+        log.info(
+                "===== MOMO NOTIFY ===== {}",
+                payload
+        );
+
         momoPaymentService.handleMomoNotification(payload);
+
         return ResponseEntity.ok("Notify Received");
     }
 
     @GetMapping("/momo-return")
-    public ResponseEntity<PaymentResponse> momoReturn(@RequestParam Map<String, String> params) {
-        log.info("===== MOMO RETURN ===== {}", params);
+    public void momoReturn(
+            @RequestParam Map<String, String> params,
+            HttpServletResponse response
+    ) throws IOException {
 
-        boolean success = "0".equals(params.get("resultCode"));
-        String message = "Payment " + (success ? "Success" : "Failed");
-
-        return ResponseEntity.ok(
-                success ? PaymentResponse.success(message) : PaymentResponse.error(message)
+        log.info(
+                "===== MOMO RETURN ===== {}",
+                params
         );
+
+        try {
+
+            boolean success =
+                    "0".equals(
+                            params.get("resultCode")
+                    );
+
+            String momoOrderId =
+                    params.get("orderId");
+
+            if (
+                    momoOrderId == null ||
+                            !momoOrderId.contains("-")
+            ) {
+
+                response.sendRedirect(
+                        "http://localhost:5173/my-orders?payment=failed"
+                );
+
+                return;
+            }
+
+            Long orderId =
+                    Long.valueOf(
+                            momoOrderId.split("-")[0]
+                    );
+
+            OrderStatus currentStatus =
+                    orderService.getOrderStatus(orderId);
+
+            log.info(
+                    "CURRENT STATUS = {}",
+                    currentStatus
+            );
+
+            // tránh update lại nhiều lần
+            if (currentStatus != OrderStatus.PAID) {
+
+                if (success) {
+
+                    orderService.updateOrderStatus(
+                            orderId,
+                            OrderStatus.PAID
+                    );
+
+                    log.info(
+                            "ORDER {} UPDATED TO PAID",
+                            orderId
+                    );
+
+                } else {
+
+                    orderService.updateOrderStatus(
+                            orderId,
+                            OrderStatus.FAILED
+                    );
+
+                    log.info(
+                            "ORDER {} UPDATED TO FAILED",
+                            orderId
+                    );
+                }
+            }
+
+            response.sendRedirect(
+                    success
+                            ? "http://localhost:5173/my-orders?payment=success"
+                            : "http://localhost:5173/my-orders?payment=failed"
+            );
+
+        } catch (Exception e) {
+
+            log.error(
+                    "MOMO RETURN ERROR",
+                    e
+            );
+
+            response.sendRedirect(
+                    "http://localhost:5173/my-orders?payment=failed"
+            );
+        }
     }
 
     // ===================== VNPAY ===================== //

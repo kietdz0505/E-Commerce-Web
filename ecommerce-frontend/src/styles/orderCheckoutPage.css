@@ -35,10 +35,6 @@
   transition: 0.3s;
 }
 
-.az-checkout-card:hover {
-  transform: translateY(-2px);
-}
-
 /* STICKY SUMMARY */
 .az-checkout-summary {
   position: sticky;

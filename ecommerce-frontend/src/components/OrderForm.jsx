@@ -1,5 +1,5 @@
 import React from 'react';
-
+import "../styles/orderForm.css";
 const OrderForm = ({
     form,
     onInputChange,
@@ -12,7 +12,8 @@ const OrderForm = ({
     promotions,
     selectedPromotionId,
     onPromotionSelect,
-    onSubmit
+    onSubmit,
+    submitting
 }) => {
 
     const isFormValid =
@@ -74,7 +75,7 @@ const OrderForm = ({
                 <label>Địa chỉ chi tiết</label>
                 <input className="form-control"
                     name="detailAddress"
-                    placeholder="Ví dụ: Số nhà, tên đường, tổ dân phố..." 
+                    placeholder="Ví dụ: Số nhà, tên đường, tổ dân phố..."
                     value={form.detailAddress}
                     onChange={onInputChange} />
             </div>
@@ -90,16 +91,153 @@ const OrderForm = ({
             </div>
 
             {/* PAYMENT */}
-            <div className="mb-3">
-                <label>Thanh toán</label>
-                <select className="form-select"
-                    name="paymentMethod"
-                    value={form.paymentMethod}
-                    onChange={onInputChange}>
-                    <option value="CASH">COD</option>
-                    <option value="MOMO">Momo</option>
-                    <option value="VNPAY">VNPay</option>
-                </select>
+            <div className="mb-4">
+
+                <label className="fw-semibold mb-3 d-block">
+                    Phương thức thanh toán
+                </label>
+
+                <div className="d-flex flex-column gap-3">
+
+                    {/* COD */}
+                    <label
+                        className={`
+                payment-radio-card
+                ${form.paymentMethod === 'CASH'
+                                ? 'active'
+                                : ''
+                            }
+            `}
+                    >
+
+                        <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="CASH"
+                            checked={
+                                form.paymentMethod === 'CASH'
+                            }
+                            onChange={onInputChange}
+                        />
+
+                        <div className="payment-content">
+
+                            <div className="payment-left">
+
+                                <img
+                                    src="https://res.cloudinary.com/dfgnoyf71/image/upload/v1779102251/cod_erg1kp.png"
+                                    alt="COD"
+                                    className="payment-logo"
+                                />
+
+                                <div>
+                                    <div className="payment-title">
+                                        Thanh toán khi nhận hàng
+                                    </div>
+
+                                    <div className="payment-desc">
+                                        Cash On Delivery
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </label>
+
+                    {/* MOMO */}
+                    <label
+                        className={`
+                payment-radio-card
+                ${form.paymentMethod === 'MOMO'
+                                ? 'active'
+                                : ''
+                            }
+            `}
+                    >
+
+                        <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="MOMO"
+                            checked={
+                                form.paymentMethod === 'MOMO'
+                            }
+                            onChange={onInputChange}
+                        />
+
+                        <div className="payment-content">
+
+                            <div className="payment-left">
+
+                                <img
+                                    src="https://res.cloudinary.com/dfgnoyf71/image/upload/v1779102251/momo_tfai6i.png"
+                                    alt="MoMo"
+                                    className="payment-logo"
+                                />
+
+                                <div>
+                                    <div className="payment-title">
+                                        Ví MoMo
+                                    </div>
+
+                                    <div className="payment-desc">
+                                        Thanh toán qua MoMo
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </label>
+
+                    {/* VNPAY */}
+                    <label
+                        className={`
+                payment-radio-card
+                ${form.paymentMethod === 'VNPAY'
+                                ? 'active'
+                                : ''
+                            }
+            `}
+                    >
+
+                        <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="VNPAY"
+                            checked={
+                                form.paymentMethod === 'VNPAY'
+                            }
+                            onChange={onInputChange}
+                        />
+
+                        <div className="payment-content">
+
+                            <div className="payment-left">
+
+                                <img
+                                    src="https://res.cloudinary.com/dfgnoyf71/image/upload/v1779102251/vnpay_mbxcqz.png"
+                                    alt="VNPay"
+                                    className="payment-logo"
+                                />
+
+                                <div>
+                                    <div className="payment-title">
+                                        VNPay
+                                    </div>
+
+                                    <div className="payment-desc">
+                                        ATM / QR / Banking
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </label>
+
+                </div>
             </div>
 
             {/* PROMO */}
@@ -121,10 +259,12 @@ const OrderForm = ({
 
             <button
                 className="btn btn-primary w-100"
-                disabled={!isFormValid}
+                disabled={!isFormValid || submitting}
                 onClick={onSubmit}
             >
-                Xác nhận đặt hàng
+                {submitting
+                    ? "Đang xử lý..."
+                    : "Xác nhận đặt hàng"}
             </button>
         </div>
     );

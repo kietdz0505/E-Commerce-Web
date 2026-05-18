@@ -73,42 +73,144 @@ public class UserService {
                 .orElse(null);
     }
 
-    public UserProfileResponseDTO updateProfile(UserProfileUpdateDTO dto) {
-        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public UserProfileResponseDTO updateProfile(
+            UserProfileUpdateDTO dto
+    ) {
 
-        user.setName(dto.getName());
-        user.setPhone(dto.getPhone());
-        user.setAddress(dto.getAddress());
-        if (user.getAuthProvider() == AuthProvider.LOCAL) {
-            user.setPicture(dto.getPicture());
+        String identifier =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName();
+
+        User user =
+                userRepository
+                        .findByEmailOrUsername(
+                                identifier,
+                                identifier
+                        )
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "User not found"
+                                )
+                        );
+
+        // =========================================
+        // UPDATE USER
+        // =========================================
+
+        user.setName(
+                dto.getName()
+        );
+
+        user.setPhone(
+                dto.getPhone()
+        );
+
+        user.setAddress(
+                dto.getAddress()
+        );
+
+        // LOCAL ACCOUNT ONLY
+        if (
+                user.getAuthProvider()
+                        == AuthProvider.LOCAL
+        ) {
+
+            if (
+                    dto.getPicture() != null &&
+                            !dto.getPicture().isBlank()
+            ) {
+
+                user.setPicture(
+                        dto.getPicture()
+                );
+            }
         }
-        user.setGender(dto.getGender());
-        user.setDob(dto.getDob());
 
-        userRepository.save(user);
+        // OPTIONAL
+        if (
+                dto.getGender() != null
+        ) {
 
-        User updatedUser = userRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new RuntimeException("User not found after update"));
+            user.setGender(
+                    dto.getGender()
+            );
+        }
 
-        // Mapping sang DTO
-        UserProfileResponseDTO responseDTO = new UserProfileResponseDTO();
-        responseDTO.setId(updatedUser.getId());
-        responseDTO.setUsername(updatedUser.getUsername());
-        responseDTO.setName(updatedUser.getName());
-        responseDTO.setEmail(updatedUser.getEmail());
-        responseDTO.setPhone(updatedUser.getPhone());
-        responseDTO.setAddress(updatedUser.getAddress());
-        responseDTO.setGender(updatedUser.getGender());
-        responseDTO.setDob(updatedUser.getDob());
-        responseDTO.setPicture(updatedUser.getPicture());
-        responseDTO.setAuthProvider(user.getAuthProvider().name());
+        // OPTIONAL
+        if (
+                dto.getDob() != null
+        ) {
+
+            user.setDob(
+                    dto.getDob()
+            );
+        }
+
+        User savedUser =
+                userRepository.save(user);
+
+        // =========================================
+        // RESPONSE DTO
+        // =========================================
+
+        UserProfileResponseDTO responseDTO =
+                new UserProfileResponseDTO();
+
+        responseDTO.setId(
+                savedUser.getId()
+        );
+
+        responseDTO.setUsername(
+                savedUser.getUsername()
+        );
+
+        responseDTO.setName(
+                savedUser.getName()
+        );
+
+        responseDTO.setEmail(
+                savedUser.getEmail()
+        );
+
+        responseDTO.setPhone(
+                savedUser.getPhone()
+        );
+
+        responseDTO.setAddress(
+                savedUser.getAddress()
+        );
+
+        responseDTO.setGender(
+                savedUser.getGender()
+        );
+
+        responseDTO.setDob(
+                savedUser.getDob()
+        );
+
+        responseDTO.setPicture(
+                savedUser.getPicture()
+        );
+
+        responseDTO.setAuthProvider(
+                savedUser.getAuthProvider()
+                        .name()
+        );
+
         responseDTO.setRoles(
-                updatedUser.getRoles() != null ?
-                        updatedUser.getRoles().stream()
-                                .map(role -> role.getName().name())
-                                .collect(Collectors.toSet())
+
+                savedUser.getRoles() != null
+
+                        ? savedUser.getRoles()
+                        .stream()
+                        .map(role ->
+                                role.getName().name()
+                        )
+                        .collect(Collectors.toSet())
+
                         : Set.of()
         );
 
