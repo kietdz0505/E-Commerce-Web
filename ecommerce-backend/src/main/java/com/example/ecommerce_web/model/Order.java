@@ -25,7 +25,7 @@ public class Order {
     private OrderStatus status;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod; // COD, BANK_TRANSFER, ONLINE_PAYMENT
+    private PaymentMethod paymentMethod;
 
     private LocalDateTime orderDate;
 
@@ -36,7 +36,7 @@ public class Order {
     private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference // Để tránh loop khi trả JSON
+    @JsonManagedReference
     private List<OrderItem> items;
 
     @ManyToOne

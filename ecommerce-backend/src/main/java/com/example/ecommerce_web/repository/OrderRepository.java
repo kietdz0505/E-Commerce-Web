@@ -50,4 +50,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LocalDateTime time
     );
 
+    @Query("""
+                SELECT COUNT(o) > 0
+                FROM Order o
+                JOIN o.items oi
+                WHERE o.user.id = :userId
+                  AND oi.product.id = :productId
+                  AND o.status IN :statuses
+            """)
+    boolean hasUserPurchasedProduct(
+            @Param("userId") String userId,
+            @Param("productId") Long productId,
+            @Param("statuses") List<OrderStatus> statuses
+    );
 }

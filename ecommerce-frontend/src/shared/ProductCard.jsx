@@ -17,19 +17,19 @@ const ProductCard = ({ prod, isHot }) => {
   const handleAddToCart = async (e) => {
     e.preventDefault();
 
-    // ❌ chưa login
+    
     if (!currentUser) {
       warning('Vui lòng đăng nhập để thêm vào giỏ hàng');
       return;
     }
 
-    // ❌ hết hàng
+    
     if (!prod.stock || prod.stock <= 0) {
       error('Sản phẩm đã hết hàng');
       return;
     }
 
-    // 🔥 loading toast
+  
     const toastId = toast.loading("Đang thêm...");
 
     try {

@@ -224,12 +224,6 @@ const ProductDetail = () => {
             productId={product.id}
             appendedReviews={reviews}
           />
-
-          <ReviewForm
-            productId={product.id}
-            onLoginClick={() => setShowLogin(true)}
-            onReviewSubmitted={handleReviewSubmitted}
-          />
         </div>
       </div>
     </>

@@ -24,10 +24,21 @@
   align-items: center;
 }
 
+.az-review-header{
+  margin-bottom: 1rem;
+}
 .az-review-user {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+.az-review-success {
+  color: #8fffcc;
+  font-weight: 600;
+  margin: 1rem;
+}
+.az-review-header h3{
+  margin : 0;
 }
 
 .az-review-user img {

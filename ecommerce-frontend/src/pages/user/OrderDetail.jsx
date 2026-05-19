@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import apiClient from "../../api/axiosInstance";
 import { getApiUrl } from "../../config/apiConfig";
+import OrderTimeline from "../../components/OrderTimeline";
 
 import {
   HiOutlineUser,
@@ -23,6 +24,7 @@ import "../../styles/orderDetail.css";
 
 const OrderDetail = () => {
   const { id } = useParams();
+
   const [order, setOrder] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -43,9 +45,14 @@ const OrderDetail = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.put(getApiUrl("UPDATE_ORDER_INFO", id), order);
+      const res = await apiClient.put(
+        getApiUrl("UPDATE_ORDER_INFO", id),
+        order
+      );
       setOrder(res.data);
       setEditMode(false);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -53,14 +60,28 @@ const OrderDetail = () => {
 
   if (!order) return <div className="az-loading">Đang tải...</div>;
 
+  // ===== LOCK EDIT STATUS =====
+  const isLocked = [
+    "SHIPPED",
+    "COMPLETED",
+    "CANCELLED",
+    "FAILED"
+  ].includes(order.status);
+
   const getStatus = () => {
     switch (order.status) {
       case "PENDING":
         return <span className="status pending">Chờ xử lý</span>;
+      case "PAID":
+        return <span className="status paid">Đã thanh toán</span>;
+      case "SHIPPED":
+        return <span className="status shipping">Đang giao</span>;
       case "COMPLETED":
         return <span className="status success">Hoàn thành</span>;
       case "CANCELLED":
         return <span className="status cancel">Đã hủy</span>;
+      case "FAILED":
+        return <span className="status failed">Thất bại</span>;
       default:
         return <span className="status">{order.status}</span>;
     }
@@ -72,12 +93,22 @@ const OrderDetail = () => {
       {/* HEADER */}
       <div className="az-order-header">
         <div className="az-order-header-content">
-            <h2><FaBoxOpen /> Chi tiết đơn hàng #{order.id}</h2>
-            {getStatus()}
-          </div>
-
-
+          <h2>
+            <FaBoxOpen /> Chi tiết đơn hàng #{order.id}
+          </h2>
+          {getStatus()}
+        </div>
       </div>
+      <div className="az-order-timeline-box">
+        <OrderTimeline status={order.status} />
+      </div>
+
+      {/* WARNING */}
+      {isLocked && (
+        <div className="az-order-warning">
+          Đơn hàng đã xử lý, không thể chỉnh sửa thông tin.
+        </div>
+      )}
 
       {/* INFO */}
       <div className="az-order-card">
@@ -86,8 +117,10 @@ const OrderDetail = () => {
           <label><HiOutlineUser /> Người nhận</label>
           <input
             value={order.receiverName || ""}
-            onChange={e => setOrder({ ...order, receiverName: e.target.value })}
-            disabled={!editMode}
+            onChange={(e) =>
+              setOrder({ ...order, receiverName: e.target.value })
+            }
+            disabled={!editMode || isLocked}
           />
         </div>
 
@@ -95,8 +128,10 @@ const OrderDetail = () => {
           <label><HiOutlinePhone /> Số điện thoại</label>
           <input
             value={order.receiverPhone || ""}
-            onChange={e => setOrder({ ...order, receiverPhone: e.target.value })}
-            disabled={!editMode}
+            onChange={(e) =>
+              setOrder({ ...order, receiverPhone: e.target.value })
+            }
+            disabled={!editMode || isLocked}
           />
         </div>
 
@@ -104,67 +139,124 @@ const OrderDetail = () => {
           <label><HiOutlineMapPin /> Địa chỉ</label>
           <input
             value={order.deliveryAddress || ""}
-            onChange={e => setOrder({ ...order, deliveryAddress: e.target.value })}
-            disabled={!editMode}
+            onChange={(e) =>
+              setOrder({ ...order, deliveryAddress: e.target.value })
+            }
+            disabled={!editMode || isLocked}
           />
         </div>
 
         {/* META */}
         <div className="az-meta">
           <div><HiOutlineCreditCard /> {order.paymentMethod}</div>
-          <div><HiOutlineCalendarDays /> {new Date(order.orderDate).toLocaleString("vi-VN")}</div>
-          <div><FaMoneyBillWave /> <strong>{Number(order.totalAmount).toLocaleString("vi-VN")}₫</strong></div>
+          <div>
+            <HiOutlineCalendarDays />
+            {new Date(order.orderDate).toLocaleString("vi-VN")}
+          </div>
+          <div>
+            <FaMoneyBillWave />
+            <strong>
+              {Number(order.totalAmount).toLocaleString("vi-VN")}₫
+            </strong>
+          </div>
           <div><FaTag /> {order.promotionCode || "Không có mã"}</div>
         </div>
 
         {/* BUTTON */}
-        <button
-          className={`az-btn ${editMode ? "save" : "edit"}`}
-          onClick={editMode ? handleSave : () => setEditMode(true)}
-          disabled={loading}
-        >
-          {loading ? "Đang lưu..." : editMode ? (
-            <>
-              <HiOutlineCheckCircle /> Lưu
-            </>
-          ) : (
-            <>
-              <HiOutlinePencilSquare /> Chỉnh sửa
-            </>
-          )}
-        </button>
+        {!isLocked && (
+          <button
+            className={`az-btn ${editMode ? "save" : "edit"}`}
+            onClick={
+              editMode ? handleSave : () => setEditMode(true)
+            }
+            disabled={loading}
+          >
+            {loading ? (
+              "Đang lưu..."
+            ) : editMode ? (
+              <>
+                <HiOutlineCheckCircle /> Lưu
+              </>
+            ) : (
+              <>
+                <HiOutlinePencilSquare /> Chỉnh sửa
+              </>
+            )}
+          </button>
+        )}
 
       </div>
 
       {/* TABLE */}
-      <div className="az-order-table">
-        <h4><FaBoxOpen /> Sản phẩm trong đơn</h4>
+      <div className="az-order-table-container">
+        <h4 className="az-table-title">
+          <FaBoxOpen /> <span>Sản phẩm trong đơn</span>
+        </h4>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Sản phẩm</th>
-              <th>SL</th>
-              <th>Giá gốc</th>
-              <th>Giá KM</th>
-              <th>Thành tiền</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {order.items?.map((item, i) => (
-              <tr key={i}>
-                <td className="name">{item.productName}</td>
-                <td>{item.quantity}</td>
-                <td>{Number(item.unitPrice).toLocaleString("vi-VN")}₫</td>
-                <td className="discount">{Number(item.discountedUnitPrice).toLocaleString("vi-VN")}₫</td>
-                <td className="total">
-                  {(item.discountedUnitPrice * item.quantity).toLocaleString("vi-VN")}₫
-                </td>
+        <div className="az-table-responsive-wrapper">
+          <table className="az-modern-table">
+            <thead>
+              <tr>
+                <th>Sản phẩm</th>
+                <th className="text-center">Số lượng</th>
+                <th className="text-right">Giá gốc</th>
+                <th className="text-right">Giá KM</th>
+                <th className="text-right">Thành tiền</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {order.items?.map((item, i) => {
+                const hasDiscount = item.discountedUnitPrice < item.unitPrice;
+
+                return (
+                  <tr key={i}>
+                    {/* Cột sản phẩm có chứa ảnh và tên */}
+                    <td className="az-col-product">
+                      <div className="az-product-thumb">
+                        <img
+                          src={item.productImage || "https://placehold.co/60x60?text=No+Image"}
+                          alt={item.productName}
+                          onError={(e) => { e.target.src = "https://placehold.co/60x60?text=No+Image" }}
+                        />
+                      </div>
+                      <div className="az-product-info">
+                        <span className="az-product-name">{item.productName}</span>
+                        <span className="az-product-sku">Mã SP: #{item.productId || i}</span>
+                      </div>
+                    </td>
+
+                    {/* Cột Số lượng */}
+                    <td className="text-center az-col-qty">
+                      <span className="az-badge-qty">x{item.quantity}</span>
+                    </td>
+
+                    {/* Cột Giá gốc */}
+                    <td className="text-right az-col-original-price">
+                      <span className={`az-price-original ${hasDiscount ? "strikethrough" : ""}`}>
+                        {Number(item.unitPrice).toLocaleString("vi-VN")}₫
+                      </span>
+                    </td>
+
+                    {/* Cột Giá KM */}
+                    <td className="text-right az-col-discount-price">
+                      <span className="az-price-discount">
+                        {Number(item.discountedUnitPrice).toLocaleString("vi-VN")}₫
+                      </span>
+                    </td>
+
+                    {/* Cột Thành tiền */}
+                    <td className="text-right az-col-total">
+                      <span className="az-price-total">
+                        {(item.discountedUnitPrice * item.quantity).toLocaleString("vi-VN")}₫
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>

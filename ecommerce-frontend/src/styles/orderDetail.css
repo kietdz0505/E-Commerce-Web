@@ -14,6 +14,15 @@
   animation: fadeSlide 0.4s ease;
 }
 
+.az-order-warning{
+  margin: 20px 0;
+  padding: 14px;
+  color: #ff5050;
+  border-radius: 12px;
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.25);
+}
+
 .az-order-header svg {
   font-size: 26px;
   color: #16152e;
@@ -174,5 +183,196 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ===== MODERN PRODUCT TABLE ===== */
+.az-order-table-container {
+  background: #111827; /* Giữ màu nền tối của bạn */
+  padding: 1.75rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-family: 'Kanit', sans-serif;
+}
+
+.az-table-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+
+.az-table-title svg {
+  color: #3b82f6; /* Accent màu xanh dương hiện đại */
+  font-size: 1.35rem;
+}
+
+.az-table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.az-modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+/* Header Table */
+.az-modern-table th {
+  background: rgba(255, 255, 255, 0.03);
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 14px 16px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Căn lề bổ trợ */
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+/* Body Table Rows */
+.az-modern-table td {
+  padding: 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.az-modern-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Khối thông tin sản phẩm (Thumb + Text) */
+.az-col-product {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 280px;
+}
+
+.az-product-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.az-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.az-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.az-product-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.az-product-sku {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Badge số lượng */
+.az-badge-qty {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #d1d5db;
+}
+
+/* Phân rã màu sắc giá cả */
+.az-price-original {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.az-price-original.strikethrough {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.az-price-discount {
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.az-price-total {
+  font-size: 1.05rem;
+  color: #00e6a7; /* Giữ tông màu xanh neon đặc trưng của bạn */
+  font-weight: 600;
+}
+
+/* ===== TỐI ƯU UX TRÊN ĐIỆN THOẠI (MOBILE RESPONSIVE) ===== */
+@media (max-width: 768px) {
+  /* Ẩn header của table truyền thống */
+  .az-modern-table thead {
+    display: none;
+  }
+
+  /* Biến các hàng tr thành các hộp thông tin độc lập */
+  .az-modern-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .az-modern-table td {
+    padding: 0;
+    border: none;
+    text-align: right !important; /* Đẩy data sang phải */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  /* Hàng sản phẩm chiếm trọn chiều ngang hàng đầu tiên */
+  .az-modern-table td.az-col-product {
+    grid-column: 1 / span 2;
+    justify-content: flex-start;
+    text-align: left !important;
+    margin-bottom: 8px;
+  }
+
+  /* Tạo nhãn giả (Pseudoelements) để hiển thị thông tin cột */
+  .az-col-qty::before { content: "Số lượng:"; }
+  .az-col-original-price::before { content: "Giá gốc:"; }
+  .az-col-discount-price::before { content: "Giá khuyến mãi:"; }
+  .az-col-total::before { content: "Thành tiền:"; }
+
+  /* Style cho nhãn giả */
+  .az-modern-table td::before {
+    content: attr(data-label);
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 400;
+    margin-right: auto; /* Đẩy text nhãn sang bên trái cùng */
+    padding-right: 10px;
   }
 }

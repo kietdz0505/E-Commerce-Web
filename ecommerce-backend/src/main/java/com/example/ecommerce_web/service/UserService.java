@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-
 
     public void changePassword(ChangePasswordDTO dto) {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -54,19 +54,6 @@ public class UserService {
         return userRepository.count();
     }
 
-    public UserDTO getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(UserMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-    }
-
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
     public UserDTO getUserById(String id) {
         return userRepository.findById(id)
                 .map(UserMapper::toDTO)
@@ -74,10 +61,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileResponseDTO updateProfile(
-            UserProfileUpdateDTO dto
-    ) {
-
+    public UserProfileResponseDTO updateProfile(UserProfileUpdateDTO dto) {
         String identifier =
                 SecurityContextHolder
                         .getContext()
@@ -96,10 +80,6 @@ public class UserService {
                                 )
                         );
 
-        // =========================================
-        // UPDATE USER
-        // =========================================
-
         user.setName(
                 dto.getName()
         );
@@ -112,7 +92,6 @@ public class UserService {
                 dto.getAddress()
         );
 
-        // LOCAL ACCOUNT ONLY
         if (
                 user.getAuthProvider()
                         == AuthProvider.LOCAL
@@ -128,8 +107,6 @@ public class UserService {
                 );
             }
         }
-
-        // OPTIONAL
         if (
                 dto.getGender() != null
         ) {
@@ -139,7 +116,6 @@ public class UserService {
             );
         }
 
-        // OPTIONAL
         if (
                 dto.getDob() != null
         ) {
@@ -151,10 +127,6 @@ public class UserService {
 
         User savedUser =
                 userRepository.save(user);
-
-        // =========================================
-        // RESPONSE DTO
-        // =========================================
 
         UserProfileResponseDTO responseDTO =
                 new UserProfileResponseDTO();
@@ -223,9 +195,22 @@ public class UserService {
             return true;
         }).orElse(false);
     }
+
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
+
+    public User getCurrentUser(Principal principal) {
+        return userRepository.findByEmailOrUsername(principal.getName(), principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User findByIdentity(String value) {
+        return userRepository.findByEmailOrUsername(value, value)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found: " + value)
+                );
     }
 
     public void updateUserRole(String userId, String roleName) {
@@ -285,7 +270,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-
     public List<User> getAllUsersEntity() {
         return userRepository.findAll();
     }
@@ -294,7 +278,5 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
-
-
 
 }

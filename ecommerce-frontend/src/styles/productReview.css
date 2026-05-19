@@ -13,9 +13,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
 }
 
+.az-my-review-section{
+  margin-bottom: 16px;
+}
+
+.az-review-allowed{
+  margin: 1rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.az-review-warning{
+  margin: 1rem;
+  color: rgba(255,255,255,0.6);
+}
 .az-review-header h3 {
   color: #fff;
   font-weight: 800;

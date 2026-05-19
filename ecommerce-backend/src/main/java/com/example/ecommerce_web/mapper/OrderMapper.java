@@ -33,6 +33,7 @@ public class OrderMapper {
         OrderItemResponse dto = new OrderItemResponse();
         dto.setProductId(item.getProduct().getId());
         dto.setProductName(item.getProduct().getName());
+        dto.setProductImage(item.getProduct().getImageUrl());
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setDiscountedUnitPrice(item.getDiscountedUnitPrice());

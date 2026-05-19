@@ -3,8 +3,8 @@
   margin-top: 20px;
   padding: 14px;
   border-radius: 12px;
-  background: rgba(255,200,100,0.1);
-  border: 1px solid rgba(255,200,100,0.25);
+  background: rgba(255, 200, 100, 0.1);
+  border: 1px solid rgba(255, 200, 100, 0.25);
 
 }
 
@@ -14,13 +14,28 @@
   text-decoration: underline;
 }
 
+.az-image-preview img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.az-image-preview {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 /* ===== FORM ===== */
 .az-review-form {
   margin-top: 2rem;
+  margin-bottom: 2rem;
   padding: 1.8rem;
   background: linear-gradient(145deg, #16152e, #1b1a3a);
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -40,7 +55,7 @@
 
 .az-review-stars-input svg {
   font-size: 1.4rem;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
   transition: 0.2s;
 }
@@ -55,8 +70,8 @@
 
 /* TEXTAREA */
 .az-review-form textarea {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 10px;
   color: #fff;
@@ -66,7 +81,7 @@
 
 .az-review-form textarea:focus {
   outline: none;
-  border-color: rgba(100,120,255,0.6);
+  border-color: rgba(100, 120, 255, 0.6);
 }
 
 /* UPLOAD */
@@ -82,7 +97,7 @@
 
 .az-file-name {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin-left: 10px;
 }
 
@@ -100,7 +115,7 @@
 
 .az-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(100,120,255,0.4);
+  box-shadow: 0 10px 25px rgba(100, 120, 255, 0.4);
 }
 
 .az-submit-btn:disabled {

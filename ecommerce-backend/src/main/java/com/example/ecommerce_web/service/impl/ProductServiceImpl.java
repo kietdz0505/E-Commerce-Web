@@ -111,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductDTO enrichProductWithReview(Product product) {
         ProductDTO dto = ProductMapper.toDTO(product);
-        Long count = reviewRepository.countByProductId(product.getId());
+        Long count = reviewRepository.countByProduct_Id(product.getId());
         Double avg = reviewRepository.findAverageRatingByProductId(product.getId());
         dto.setReviewCount(count != null ? count : 0L);
         dto.setAverageRating(avg != null ? avg : 0.0);

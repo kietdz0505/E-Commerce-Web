@@ -18,7 +18,7 @@ public class OrderItem {
     private BigDecimal unitPrice;
 
     @Column(nullable = false)
-    private BigDecimal discountedUnitPrice; // Giá sau khi giảm (nếu không giảm thì = unitPrice)
+    private BigDecimal discountedUnitPrice;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

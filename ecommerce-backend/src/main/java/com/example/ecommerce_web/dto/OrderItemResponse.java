@@ -9,6 +9,7 @@ public class OrderItemResponse {
 
     private Long productId;
     private String productName;
+    private String productImage;
     private int quantity;
 
     @JsonSerialize(using = VndBigDecimalSerializer.class)

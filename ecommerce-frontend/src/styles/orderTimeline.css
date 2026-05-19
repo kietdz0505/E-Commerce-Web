@@ -1,0 +1,208 @@
+
+
+:root {
+  --primary-color: #3b82f6;      /* Xanh dương hiện đại cho trạng thái Active */
+  --success-color: #10b981;      /* Xanh lá tươi cho trạng thái Completed */
+  --danger-color: #ef4444;       /* Đỏ mềm mại cho Hủy/Thất bại */
+  --text-main: #1f2937;          /* Màu chữ chính */
+  --text-muted: #9ca3af;         /* Màu chữ mờ/chưa tới */
+  --bg-gray: #f3f4f6;            /* Nền xám nhạt */
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.az-timeline-container {
+  width: 100%;
+  padding: 2.5rem 1.75rem;
+  margin-bottom: 1rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  
+  /* Áp dụng font Kanit cho toàn bộ container và các thành phần con */
+  font-family: 'Kanit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- LAYOUT TRÊN DESKTOP --- */
+.az-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  width: 100%;
+}
+
+.az-timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Thiết kế vòng tròn chứa Icon */
+.az-timeline-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  background: var(--bg-gray);
+  color: var(--text-muted);
+  border: 2px solid transparent;
+  transition: var(--transition);
+  position: relative;
+}
+
+/* Label chữ phía dưới */
+.az-timeline-label {
+  margin-top: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 400; /* Kanit hơi dày nên để 400 nhìn rất thanh lịch */
+  color: var(--text-muted);
+  text-align: center;
+  transition: var(--transition);
+  letter-spacing: 0.2px;
+}
+
+/* Đường nối thẳng giữa các bước */
+.az-timeline-line {
+  position: absolute;
+  top: 26px;
+  left: calc(50% + 26px);
+  width: calc(100% - 52px);
+  height: 4px;
+  background: var(--bg-gray);
+  z-index: -1;
+  transition: var(--transition);
+}
+
+/* --- ĐỊNH DẠNG CÁC TRẠNG THÁI --- */
+
+/* 1. Trạng thái ĐÃ HOÀN THÀNH (Completed) */
+.az-timeline-step.completed .az-timeline-icon-box {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border-color: var(--success-color);
+}
+.az-timeline-step.completed .az-timeline-label {
+  color: var(--text-main);
+  font-weight: 500;
+}
+.az-timeline-line.completed {
+  background: var(--success-color);
+}
+
+/* Badge dấu tích nhỏ xinh góc icon */
+.az-check-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: var(--success-color);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+/* 2. Trạng thái HIỆN TẠI (Active) */
+.az-timeline-step.active .az-timeline-icon-box {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+  animation: pulseEffect 2s infinite;
+}
+.az-timeline-step.active .az-timeline-label {
+  color: var(--primary-color);
+  font-weight: 600; /* Highlight chữ trạng thái hiện tại */
+}
+
+/* Effect nhấp nháy nhẹ cho bước đang thực hiện */
+@keyframes pulseEffect {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+
+/* --- BANNER HỦY / THẤT BẠI CHUYÊN NGHIỆP --- */
+.az-timeline-final-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 14px;
+  border-left: 5px solid var(--danger-color);
+}
+.az-timeline-final-card.cancelled {
+  background: rgba(239, 68, 68, 0.05);
+}
+.az-timeline-final-card.failed {
+  background: rgba(245, 158, 11, 0.05);
+  border-left-color: #f59e0b;
+}
+.az-final-icon-wrapper {
+  font-size: 2.25rem;
+  color: var(--danger-color);
+  display: flex;
+  align-items: center;
+}
+.az-timeline-final-card.failed .az-final-icon-wrapper {
+  color: #f59e0b;
+}
+.az-final-content h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.2rem;
+  color: var(--text-main);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.az-final-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-weight: 300; /* Giúp text mô tả mảnh mai, dễ đọc */
+}
+
+
+/* --- RESPONSIVE: TỰ ĐỘNG CHUYỂN SANG DỌC TRÊN MOBILE (< 768px) --- */
+@media (max-width: 768px) {
+  .az-timeline {
+    flex-direction: column;
+    gap: 2rem;
+    padding-left: 0.5rem;
+  }
+
+  .az-timeline-step {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 1.5rem;
+  }
+
+  .az-timeline-label {
+    margin-top: 0;
+    text-align: left;
+    font-size: 1.05rem;
+  }
+
+  /* Xoay đường nối từ Ngang sang Dọc */
+  .az-timeline-line {
+    position: absolute;
+    top: 52px;
+    left: 24px; /* Căn giữa theo icon dọc */
+    width: 4px;
+    height: calc(100% + 2rem - 52px + 8px); 
+    z-index: -1;
+  }
+}
