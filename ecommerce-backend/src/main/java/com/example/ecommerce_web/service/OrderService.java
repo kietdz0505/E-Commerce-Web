@@ -21,7 +21,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,157 +40,88 @@ public class OrderService {
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request, String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-        Promotion promotion =
-                resolvePromotion(
-                        request.getPromotionCode()
-                );
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Promotion promotion = resolvePromotion(request.getPromotionCode());
         Order order = new Order();
-        order.setReceiverName(
-                request.getReceiverName()
-        );
-        order.setReceiverPhone(
-                request.getReceiverPhone()
-        );
-        order.setDeliveryAddress(
-                request.getDeliveryAddress()
-        );
-        order.setPaymentMethod(
-                PaymentMethod.valueOf(
-                        request.getPaymentMethod()
-                                .toUpperCase()
-                )
-        );
+        order.setReceiverName(request.getReceiverName());
+        order.setReceiverPhone(request.getReceiverPhone());
+        order.setDeliveryAddress(request.getDeliveryAddress());
+        order.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod().toUpperCase()));
 
         order.setStatus(OrderStatus.PENDING);
-        order.setOrderDate(
-                LocalDateTime.now()
-        );
+        order.setOrderDate(LocalDateTime.now());
         order.setUser(user);
         order.setPromotion(promotion);
 
-        List<OrderItem> items =
-                new ArrayList<>();
+        List<OrderItem> items = new ArrayList<>();
 
-        BigDecimal total =
-                BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
 
-        for (OrderItemRequest itemReq :
-                request.getItems()) {
+        for (OrderItemRequest itemReq : request.getItems()) {
 
-            Product product =
-                    productRepository.findById(
-                            itemReq.getProductId()
-                    ).orElseThrow(
-                            () -> new RuntimeException(
-                                    "Product not found"
-                            )
-                    );
+            Product product = productRepository.findById(itemReq.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
 
-            int currentStock =
-                    product.getStock();
+            int currentStock = product.getStock();
 
-            int buyQuantity =
-                    itemReq.getQuantity();
+            int buyQuantity = itemReq.getQuantity();
 
             if (currentStock < buyQuantity) {
 
-                throw new RuntimeException(
-                        "Sản phẩm đã hết hàng: "
-                                + product.getName()
-                );
+                throw new RuntimeException("Sản phẩm đã hết hàng: " + product.getName());
             }
-            product.setStock(
-                    currentStock - buyQuantity
-            );
+            product.setStock(currentStock - buyQuantity);
 
             try {
                 productRepository.saveAndFlush(product);
 
-            } catch (
-                    ObjectOptimisticLockingFailureException e
-            ) {
+            } catch (ObjectOptimisticLockingFailureException e) {
 
-                throw new RuntimeException(
-                        "Sản phẩm vừa được mua bởi người khác: "
-                                + product.getName()
-                );
+                throw new RuntimeException("Sản phẩm vừa được mua bởi người khác: " + product.getName());
             }
 
-            BigDecimal originalPrice =
-                    BigDecimal.valueOf(
-                            product.getPrice()
-                    );
+            BigDecimal originalPrice = BigDecimal.valueOf(product.getPrice());
 
-            BigDecimal discountedPrice =
-                    applyPromotion(
-                            promotion,
-                            product,
-                            originalPrice
-                    );
-            OrderItem item =
-                    new OrderItem();
+            BigDecimal discountedPrice = applyPromotion(promotion, product, originalPrice);
+            OrderItem item = new OrderItem();
 
             item.setOrder(order);
 
             item.setProduct(product);
 
-            item.setQuantity(
-                    buyQuantity
-            );
+            item.setQuantity(buyQuantity);
 
-            item.setUnitPrice(
-                    originalPrice
-            );
+            item.setUnitPrice(originalPrice);
 
-            item.setDiscountedUnitPrice(
-                    discountedPrice
-            );
+            item.setDiscountedUnitPrice(discountedPrice);
 
             items.add(item);
-            total = total.add(
-                    discountedPrice.multiply(
-                            BigDecimal.valueOf(
-                                    buyQuantity
-                            )
-                    )
-            );
+            total = total.add(discountedPrice.multiply(BigDecimal.valueOf(buyQuantity)));
         }
         order.setItems(items);
 
         order.setTotalAmount(total);
 
-        Order savedOrder =
-                orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
         return mapToOrderResponse(savedOrder);
     }
 
     private Promotion resolvePromotion(String promotionCode) {
         if (promotionCode == null || promotionCode.isBlank()) return null;
-        return promotionRepository.findByCode(promotionCode)
-                .orElseThrow(() -> new RuntimeException("Promotion not found"));
+        return promotionRepository.findByCode(promotionCode).orElseThrow(() -> new RuntimeException("Promotion not found"));
     }
 
     private BigDecimal applyPromotion(Promotion promotion, Product product, BigDecimal originalPrice) {
-        if (promotion == null
-                || !promotion.isActive()
-                || !promotion.appliesToProduct(product.getId())) {
+        if (promotion == null || !promotion.isActive() || !promotion.appliesToProduct(product.getId())) {
             return originalPrice;
         }
-        BigDecimal discount = originalPrice.multiply(
-                promotion.getDiscountPercent().divide(BigDecimal.valueOf(100))
-        );
+        BigDecimal discount = originalPrice.multiply(promotion.getDiscountPercent().divide(BigDecimal.valueOf(100)));
         return originalPrice.subtract(discount);
     }
 
     public OrderResponse getOrderById(Long id, String userId) {
 
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Order not found"));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (!order.getUser().getId().equals(userId)) {
             throw new RuntimeException("Access denied");
@@ -199,49 +132,30 @@ public class OrderService {
 
     public Order getOrderEntity(Long orderId) {
 
-        return orderRepository.findById(orderId)
-                .orElseThrow(() ->
-                        new RuntimeException("Order not found"));
+        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     public String getOrderPaymentMethod(Long orderId) {
-        return getOrderEntity(orderId)
-                .getPaymentMethod()
-                .name();
+        return getOrderEntity(orderId).getPaymentMethod().name();
     }
 
     public Long getOrderAmount(Long orderId) {
 
-        return getOrderEntity(orderId)
-                .getTotalAmount()
-                .longValue();
+        return getOrderEntity(orderId).getTotalAmount().longValue();
     }
 
     public OrderStatus getOrderStatus(Long orderId) {
 
-        return getOrderEntity(orderId)
-                .getStatus();
+        return getOrderEntity(orderId).getStatus();
     }
 
     public Page<OrderResponse> getUserOrders(String userId, int page, int size, String sortDirection) {
 
-        Sort.Direction direction =
-                sortDirection.equalsIgnoreCase("asc")
-                        ? Sort.Direction.ASC
-                        : Sort.Direction.DESC;
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-        Pageable pageable =
-                PageRequest.of(
-                        page,
-                        size,
-                        Sort.by(direction, "orderDate")
-                );
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "orderDate"));
 
-        return orderRepository.findByUser_Id(
-                        userId,
-                        pageable
-                )
-                .map(this::mapToOrderResponse);
+        return orderRepository.findByUser_Id(userId, pageable).map(this::mapToOrderResponse);
     }
 
     @Transactional
@@ -253,45 +167,27 @@ public class OrderService {
             throw new RuntimeException("Access denied");
         }
 
-        long hoursSinceOrder =
-                Duration.between(
-                        order.getOrderDate(),
-                        LocalDateTime.now()
-                ).toHours();
+        long hoursSinceOrder = Duration.between(order.getOrderDate(), LocalDateTime.now()).toHours();
 
-        if (!isCancelableByUser(
-                order.getStatus(),
-                hoursSinceOrder
-        )) {
+        if (!isCancelableByUser(order.getStatus(), hoursSinceOrder)) {
 
-            throw new RuntimeException(
-                    "You cannot cancel this order"
-            );
+            throw new RuntimeException("You cannot cancel this order");
         }
 
-        updateOrderStatus(
-                orderId,
-                OrderStatus.CANCELLED
-        );
+        updateOrderStatus(orderId, OrderStatus.CANCELLED);
 
-        return mapToOrderResponse(
-                getOrderEntity(orderId)
-        );
+        return mapToOrderResponse(getOrderEntity(orderId));
     }
 
     @Transactional
     public OrderResponse updateOrder(Long orderId, String userId, OrderRequest request) {
 
-        Order order = orderRepository.findByIdAndUserId(orderId, userId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(() -> new RuntimeException("Order not found"));
 
         OrderStatus status = order.getStatus();
 
         // không cho sửa nếu order đã xử lý
-        if (status == OrderStatus.SHIPPED ||
-                status == OrderStatus.COMPLETED ||
-                status == OrderStatus.CANCELLED ||
-                status == OrderStatus.FAILED) {
+        if (status == OrderStatus.SHIPPED || status == OrderStatus.COMPLETED || status == OrderStatus.CANCELLED || status == OrderStatus.FAILED) {
 
             throw new RuntimeException("Order can no longer be updated");
         }
@@ -311,24 +207,15 @@ public class OrderService {
 
         Order order = getOrderEntity(orderId);
 
-        OrderStatus oldStatus =
-                order.getStatus();
+        OrderStatus oldStatus = order.getStatus();
 
         if (oldStatus == newStatus) {
             return;
         }
 
-        if (!isValidTransition(
-                oldStatus,
-                newStatus
-        )) {
+        if (!isValidTransition(oldStatus, newStatus)) {
 
-            throw new RuntimeException(
-                    "Invalid status transition: "
-                            + oldStatus
-                            + " -> "
-                            + newStatus
-            );
+            throw new RuntimeException("Invalid status transition: " + oldStatus + " -> " + newStatus);
         }
 
         try {
@@ -336,24 +223,16 @@ public class OrderService {
             if (newStatus == OrderStatus.PAID) {
 
                 // clear cart sau khi thanh toán thành công
-                cartService.clearCart(
-                        order.getUser().getId()
-                );
+                cartService.clearCart(order.getUser().getId());
             }
 
-            if (
-                    (
-                            newStatus == OrderStatus.FAILED
-                                    || newStatus == OrderStatus.CANCELLED
-                    )
+            if ((newStatus == OrderStatus.FAILED || newStatus == OrderStatus.CANCELLED)
 
-                            &&
+                    &&
 
-                            oldStatus != OrderStatus.FAILED
-                            &&
+                    oldStatus != OrderStatus.FAILED &&
 
-                            oldStatus != OrderStatus.CANCELLED
-            ) {
+                    oldStatus != OrderStatus.CANCELLED) {
 
                 restoreStock(order);
             }
@@ -361,39 +240,24 @@ public class OrderService {
 
             orderRepository.save(order);
 
-        } catch (
-                ObjectOptimisticLockingFailureException e
-        ) {
+        } catch (ObjectOptimisticLockingFailureException e) {
 
-            throw new RuntimeException(
-                    "Có sản phẩm vừa được cập nhật bởi giao dịch khác."
-            );
+            throw new RuntimeException("Có sản phẩm vừa được cập nhật bởi giao dịch khác.");
         }
     }
 
     public Page<OrderResponse> getAllOrders(int page, int size, String sortDirection) {
 
-        Sort.Direction direction =
-                sortDirection.equalsIgnoreCase("desc")
-                        ? Sort.Direction.DESC
-                        : Sort.Direction.ASC;
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
 
-        Pageable pageable =
-                PageRequest.of(
-                        page,
-                        size,
-                        Sort.by(direction, "orderDate")
-                );
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "orderDate"));
 
-        return orderRepository.findAll(pageable)
-                .map(this::mapToOrderResponse);
+        return orderRepository.findAll(pageable).map(this::mapToOrderResponse);
     }
 
     public OrderResponse getOrderByIdForAdmin(Long id) {
 
-        return mapToOrderResponse(
-                getOrderEntity(id)
-        );
+        return mapToOrderResponse(getOrderEntity(id));
     }
 
     @Transactional
@@ -416,19 +280,9 @@ public class OrderService {
 
         for (OrderItem item : order.getItems()) {
 
-            Product product =
-                    productRepository.findById(
-                            item.getProduct().getId()
-                    ).orElseThrow(
-                            () -> new RuntimeException(
-                                    "Product not found"
-                            )
-                    );
+            Product product = productRepository.findById(item.getProduct().getId()).orElseThrow(() -> new RuntimeException("Product not found"));
 
-            product.setStock(
-                    product.getStock()
-                            + item.getQuantity()
-            );
+            product.setStock(product.getStock() + item.getQuantity());
 
             productRepository.save(product);
         }
@@ -436,10 +290,7 @@ public class OrderService {
 
     private boolean isCancelableByUser(OrderStatus status, long hoursSinceOrder) {
 
-        return (
-                status == OrderStatus.PENDING
-                        || status == OrderStatus.PAID
-        ) && hoursSinceOrder <= cancelLimitHours;
+        return (status == OrderStatus.PENDING || status == OrderStatus.PAID) && hoursSinceOrder <= cancelLimitHours;
     }
 
     private boolean isValidTransition(OrderStatus oldStatus, OrderStatus newStatus) {
@@ -447,16 +298,11 @@ public class OrderService {
         return switch (oldStatus) {
 
             case PENDING ->
-                    newStatus == OrderStatus.PAID
-                            || newStatus == OrderStatus.CANCELLED
-                            || newStatus == OrderStatus.FAILED;
+                    newStatus == OrderStatus.PAID || newStatus == OrderStatus.CANCELLED || newStatus == OrderStatus.FAILED;
 
-            case PAID ->
-                    newStatus == OrderStatus.SHIPPED
-                            || newStatus == OrderStatus.CANCELLED;
+            case PAID -> newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.CANCELLED;
 
-            case SHIPPED ->
-                    newStatus == OrderStatus.COMPLETED;
+            case SHIPPED -> newStatus == OrderStatus.COMPLETED;
 
             default -> false;
         };
@@ -464,95 +310,51 @@ public class OrderService {
 
     private OrderResponse mapToOrderResponse(Order order) {
 
-        OrderResponse response =
-                new OrderResponse();
+        OrderResponse response = new OrderResponse();
 
         response.setId(order.getId());
 
-        response.setReceiverName(
-                order.getReceiverName()
-        );
+        response.setReceiverName(order.getReceiverName());
 
-        response.setReceiverPhone(
-                order.getReceiverPhone()
-        );
+        response.setReceiverPhone(order.getReceiverPhone());
 
-        response.setDeliveryAddress(
-                order.getDeliveryAddress()
-        );
+        response.setDeliveryAddress(order.getDeliveryAddress());
 
-        response.setPaymentMethod(
-                order.getPaymentMethod().name()
-        );
+        response.setPaymentMethod(order.getPaymentMethod().name());
 
-        response.setStatus(
-                order.getStatus().name()
-        );
+        response.setStatus(order.getStatus().name());
 
-        response.setOrderDate(
-                order.getOrderDate()
-        );
+        response.setOrderDate(order.getOrderDate());
 
-        response.setTotalAmount(
-                order.getTotalAmount()
-        );
+        response.setTotalAmount(order.getTotalAmount());
 
-        response.setCancelLimitHours(
-                cancelLimitHours
-        );
+        response.setCancelLimitHours(cancelLimitHours);
 
         if (order.getPromotion() != null) {
 
-            response.setPromotionCode(
-                    order.getPromotion().getCode()
-            );
+            response.setPromotionCode(order.getPromotion().getCode());
         }
 
-        boolean cancelable =
-                (
-                        order.getStatus() == OrderStatus.PENDING
-                                || order.getStatus() == OrderStatus.PAID
-                )
-                        && LocalDateTime.now().isBefore(
-                        order.getOrderDate()
-                                .plusHours(cancelLimitHours)
-                );
+        boolean cancelable = (order.getStatus() == OrderStatus.PENDING || order.getStatus() == OrderStatus.PAID) && LocalDateTime.now().isBefore(order.getOrderDate().plusHours(cancelLimitHours));
 
         response.setCancelable(cancelable);
 
-        List<OrderItemResponse> items =
-                order.getItems()
-                        .stream()
-                        .map(item -> {
+        List<OrderItemResponse> items = order.getItems().stream().map(item -> {
 
-                            OrderItemResponse res =
-                                    new OrderItemResponse();
+            OrderItemResponse res = new OrderItemResponse();
 
-                            res.setProductId(
-                                    item.getProduct().getId()
-                            );
+            res.setProductId(item.getProduct().getId());
 
-                            res.setProductName(
-                                    item.getProduct().getName()
-                            );
+            res.setProductName(item.getProduct().getName());
 
-                            res.setQuantity(
-                                    item.getQuantity()
-                            );
-                            res.setProductImage(
-                                    item.getProduct().getImageUrl()
-                            );
-                            res.setUnitPrice(
-                                    item.getUnitPrice()
-                            );
+            res.setQuantity(item.getQuantity());
+            res.setProductImage(item.getProduct().getImageUrl());
+            res.setUnitPrice(item.getUnitPrice());
 
-                            res.setDiscountedUnitPrice(
-                                    item.getDiscountedUnitPrice()
-                            );
+            res.setDiscountedUnitPrice(item.getDiscountedUnitPrice());
 
-                            return res;
-                        })
-                        .toList();
+            return res;
+        }).toList();
 
         response.setItems(items);
 

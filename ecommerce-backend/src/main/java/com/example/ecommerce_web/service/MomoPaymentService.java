@@ -2,6 +2,7 @@ package com.example.ecommerce_web.service;
 
 import com.example.ecommerce_web.dto.MomoPaymentResponse;
 import com.example.ecommerce_web.model.OrderStatus;
+import com.example.ecommerce_web.model.PaymentStatus;
 import com.example.ecommerce_web.model.PaymentTransaction;
 import com.example.ecommerce_web.repository.PaymentTransactionRepository;
 import com.example.ecommerce_web.util.MomoSignatureUtil;
@@ -23,13 +24,11 @@ import java.util.Map;
 public class MomoPaymentService {
 
     private final OrderService orderService;
-    private final PaymentTransactionRepository transactionRepository;
+    private final PaymentTransactionRepository paymentTransactionRepository;
 
-    private final RestTemplate restTemplate =
-            new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    private final ObjectMapper objectMapper =
-            new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${momo.partnerCode}")
     private String partnerCode;
@@ -49,34 +48,18 @@ public class MomoPaymentService {
     @Value("${momo.endpoint}")
     private String endpoint;
 
-    public MomoPaymentResponse createPayment(
-            Long orderId,
-            String orderInfo,
-            HttpServletRequest request
-    ) {
+    public MomoPaymentResponse createPayment(Long orderId, String orderInfo, HttpServletRequest request) {
 
-        Long amount =
-                orderService.getOrderAmount(orderId);
+        Long amount = orderService.getOrderAmount(orderId);
 
-        if (
-                amount == null ||
-                        amount < 1000
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Amount must be >= 1000 VND"
-            );
+        if (amount == null || amount < 1000) {
+            throw new IllegalArgumentException("Amount must be >= 1000 VND");
         }
 
-        String uniqueOrderId =
-                orderId + "-" + System.currentTimeMillis();
+        String uniqueOrderId = orderId + "-" + System.currentTimeMillis();
+        String requestId = String.valueOf(System.currentTimeMillis());
 
-        String requestId =
-                String.valueOf(System.currentTimeMillis());
-
-        Map<String, Object> requestBody =
-                new HashMap<>();
-
+        Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("partnerCode", partnerCode);
         requestBody.put("accessKey", accessKey);
         requestBody.put("requestId", requestId);
@@ -100,72 +83,68 @@ public class MomoPaymentService {
                         "&requestId=" + requestId +
                         "&requestType=captureWallet";
 
-        String signature =
-                MomoSignatureUtil.signHmacSHA256(
-                        rawSignature,
-                        secretKey
-                );
-
+        String signature = MomoSignatureUtil.signHmacSHA256(rawSignature, secretKey);
         requestBody.put("signature", signature);
 
         log.info("MOMO REQUEST = {}", requestBody);
 
-        MomoPaymentResponse response =
-                restTemplate.postForObject(
-                        endpoint,
-                        requestBody,
-                        MomoPaymentResponse.class
-                );
+        MomoPaymentResponse response = null;
+        String responseJson;
 
-        log.info("MOMO RESPONSE = {}", response);
+        try {
+            response = restTemplate.postForObject(endpoint, requestBody, MomoPaymentResponse.class);
 
-        PaymentTransaction transaction =
-                new PaymentTransaction();
+            responseJson = objectMapper.writeValueAsString(response);
 
-        transaction.setOrderId(orderId);
-        transaction.setPaymentGateway("Momo");
-        transaction.setTxnRef(uniqueOrderId);
-        transaction.setRequestPayload(requestBody.toString());
+        } catch (Exception e) {
+            responseJson = "{\"error\":\"" + e.getMessage() + "\"}";
+        }
 
-        transaction.setResponsePayload(
-                response != null
-                        ? response.toString()
-                        : "NULL"
-        );
+        log.info("MOMO RESPONSE = {}", responseJson);
 
-        transaction.setResultCode(
-                response != null
-                        ? response.getResultCode()
-                        : null
-        );
+        // ===== SAVE TRANSACTION =====
+        PaymentTransaction transaction = PaymentTransaction.builder()
+                .orderId(orderId)
+                .paymentGateway("MOMO")
+                .txnRef(uniqueOrderId)
+                .requestPayload(convertToJson(requestBody))
+                .responsePayload(responseJson)
+                .resultCode(response != null ? response.getResultCode() : null)
+                .message(
+                        response != null && "0".equals(response.getResultCode())
+                                ? "MoMo payment session created"
+                                : response != null
+                                ? response.getMessage()
+                                : "MoMo request failed"
+                )
+                .status(response != null && "0".equals(response.getResultCode())
+                        ? PaymentStatus.PENDING
+                        : PaymentStatus.FAILED)
+                .build();
 
-        transaction.setMessage(
-                response != null
-                        ? response.getMessage()
-                        : null
-        );
-
-        transactionRepository.save(transaction);
+        log.info("UPDATING TX = {}", transaction.getTxnRef());
+        log.info("STATUS = {}", transaction.getStatus());
+        paymentTransactionRepository.save(transaction);
 
         return response;
     }
 
-    @Transactional
-    public void handleMomoNotification(
-            Map<String, Object> payload
-    ) {
-
+    private String convertToJson(Object obj) {
         try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
 
-            log.info(
-                    "MOMO IPN PAYLOAD = {}",
-                    payload
-            );
+    @Transactional
+    public void handleMomoNotification(Map<String, Object> payload) {
+        log.error("========== MOMO CALLBACK HIT ==========");
+        try {
+            log.info("MOMO IPN PAYLOAD = {}", payload);
 
-            String receivedSignature =
-                    String.valueOf(
-                            payload.get("signature")
-                    );
+            // ===== 1. VERIFY SIGNATURE =====
+            String receivedSignature = (String) payload.get("signature");
 
             String rawSignature =
                     "accessKey=" + accessKey +
@@ -183,113 +162,87 @@ public class MomoPaymentService {
                             "&transId=" + payload.get("transId");
 
             String calculatedSignature =
-                    MomoSignatureUtil.signHmacSHA256(
-                            rawSignature,
-                            secretKey
-                    );
+                    MomoSignatureUtil.signHmacSHA256(rawSignature, secretKey);
 
-            if (
-                    !calculatedSignature.equals(
-                            receivedSignature
-                    )
-            ) {
-
-                log.error(
-                        "MOMO INVALID SIGNATURE"
-                );
-
+            if (receivedSignature == null || !calculatedSignature.equals(receivedSignature)) {
+                log.error("MOMO INVALID SIGNATURE");
                 return;
             }
 
-            String resultCode =
-                    String.valueOf(
-                            payload.get("resultCode")
-                    );
+            String resultCode = String.valueOf(payload.get("resultCode"));
+            String momoOrderId = String.valueOf(payload.get("orderId"));
+            String orderIdStr = momoOrderId.split("-")[0];
+            Long orderId = Long.parseLong(orderIdStr);
 
-            String momoOrderId =
-                    String.valueOf(
-                            payload.get("orderId")
-                    );
+            log.info("ORDER ID = {}, RESULT = {}", orderId, resultCode);
 
-            String orderIdStr =
-                    momoOrderId.split("-")[0];
+            boolean success = "0".equals(resultCode);
+            OrderStatus currentStatus = orderService.getOrderStatus(orderId);
 
-            Long orderId =
-                    Long.parseLong(orderIdStr);
+            if (currentStatus != OrderStatus.PAID
+                    && currentStatus != OrderStatus.FAILED) {
 
-            log.info(
-                    "ORDER ID = {}, RESULT = {}",
+                OrderStatus newStatus = success
+                        ? OrderStatus.PAID
+                        : OrderStatus.FAILED;
+
+                orderService.updateOrderStatus(orderId, newStatus);
+
+                log.info("Order {} updated to {}", orderId, newStatus);
+            }
+
+            updateTransaction(
                     orderId,
-                    resultCode
+                    momoOrderId,
+                    resultCode,
+                    objectMapper.writeValueAsString(payload),
+                    String.valueOf(payload.get("message"))
             );
-
-            OrderStatus currentStatus =
-                    orderService.getOrderStatus(orderId);
-
-            if (
-                    currentStatus == OrderStatus.PAID ||
-                            currentStatus == OrderStatus.FAILED
-            ) {
-
-                log.info(
-                        "Order already processed"
-                );
-
-                return;
-            }
-
-            if ("0".equals(resultCode)) {
-
-                orderService.updateOrderStatus(
-                        orderId,
-                        OrderStatus.PAID
-                );
-
-                log.info(
-                        "Order {} updated to PAID",
-                        orderId
-                );
-
-            } else {
-
-                orderService.updateOrderStatus(
-                        orderId,
-                        OrderStatus.FAILED
-                );
-
-                log.info(
-                        "Order {} updated to FAILED",
-                        orderId
-                );
-            }
-
-            PaymentTransaction notifyLog =
-                    new PaymentTransaction();
-
-            notifyLog.setOrderId(orderId);
-            notifyLog.setPaymentGateway("Momo");
-            notifyLog.setTxnRef(momoOrderId);
-
-            notifyLog.setRequestPayload(
-                    objectMapper.writeValueAsString(payload)
-            );
-
-            notifyLog.setResultCode(resultCode);
-
-            notifyLog.setMessage(
-                    String.valueOf(
-                            payload.get("message")
-                    )
-            );
-
-            transactionRepository.save(notifyLog);
 
         } catch (Exception e) {
-
-            log.error(
-                    "MOMO NOTIFY ERROR",
-                    e
-            );
+            log.error("MOMO IPN ERROR", e);
         }
+    }
+
+    private void updateTransaction(Long orderId, String txnRef, String resultCode, String responsePayload, String momoMessage) {
+        PaymentTransaction tx =
+                paymentTransactionRepository.findByTxnRef(txnRef)
+                        .orElse(new PaymentTransaction());
+
+        tx.setOrderId(orderId);
+
+        tx.setPaymentGateway("MOMO");
+
+        tx.setTxnRef(txnRef);
+
+        tx.setResultCode(resultCode);
+
+        tx.setResponsePayload(responsePayload);
+
+        PaymentStatus status =
+                "0".equals(resultCode)
+                        ? PaymentStatus.SUCCESS
+                        : PaymentStatus.FAILED;
+
+        tx.setStatus(status);
+
+        tx.setMessage(buildMessage(resultCode, momoMessage));
+
+        paymentTransactionRepository.save(tx);
+
+        log.info(
+                "MoMo transaction updated txnRef={}, status={}",
+                txnRef,
+                status
+        );
+    }
+
+    private String buildMessage(String resultCode, String momoMessage) {
+        if ("0".equals(resultCode)) {
+
+            return "MoMo payment successful";
+        }
+
+        return "MoMo payment failed: " + momoMessage;
     }
 }

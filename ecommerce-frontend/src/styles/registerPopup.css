@@ -1,23 +1,30 @@
-/* Overlay */
+/* Overlay with blur effect */
 .az-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 25, 0.7);
+  background: rgba(8, 10, 24, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Modal */
+/* Glassmorphism Modal */
 .az-modal {
   width: 420px;
-  background: linear-gradient(145deg, #16152e, #1c1b3d);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  background: rgba(22, 21, 46, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
   color: white;
-  animation: fadeUp 0.3s ease;
+  animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* Header */
@@ -25,115 +32,195 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .az-modal-header h2 {
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .az-modal-header button {
-  background: none;
+  background: rgba(255, 255, 255, 0.06);
   border: none;
-  font-size: 22px;
-  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.az-modal-header button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ff6b6b;
+  transform: rotate(90deg);
 }
 
 /* Form */
 .az-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .az-form input {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
   color: white;
-  transition: 0.2s;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.az-form input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .az-form input:focus {
-  border-color: #6c7cff;
+  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.08);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(108,124,255,0.2);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25),
+              0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* File */
+/* File info */
 .az-file {
   font-size: 0.8rem;
   opacity: 0.7;
 }
 
-/* Error */
+/* Error text */
 .az-error-text {
-  color: #ff6b6b;
+  color: #f87171;
   font-size: 0.85rem;
   text-align: center;
+  background: rgba(248, 113, 113, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
 }
 
-/* Button */
+/* Submit Button */
 .az-submit {
-  margin-top: 10px;
-  background: linear-gradient(135deg, #5b6cff, #7f8cff);
+  margin-top: 12px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   border: none;
-  border-radius: 10px;
-  padding: 10px;
-  font-weight: 700;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 600;
   color: white;
   cursor: pointer;
-  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transition: all 0.25s ease;
 }
 
 .az-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(100,120,255,0.5);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.45);
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+}
+
+.az-submit:active {
+  transform: translateY(0);
 }
 
 /* Switch */
 .az-switch {
   text-align: center;
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .az-switch span {
-  color: #7f8cff;
+  color: #818cf8;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.az-switch span:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
 }
 
 /* Divider */
 .az-divider {
+  display: flex;
+  align-items: center;
   text-align: center;
-  margin: 16px 0;
+  margin: 18px 0;
   font-size: 0.8rem;
-  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.4);
 }
 
-/* Social */
+.az-divider::before,
+.az-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.az-divider:not(:empty)::before {
+  margin-right: .5em;
+}
+
+.az-divider:not(:empty)::after {
+  margin-left: .5em;
+}
+
+/* Social Buttons */
 .az-social {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .az-social a {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
+  gap: 8px;
+  padding: 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  transition: 0.2s;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
 }
 
 .az-social a:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

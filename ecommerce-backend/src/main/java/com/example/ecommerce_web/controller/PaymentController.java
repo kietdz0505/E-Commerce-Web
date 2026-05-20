@@ -3,13 +3,18 @@ package com.example.ecommerce_web.controller;
 import com.example.ecommerce_web.dto.MomoPaymentResponse;
 import com.example.ecommerce_web.dto.PaymentResponse;
 import com.example.ecommerce_web.model.OrderStatus;
+import com.example.ecommerce_web.model.PaymentStatus;
+import com.example.ecommerce_web.model.PaymentTransaction;
+import com.example.ecommerce_web.repository.PaymentTransactionRepository;
 import com.example.ecommerce_web.service.MomoPaymentService;
 import com.example.ecommerce_web.service.OrderService;
 import com.example.ecommerce_web.service.VNPaymentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,66 +30,39 @@ public class PaymentController {
     private final MomoPaymentService momoPaymentService;
     private final VNPaymentService vnPaymentService;
     private final OrderService orderService;
+    private final PaymentTransactionRepository paymentTransactionRepository;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     // ===================== MOMO ===================== //
 
     @PostMapping("/momo")
-    public ResponseEntity<PaymentResponse> createMomoPayment(
-            @RequestParam Long orderId,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<PaymentResponse> createMomoPayment(@RequestParam Long orderId, HttpServletRequest request) {
 
-        String paymentMethod =
-                orderService.getOrderPaymentMethod(orderId);
+        String paymentMethod = orderService.getOrderPaymentMethod(orderId);
 
         if (!"MOMO".equalsIgnoreCase(paymentMethod)) {
 
-            return ResponseEntity.badRequest().body(
-                    PaymentResponse.error(
-                            "Order is not set to pay with MoMo"
-                    )
-            );
+            return ResponseEntity.badRequest().body(PaymentResponse.error("Order is not set to pay with MoMo"));
         }
 
-        String orderInfo =
-                "Thanh_toan_don_hang_" + orderId;
+        String orderInfo = "Thanh_toan_don_hang_" + orderId;
 
-        MomoPaymentResponse response =
-                momoPaymentService.createPayment(
-                        orderId,
-                        orderInfo,
-                        request
-                );
+        MomoPaymentResponse response = momoPaymentService.createPayment(orderId, orderInfo, request);
 
-        if (
-                response == null ||
-                        response.getPayUrl() == null
-        ) {
+        if (response == null || response.getPayUrl() == null) {
 
-            return ResponseEntity.badRequest().body(
-                    PaymentResponse.error(
-                            "Failed to generate MoMo payment URL"
-                    )
-            );
+            return ResponseEntity.badRequest().body(PaymentResponse.error("Failed to generate MoMo payment URL"));
         }
 
-        return ResponseEntity.ok(
-                PaymentResponse.success(
-                        "MoMo payment URL generated",
-                        response.getPayUrl()
-                )
-        );
+        return ResponseEntity.ok(PaymentResponse.success("MoMo payment URL generated", response.getPayUrl()));
     }
 
     @PostMapping("/momo-notify")
-    public ResponseEntity<String> momoNotify(
-            @RequestBody Map<String, Object> payload
-    ) {
+    public ResponseEntity<String> momoNotify(@RequestBody Map<String, Object> payload) {
 
-        log.info(
-                "===== MOMO NOTIFY ===== {}",
-                payload
-        );
+        log.info("===== MOMO NOTIFY ===== {}", payload);
 
         momoPaymentService.handleMomoNotification(payload);
 
@@ -92,209 +70,132 @@ public class PaymentController {
     }
 
     @GetMapping("/momo-return")
-    public void momoReturn(
-            @RequestParam Map<String, String> params,
-            HttpServletResponse response
-    ) throws IOException {
+    public void momoReturn(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
 
-        log.info(
-                "===== MOMO RETURN ===== {}",
-                params
-        );
+        log.info("===== MOMO RETURN ===== {}", params);
 
         try {
 
-            boolean success =
-                    "0".equals(
-                            params.get("resultCode")
-                    );
+            boolean success = "0".equals(params.get("resultCode"));
 
-            String momoOrderId =
-                    params.get("orderId");
+            String momoOrderId = params.get("orderId");
 
-            if (
-                    momoOrderId == null ||
-                            !momoOrderId.contains("-")
-            ) {
+            if (momoOrderId == null || !momoOrderId.contains("-")) {
 
-                response.sendRedirect(
-                        "http://localhost:5173/my-orders?payment=failed"
-                );
+                response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
 
                 return;
             }
 
-            Long orderId =
-                    Long.valueOf(
-                            momoOrderId.split("-")[0]
-                    );
+            Long orderId = Long.valueOf(momoOrderId.split("-")[0]);
+            PaymentTransaction transaction =
+                    paymentTransactionRepository.findByTxnRef(momoOrderId)
+                            .orElse(null);
 
-            OrderStatus currentStatus =
-                    orderService.getOrderStatus(orderId);
+            OrderStatus currentStatus = orderService.getOrderStatus(orderId);
 
-            log.info(
-                    "CURRENT STATUS = {}",
-                    currentStatus
-            );
+            log.info("CURRENT STATUS = {}", currentStatus);
 
-            // tránh update lại nhiều lần
             if (currentStatus != OrderStatus.PAID) {
 
                 if (success) {
 
-                    orderService.updateOrderStatus(
-                            orderId,
-                            OrderStatus.PAID
-                    );
+                    orderService.updateOrderStatus(orderId, OrderStatus.PAID);
 
-                    log.info(
-                            "ORDER {} UPDATED TO PAID",
-                            orderId
-                    );
+                    if (transaction != null) {
+                        transaction.setStatus(PaymentStatus.SUCCESS);
+                        transaction.setResultCode("0");
+                        transaction.setMessage("MoMo payment successful");
+
+                        paymentTransactionRepository.save(transaction);
+                    }
+
+                    log.info("ORDER {} UPDATED TO PAID", orderId);
 
                 } else {
 
-                    orderService.updateOrderStatus(
-                            orderId,
-                            OrderStatus.FAILED
-                    );
+                    orderService.updateOrderStatus(orderId, OrderStatus.FAILED);
 
-                    log.info(
-                            "ORDER {} UPDATED TO FAILED",
-                            orderId
-                    );
+                    if (transaction != null) {
+                        transaction.setStatus(PaymentStatus.FAILED);
+                        transaction.setMessage("MoMo payment failed");
+
+                        paymentTransactionRepository.save(transaction);
+                    }
+
+                    log.info("ORDER {} UPDATED TO FAILED", orderId);
                 }
             }
 
-            response.sendRedirect(
-                    success
-                            ? "http://localhost:5173/my-orders?payment=success"
-                            : "http://localhost:5173/my-orders?payment=failed"
-            );
+            response.sendRedirect(success ? frontendUrl + "/my-orders?payment=success" : frontendUrl + "/my-orders?payment=failed");
 
         } catch (Exception e) {
 
-            log.error(
-                    "MOMO RETURN ERROR",
-                    e
-            );
+            log.error("MOMO RETURN ERROR", e);
 
-            response.sendRedirect(
-                    "http://localhost:5173/my-orders?payment=failed"
-            );
+            response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
         }
     }
 
-    // ===================== VNPAY ===================== //
-
     @PostMapping("/vnpay")
-    public ResponseEntity<PaymentResponse> createVNPay(
-            @RequestParam Long orderId,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<PaymentResponse> createVNPay(@RequestParam Long orderId, HttpServletRequest request) throws JsonProcessingException {
         String paymentMethod = orderService.getOrderPaymentMethod(orderId);
 
         if (!"VNPAY".equalsIgnoreCase(paymentMethod)) {
-            return ResponseEntity.badRequest().body(
-                    PaymentResponse.error("Order is not set to pay with VNPay")
-            );
+            return ResponseEntity.badRequest().body(PaymentResponse.error("Order is not set to pay with VNPay"));
         }
 
-        // FIX 10: Lấy IP đúng cách — hỗ trợ reverse proxy (nginx, load balancer)
+
         String ipAddr = getClientIp(request);
 
-        String paymentUrl = vnPaymentService.createVNPayPayment(
-                orderId,
-                "Order " + orderId,   // dùng khoảng trắng, sanitize sẽ xử lý
-                ipAddr
-        );
+        String paymentUrl = vnPaymentService.createVNPayPayment(orderId, "Order " + orderId,
+                ipAddr);
 
-        return ResponseEntity.ok(
-                PaymentResponse.success("VNPay payment URL generated", paymentUrl)
-        );
+        return ResponseEntity.ok(PaymentResponse.success("VNPay payment URL generated", paymentUrl));
     }
 
-    /**
-     * VNPay gọi endpoint này sau khi user thanh toán xong (redirect về browser).
-     *
-     * FIX 11: Tách biệt verify và handle — trả lỗi rõ ràng từng bước.
-     */
     @GetMapping("/vnpay-return")
-    public void returnVNPay(
-            @RequestParam Map<String, String> params,
-            HttpServletResponse response
-    ) throws IOException {
+    public void returnVNPay(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
 
-        log.info("===== VNPAY RETURN ===== {}", params);
+        String secureHash = params.get("vnp_SecureHash");
 
-        String secureHash =
-                params.get("vnp_SecureHash");
+        if (secureHash == null || secureHash.isBlank()) {
 
-        if (
-                secureHash == null ||
-                        secureHash.isBlank()
-        ) {
-
-            response.sendRedirect(
-                    "http://localhost:5173/my-orders?payment=failed"
-            );
+            response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
 
             return;
         }
 
-        boolean valid =
-                vnPaymentService.verifyVNPayChecksum(
-                        params,
-                        secureHash
-                );
+        boolean valid = vnPaymentService.verifyVNPayChecksum(params, secureHash);
 
         if (!valid) {
 
-            log.warn(
-                    "VNPay invalid checksum — params: {}",
-                    params
-            );
+            log.warn("VNPay invalid checksum — params: {}", params);
 
-            response.sendRedirect(
-                    "http://localhost:5173/my-orders?payment=failed"
-            );
+            response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
 
             return;
         }
 
         vnPaymentService.handleVNPayReturn(params);
 
-        String responseCode =
-                params.get("vnp_ResponseCode");
+        String responseCode = params.get("vnp_ResponseCode");
 
-        boolean success =
-                "00".equals(responseCode);
+        boolean success = "00".equals(responseCode);
 
         if (success) {
 
-            response.sendRedirect(
-                    "http://localhost:5173/my-orders?payment=success"
-            );
+            response.sendRedirect(frontendUrl + "/my-orders?payment=success");
 
         } else {
 
-            response.sendRedirect(
-                    "http://localhost:5173/my-orders?payment=failed"
-            );
+            response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
         }
     }
 
-    // ================================================================
-    // HELPER
-    // ================================================================
-
-    /**
-     * Lấy IP thực của client, hỗ trợ cả trường hợp qua proxy/nginx.
-     */
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
-            // X-Forwarded-For có thể chứa nhiều IP: "client, proxy1, proxy2"
             return ip.split(",")[0].trim();
         }
         ip = request.getHeader("X-Real-IP");
