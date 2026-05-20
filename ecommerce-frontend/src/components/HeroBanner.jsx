@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaShoppingCart } from "react-icons/fa";
-import '../styles/HeroBanner.css';
+import '../styles/heroBanner.css';
 
 function HeroBanner({ currentUser, onBuyNowClick }) {
   return (
