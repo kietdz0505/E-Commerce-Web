@@ -141,7 +141,6 @@ export default function AdminProductsPage() {
       loadProducts();
 
     } catch (err) {
-      // ===== 🔥 MAP LỖI BACKEND =====
       if (err.response?.data) {
         const data = err.response.data;
 
@@ -197,7 +196,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="container mt-4">
-      <h2 className="text-center mb-4">Quản lý sản phẩm</h2>
+      <h2 style={{ marginTop: '2rem' }} className="text-center mb-4">Quản lý sản phẩm</h2>
 
       <Button type="primary" onClick={() => openModal()}>
         Thêm sản phẩm
