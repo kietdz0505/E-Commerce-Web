@@ -30,7 +30,7 @@ public class Promotion {
     private LocalDateTime validTo;
 
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "promotion_products",
             joinColumns = @JoinColumn(name = "promotion_id"),

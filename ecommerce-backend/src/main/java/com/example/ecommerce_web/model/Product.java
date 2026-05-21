@@ -1,12 +1,14 @@
 package com.example.ecommerce_web.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,6 +35,10 @@ public class Product {
     @JoinColumn(name = "brand_id")
     @JsonBackReference(value = "brand-products")
     private Brand brand;
+
+    @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Promotion> promotions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
