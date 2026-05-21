@@ -65,14 +65,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
+
                                 "/oauth2/**",
+                                "/login/oauth2/**",
+
                                 "/",
                                 "/api/products/**",
                                 "/api/categories/**",
                                 "/api/brands/**",
                                 "/api/products/search",
 
-                                // Payment callbacks — VNPay & MoMo gọi về không có JWT
                                 "/api/payment/vnpay-return",
                                 "/api/payment/momo-return",
                                 "/api/payment/momo-notify"

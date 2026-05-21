@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -30,22 +31,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
+
+            String path = request.getServletPath();
+
+            if (path.startsWith("/api/auth")
+                    || path.startsWith("/oauth2")
+                    || path.startsWith("/login/oauth2")
+                    || path.startsWith("/login")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String token = getJwtFromRequest(request);
 
-            if (token != null && jwtTokenProvider.validateToken(token)) {
+            if (token == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (jwtTokenProvider.validateToken(token)) {
 
                 String email = jwtTokenProvider.getEmailFromToken(token);
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    CustomUserDetails userDetails =
-                            (CustomUserDetails) userDetailsService.loadUserByUsername(email);
-
-                    if (!userDetails.isAccountNonLocked()) {
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        response.getWriter().write("Account is locked");
-                        return;
-                    }
+                    UserDetails userDetails =
+                            userDetailsService.loadUserByUsername(email);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
@@ -63,11 +74,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            logger.error("JWT authentication failed: {}", e);
+            logger.error("JWT authentication failed", e);
         }
 
         filterChain.doFilter(request, response);
     }
+
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
