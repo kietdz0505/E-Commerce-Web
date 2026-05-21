@@ -1,54 +1,57 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { getApiUrl } from './config/apiConfig';
-import { useAuth } from './shared/AuthContext';
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./shared/AuthContext";
+import apiClient from "./api/axiosInstance";
 
 function OAuth2RedirectHandler() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const executed = useRef(false);
+
   useEffect(() => {
-    const handleOAuthLogin = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
+    if (executed.current) return;
+    executed.current = true;
+
+    const handleOAuth = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
 
       if (!token) {
-        navigate('/login');
+        navigate("/", { replace: true });
         return;
       }
 
       try {
-        await login(token);
 
-        const res = await axios.get(getApiUrl('PROFILE'), {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        login(token);
 
+     
+        const res = await apiClient.get("/api/users/me");
         const user = res.data;
 
-        const isAdmin =
-          Array.isArray(user.roles) &&
-          user.roles.includes("ROLE_ADMIN");
+    
+        const roles = user.roles || [];
 
-        if (isAdmin) {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
+        const isAdmin = roles.includes("ROLE_ADMIN");
 
-      } catch (error) {
-        console.error("OAuth error:", error);
-        navigate('/login');
+       
+        navigate(isAdmin ? "/admin" : "/", { replace: true });
+
+      } catch (err) {
+        console.error("OAuth error:", err);
+
+       
+        navigate("/", { replace: true });
       }
     };
 
-    handleOAuthLogin();
+    handleOAuth();
   }, [navigate, login]);
 
   return (
-    <div style={{ padding: "40px", textAlign: "center" }}>
-      <h4>Đang đăng nhập...</h4>
+    <div style={{ textAlign: "center", padding: 40 }}>
+      Đang đăng nhập...
     </div>
   );
 }

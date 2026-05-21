@@ -7,141 +7,54 @@ import {
 } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { getApiUrl } from "../config/apiConfig";
+import apiClient from "../api/axiosInstance";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({
-  children
-}) => {
-
+export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  const [currentUser, setCurrentUser] =
-    useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  // =========================================
-  // LOGOUT
-  // =========================================
-
-  const logout = useCallback((
-    redirect = true
-  ) => {
-
+  const logout = useCallback((redirect = true) => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
 
     setCurrentUser(null);
 
-    if (redirect) {
-      navigate("/login");
-    }
-
+    if (redirect) navigate("/");
   }, [navigate]);
 
-  // =========================================
-  // FETCH USER
-  // =========================================
-
   const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem("token");
 
-    const token =
-      localStorage.getItem("token");
-
-    // NO TOKEN
     if (!token) {
-
       setCurrentUser(null);
       setLoading(false);
-
       return;
     }
 
     try {
-
-      const res = await fetch(
-        getApiUrl("PROFILE"),
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      // TOKEN INVALID / EXPIRED
-      if (
-        res.status === 401
-      ) {
-
-        logout(false);
-
-        return;
-      }
-
-      if (!res.ok) {
-
-        throw new Error(
-          "Failed to fetch profile"
-        );
-      }
-
-      const data =
-        await res.json();
-
-      setCurrentUser(data);
-
+      const res = await apiClient.get("/api/users/me");
+      setCurrentUser(res.data);
     } catch (err) {
-
-      console.error(
-        "Fetch user error:",
-        err
-      );
-
-      // NETWORK ERROR
-      // KHÔNG logout user
-      // vì có thể backend tạm thời down
-
+      setCurrentUser(null);
     } finally {
-
       setLoading(false);
     }
-
-  }, [logout]);
-
-  // =========================================
-  // INIT
-  // =========================================
+  }, []);
 
   useEffect(() => {
-
     fetchUser();
-
   }, [fetchUser]);
 
-  // =========================================
-  // LOGIN
-  // =========================================
-
-  const login = async (
-    token
-  ) => {
-
-    localStorage.setItem(
-      "token",
-      token
-    );
-
-    await fetchUser();
+  const login = (token) => {
+    localStorage.setItem("token", token);
+    fetchUser();
   };
 
-  // =========================================
-  // CONTEXT
-  // =========================================
-
   return (
-
     <AuthContext.Provider
       value={{
         currentUser,
@@ -151,12 +64,9 @@ export const AuthProvider = ({
         fetchUser
       }}
     >
-
       {children}
-
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () =>
-  useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);
