@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./shared/AuthContext";
-import apiClient from "./api/axiosInstance";
 
 function OAuth2RedirectHandler() {
   const navigate = useNavigate();
@@ -22,25 +21,18 @@ function OAuth2RedirectHandler() {
       }
 
       try {
-        // 1. Lưu token vào Context/LocalStorage theo luồng của bạn
-        login(token);
-
-        // 2. ÉP TRUYỀN THẲNG TOKEN VÀO ĐÂY: Bẻ gãy bẫy bất đồng bộ của localStorage
-        const res = await apiClient.get("/api/users/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Chờ login xác thực và lấy thông tin User về
+        const user = await login(token);
         
-        const user = res.data;
-        const roles = user.roles || [];
-        const isAdmin = roles.includes("ROLE_ADMIN");
-
-        // 3. Chuyển hướng an toàn
-        navigate(isAdmin ? "/admin" : "/", { replace: true });
-
+        if (user) {
+          const roles = user.roles || [];
+          const isAdmin = roles.includes("ROLE_ADMIN");
+          navigate(isAdmin ? "/admin" : "/", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       } catch (err) {
-        console.error("OAuth error:", err);
+        console.error("OAuth login process failed:", err);
         navigate("/", { replace: true });
       }
     };
