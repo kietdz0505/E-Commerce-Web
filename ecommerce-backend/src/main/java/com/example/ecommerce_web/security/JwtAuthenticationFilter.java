@@ -30,8 +30,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        try {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        try {
             String path = request.getServletPath();
 
             if (path.startsWith("/api/auth")
@@ -44,19 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = getJwtFromRequest(request);
 
-            if (token == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            if (jwtTokenProvider.validateToken(token)) {
-
+            if (token != null && jwtTokenProvider.validateToken(token)) {
                 String email = jwtTokenProvider.getEmailFromToken(token);
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    UserDetails userDetails =
-                            userDetailsService.loadUserByUsername(email);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
@@ -74,12 +71,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            logger.error("JWT authentication failed", e);
+            logger.error("JWT authentication filter critical failed: " + e.getMessage(), e);
         }
-
         filterChain.doFilter(request, response);
     }
-
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
