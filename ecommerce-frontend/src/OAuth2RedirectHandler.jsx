@@ -24,10 +24,24 @@ function OAuth2RedirectHandler() {
         const user = await login(token);
 
         if (user) {
-          const roles = user.roles || [];
-          const isAdmin = roles.includes("ROLE_ADMIN");
+          const userRoles = user.roles || user.authorities || [];
 
-          navigate(isAdmin ? "/admin" : "/", { replace: true });
+          const isAdmin = userRoles.some(role => {
+            if (typeof role === "string") {
+              return role === "ROLE_ADMIN" || role === "ADMIN";
+            }
+            if (role && typeof role === "object") {
+              return role.name === "ROLE_ADMIN" || role.name === "ADMIN" || role.authority === "ROLE_ADMIN";
+            }
+            return false;
+          });
+          setTimeout(() => {
+            if (isAdmin) {
+              navigate("/admin", { replace: true });
+            } else {
+              navigate("/", { replace: true });
+            }
+          }, 150);
 
         } else {
           navigate("/", { replace: true });
@@ -43,12 +57,12 @@ function OAuth2RedirectHandler() {
   }, [navigate, login]);
 
   return (
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
       height: "80vh",
-      fontSize: "1.2rem", 
+      fontSize: "1.2rem",
       fontWeight: "500",
       color: "#4b5563"
     }}>

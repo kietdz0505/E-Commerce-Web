@@ -28,28 +28,10 @@ import {
 createRoot(
   document.getElementById('root')
 ).render(
-
   <StrictMode>
-
     <BrowserRouter>
-
-      <NotificationProvider>
-
-        <AuthProvider>
-
-          <CartProvider>
-
-            <App />
-
-          </CartProvider>
-
-        </AuthProvider>
-
-      </NotificationProvider>
-
+      <App />
     </BrowserRouter>
-
     <Toaster position="top-right" />
-
   </StrictMode>
 );
