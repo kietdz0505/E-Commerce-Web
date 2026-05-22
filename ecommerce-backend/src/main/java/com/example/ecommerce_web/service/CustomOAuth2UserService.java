@@ -15,12 +15,13 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +32,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final RoleRepository roleRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
@@ -44,22 +46,28 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if ("google".equals(registrationId)) {
             oauthId = (String) attributes.get("sub");
-            name = (String) attributes.get("name");
-            email = (String) attributes.get("email");
+            name    = (String) attributes.get("name");
+            email   = (String) attributes.get("email");
             picture = (String) attributes.get("picture");
             provider = AuthProvider.GOOGLE;
+
         } else if ("facebook".equals(registrationId)) {
             oauthId = (String) attributes.get("id");
-            name = (String) attributes.get("name");
-            email = (String) attributes.get("email");
+            name    = (String) attributes.get("name");
+            email   = (String) attributes.get("email");
+
+            if (email == null || email.isBlank()) {
+                email = "fb_" + oauthId + "@facebook.local";
+            }
 
             String token = userRequest.getAccessToken().getTokenValue();
-            String pictureApiUrl = "https://graph.facebook.com/" + oauthId + "/picture?type=large&redirect=false&access_token=" + token;
+            String pictureApiUrl = "https://graph.facebook.com/" + oauthId
+                    + "/picture?type=large&redirect=false&access_token=" + token;
             RestTemplate restTemplate = new RestTemplate();
             try {
-                Map<String, Object> response = restTemplate.getForObject(pictureApiUrl, Map.class);
-                if (response != null && response.containsKey("data")) {
-                    Map<String, Object> data = (Map<String, Object>) response.get("data");
+                Map<String, Object> resp = restTemplate.getForObject(pictureApiUrl, Map.class);
+                if (resp != null && resp.containsKey("data")) {
+                    Map<String, Object> data = (Map<String, Object>) resp.get("data");
                     picture = (String) data.get("url");
                 } else {
                     picture = "https://graph.facebook.com/" + oauthId + "/picture?type=large";
@@ -68,46 +76,48 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 picture = "https://graph.facebook.com/" + oauthId + "/picture?type=large";
             }
             provider = AuthProvider.FACEBOOK;
+
         } else {
             throw new OAuth2AuthenticationException("Unsupported OAuth2 provider: " + registrationId);
         }
 
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        User user;
+        final String finalEmail = email;
 
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
+        String finalPicture = picture;
+        User user = userRepository.findByEmail(finalEmail).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setId(UUID.randomUUID().toString());
 
-            boolean updated = false;
-            if (name != null && !name.equals(user.getName())) {
-                user.setName(name);
-                updated = true;
-            }
-            if (picture != null && !picture.equals(user.getPicture())) {
-                user.setPicture(picture);
-                updated = true;
-            }
-            if (provider != user.getAuthProvider()) {
-                user.setAuthProvider(provider);
-                updated = true;
-            }
-            if (updated) {
-                userRepository.save(user);
-            }
-        } else {
-            user = new User();
-            user.setId(oauthId);
-            user.setUsername(email);
-            user.setName(name);
-            user.setEmail(email);
-            user.setPicture(picture);
-            user.setAuthProvider(provider);
-            user.setCreatedAt(LocalDateTime.now());
-            user.setLocked(false);
+            newUser.setEmail(finalEmail);
+            newUser.setUsername(finalEmail);
+            newUser.setName(name != null ? name : "OAuth2 User");
+            newUser.setPicture(finalPicture);
+            newUser.setAuthProvider(provider);
+            newUser.setPassword(null);
+            newUser.setCreatedAt(LocalDateTime.now());
+            newUser.setLocked(false);
 
             Role customerRole = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
                     .orElseThrow(() -> new RuntimeException("ROLE_CUSTOMER not found"));
-            user.setRoles(Set.of(customerRole));
+            newUser.setRoles(Set.of(customerRole));
+
+            return userRepository.save(newUser);
+        });
+
+        boolean updated = false;
+        if (name != null && !name.equals(user.getName())) {
+            user.setName(name);
+            updated = true;
+        }
+        if (picture != null && !picture.equals(user.getPicture())) {
+            user.setPicture(picture);
+            updated = true;
+        }
+        if (provider != user.getAuthProvider()) {
+            user.setAuthProvider(provider);
+            updated = true;
+        }
+        if (updated) {
             userRepository.save(user);
         }
 
@@ -124,6 +134,5 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user.getRoles(),
                 attributes
         );
-
     }
 }
