@@ -21,18 +21,23 @@ function OAuth2RedirectHandler() {
       }
 
       try {
-        // Chờ login xác thực và lấy thông tin User về
         const user = await login(token);
-        
+
         if (user) {
           const roles = user.roles || [];
           const isAdmin = roles.includes("ROLE_ADMIN");
+
+          // HIỂN THỊ THÔNG BÁO ĐỂ BẠN THẤY RÕ KẾT QUẢ
+          alert("Đăng nhập thành công! Email của bạn: " + user.email);
+
+          // Điều hướng sang /admin nếu là admin, ngược lại sang trang nào đó rõ ràng hơn (hoặc tạm để nguyên để test)
           navigate(isAdmin ? "/admin" : "/", { replace: true });
         } else {
           navigate("/", { replace: true });
         }
       } catch (err) {
         console.error("OAuth login process failed:", err);
+        alert("Đăng nhập thất bại rồi: " + err.message);
         navigate("/", { replace: true });
       }
     };
