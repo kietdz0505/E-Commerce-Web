@@ -20,8 +20,8 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    @Value("${app.jwt.secret-key}")
+    private String jwtSecret;
 
     @Value("${jwt.access-expiration}")
     private long accessExpiration;
@@ -30,7 +30,7 @@ public class JwtTokenProvider {
     private long refreshExpiration;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
+        byte[] keyBytes = this.jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

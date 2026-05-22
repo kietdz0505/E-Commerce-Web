@@ -38,6 +38,7 @@ public class Product {
 
     @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY)
     @JsonIgnore
+    @Builder.Default
     private List<Promotion> promotions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
