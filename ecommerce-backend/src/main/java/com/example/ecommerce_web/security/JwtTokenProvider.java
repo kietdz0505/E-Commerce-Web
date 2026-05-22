@@ -38,7 +38,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + accessExpiration);
 
         var roleNames = roles.stream()
-                .map(role -> "ROLE_" + role.getName().name())
+                .map(role -> role.getName().name())
                 .collect(Collectors.toList());
 
         return Jwts.builder()
