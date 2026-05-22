@@ -16,34 +16,30 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService
-        implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(
-            String identifier
-    ) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
 
-        String normalized = identifier
-                .trim()
-                .toLowerCase();
+        if (identifier == null || identifier.trim().isEmpty()) {
+            throw new UsernameNotFoundException("Tên đăng nhập hoặc Email truyền vào bộ lọc bị null hoặc trống rỗng.");
+        }
+
+        String normalized = identifier.trim().toLowerCase();
 
         User user = userRepository
-                .findByEmailOrUsername(
-                        normalized,
-                        normalized
-                )
+                .findByEmailOrUsername(normalized, normalized)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
-                                "User not found"
+                                "Không tìm thấy người dùng trong Database với thông tin: " + normalized
                         )
                 );
 
         if (user.isLocked()) {
             throw new UsernameNotFoundException(
-                    "Account is locked"
+                    "Tài khoản này đã bị khóa."
             );
         }
 
@@ -57,9 +53,10 @@ public class CustomUserDetailsService
                         )
                         .collect(Collectors.toSet());
 
+        // Trong file CustomUserDetailsService.java
         return new CustomUserDetails(
                 user.getId(),
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
                 user.isLocked(),
                 authorities,

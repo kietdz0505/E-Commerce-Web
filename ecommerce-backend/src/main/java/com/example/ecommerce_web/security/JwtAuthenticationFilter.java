@@ -4,8 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +19,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-
     private final UserDetailsService userDetailsService;
 
     public JwtAuthenticationFilter(
@@ -55,30 +52,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = getJwtFromRequest(request);
 
+            // Chỉ xử lý nếu lấy được token hợp lệ từ chuỗi Bearer
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 String email = jwtTokenProvider.getEmailFromToken(token);
+
+                // CHỐT CHẶN 1: Nếu giải mã token ra trúng chuỗi rỗng hoặc null, dừng lại ngay để tránh crash file sau
+                if (email == null || email.trim().isEmpty() || "null".equalsIgnoreCase(email)) {
+                    logger.warn("JWT Validated thành công nhưng email giải mã ra bị null/rỗng. Vui lòng check cấu hình JWT Secret.");
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
+                    // CHỐT CHẶN 2: Phòng hờ trường hợp hàm loadUserByUsername trả về đối tượng null
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
 
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
+                        authentication.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
 
         } catch (Exception e) {
-            logger.error("JWT authentication filter critical failed: " + e.getMessage(), e);
+            // SỬA ĐỔI: Thay đổi cách nối chuỗi lỗi để in trọn vẹn StackTrace lên log Render thay vì chữ null cụt lủn
+            logger.error("JWT authentication filter critical failed: ", e);
         }
         filterChain.doFilter(request, response);
     }
