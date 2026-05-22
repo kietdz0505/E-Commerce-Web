@@ -5,18 +5,22 @@ const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
 });
 
-// attach token
+// Attach token interceptor
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (token) {
+  // Kiểm tra chặt chẽ: Chỉ đính kèm nếu token tồn tại và không phải chuỗi chữ "null"/"undefined"
+  if (token && token !== "null" && token !== "undefined") {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    // Nếu không có token hợp lệ, chủ động xóa header cũ để tránh gửi chuỗi rác sang backend
+    delete config.headers.Authorization;
   }
 
   return config;
 });
 
-// refresh logic safe
+// Refresh token interceptor
 apiClient.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -27,8 +31,10 @@ apiClient.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refreshToken");
 
-      if (!refreshToken) {
+      // Nếu không có refreshToken hợp lệ, dọn sạch bộ nhớ và đá về trang chủ
+      if (!refreshToken || refreshToken === "null" || refreshToken === "undefined") {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         window.location.href = "/";
         return Promise.reject(err);
       }
@@ -44,7 +50,6 @@ apiClient.interceptors.response.use(
         if (!newToken) throw new Error("No token");
 
         localStorage.setItem("token", newToken);
-
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         return apiClient(originalRequest);
