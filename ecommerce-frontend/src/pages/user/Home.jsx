@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import apiClient from "../api/axiosInstance";
+import apiClient from "../../api/axiosInstance";
 import { getAllCategories } from "../../api/categoryApi";
 import { getApiUrl } from '../../config/apiConfig';
 import PaginationConfig from "../../config/paginationConfig";
