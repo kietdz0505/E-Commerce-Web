@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-
+import apiClient from "../api/axiosInstance";
 import { getAllCategories } from "../../api/categoryApi";
 import { getApiUrl } from '../../config/apiConfig';
 import PaginationConfig from "../../config/paginationConfig";
@@ -16,7 +16,6 @@ import HeroBanner from "../../components/HeroBanner";
 import CategoryList from "../../components/CategoryList";
 import BrandList from "../../components/BrandList";
 
-import axios from 'axios';
 import '../../styles/home.css';
 
 function Home() {
@@ -36,7 +35,7 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const location = useLocation();
 
@@ -44,7 +43,7 @@ function Home() {
   useEffect(() => {
     getAllCategories()
       .then(res => setCategories(Array.isArray(res.data) ? res.data : []))
-      .catch(err => console.error(err));
+      .catch(err => console.error("Error loading categories:", err));
 
     loadProducts(0);
   }, []);
@@ -64,14 +63,17 @@ function Home() {
         const data = res.data;
         setProducts(data.content || []);
         setCurrentPage(page);
-        setTotalPages(data.totalPages);
+        setTotalPages(data.totalPages || 0);
+      })
+      .catch(err => {
+        console.error("Error loading products:", err);
+        setProducts([]);
       })
       .finally(() => setLoading(false));
   };
 
   const loadProductsByCategory = (categoryId, page = 0) => {
     setLoading(true);
-
     setSelectedCategoryId(categoryId);
     setSelectedBrandId(null);
     setSelectedPriceRange(null);
@@ -82,11 +84,15 @@ function Home() {
       getBrandsByCategory(categoryId)
     ])
       .then(([pRes, bRes]) => {
-        setProducts(pRes.data.content || []);
+        setProducts(pRes.data?.content || []);
         setBrands(bRes.data || []);
         setCurrentPage(page);
-        setTotalPages(pRes.data.totalPages);
+        setTotalPages(pRes.data?.totalPages || 0);
         scrollToProductList();
+      })
+      .catch(err => {
+        console.error("Error loading category products:", err);
+        setProducts([]);
       })
       .finally(() => setLoading(false));
   };
@@ -95,13 +101,15 @@ function Home() {
     setLoading(true);
     try {
       const url = getApiUrl('PRODUCTS_BY_CATEGORY_AND_BRAND', categoryId, brandId, page, PaginationConfig.DEFAULT_PAGE_SIZE);
-      const res = await axios.get(url);
+      const res = await apiClient.get(url);
 
-      setProducts(res.data.content || []);
+      setProducts(res.data?.content || []);
       setCurrentPage(page);
-      setTotalPages(res.data.totalPages);
-
+      setTotalPages(res.data?.totalPages || 0);
       scrollToProductList();
+    } catch (err) {
+      console.error("Error loading by category and brand:", err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -109,22 +117,23 @@ function Home() {
 
   const handleSearch = (filters) => {
     setLoading(true);
-
     setSearchKeyword(filters.keyword || '');
     setSelectedPriceRange(filters);
     setSelectedRating(filters.minRating || null);
 
     searchProducts(filters)
       .then(res => {
-        setProducts(res.data.content || []);
+        setProducts(res.data?.content || []);
         setCurrentPage(filters.page || 0);
-        setTotalPages(res.data.totalPages);
-
+        setTotalPages(res.data?.totalPages || 0);
         setSelectedCategoryId(null);
         setSelectedBrandId(null);
         setBrands([]);
-
         scrollToProductList();
+      })
+      .catch(err => {
+        console.error("Search failed:", err);
+        setProducts([]);
       })
       .finally(() => setLoading(false));
   };
@@ -177,7 +186,6 @@ function Home() {
 
   return (
     <div className="az-homepage">
-
       <Header onLoginClick={() => setShowLogin(true)} />
 
       <LoginPopup
@@ -204,9 +212,7 @@ function Home() {
 
       <section id="products-section" className="az-catalog-section">
         <div className="container">
-
           <h2 className="az-section-title">Danh mục sản phẩm</h2>
-
           <section id="product-list-section">
             <CategoryList
               categories={categories}
@@ -220,7 +226,6 @@ function Home() {
             selectedBrandId={selectedBrandId}
             onBrandClick={handleBrandClick}
           />
-
         </div>
       </section>
 
@@ -231,7 +236,6 @@ function Home() {
         onPageChange={handlePageChange}
         loading={loading}
       />
-
     </div>
   );
 }
