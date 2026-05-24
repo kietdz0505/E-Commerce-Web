@@ -4,6 +4,7 @@ import { placeOrder } from '../../services/user/cartService';
 import { useNavigate } from 'react-router-dom';
 import OrderForm from '../../components/OrderForm';
 import CartSummary from '../../components/CartSummary';
+import { toast } from 'react-hot-toast';
 
 import {
   createMomoPayment,
@@ -45,14 +46,12 @@ const OrderCheckoutPage = () => {
     paymentMethod: 'CASH'
   });
 
-  // TITLE
   useEffect(() => {
     const prev = document.title;
     document.title = "Thông tin đặt hàng";
     return () => (document.title = prev);
   }, []);
 
-  // LOAD PROVINCES
   useEffect(() => {
     const load = async () => {
       try {
@@ -65,7 +64,6 @@ const OrderCheckoutPage = () => {
     load();
   }, []);
 
-  // LOAD PROMOTIONS (FIX BUG)
   useEffect(() => {
     const loadPromo = async () => {
       if (!cartItems.length) return;
@@ -159,22 +157,18 @@ const OrderCheckoutPage = () => {
 
   const handleSubmit = async () => {
 
-    // CHẶN DOUBLE CLICK
     if (submitting) return;
 
     try {
-
       setSubmitting(true);
 
-      const selectedPromotion =
-        getSelectedPromotion();
+      const selectedPromotion = getSelectedPromotion();
 
       const order = await placeOrder(
         {
           ...form,
           deliveryAddress: fullAddress,
-          promotionCode:
-            selectedPromotion?.code || null
+          promotionCode: selectedPromotion?.code || null
         },
         cartItems
       );
@@ -186,46 +180,76 @@ const OrderCheckoutPage = () => {
 
       // CASH
       if (form.paymentMethod === 'CASH') {
-
         await clearCart();
-
         navigate('/my-orders');
-
         return;
       }
 
       // MOMO
       if (form.paymentMethod === 'MOMO') {
-
-        const res =
-          await createMomoPayment(order.id);
-
+        const res = await createMomoPayment(order.id);
         window.location.href = res.data;
-
         return;
       }
 
       // VNPAY
       if (form.paymentMethod === 'VNPAY') {
-
-        const res =
-          await createVnpayPayment(order.id);
-
+        const res = await createVnpayPayment(order.id);
         window.location.href = res.data;
-
         return;
       }
 
     } catch (err) {
+      console.error("Chi tiết lỗi đặt hàng tại giao diện:", err);
 
-      console.error(err);
+      const backendMessage = err.response?.data?.message || '';
+      
+      if (backendMessage.includes("hết hàng") || backendMessage.includes("hết số lượng")) {
+        
+        toast.error(
+          (t) => (
+            <div style={{ lineHeight: '1.6', padding: '2px' }}>
+              <b style={{ color: '#ec1c24', fontSize: '15px' }}>Kho không đủ số lượng!</b>
+              <div style={{ fontSize: '13px', marginTop: '4px', color: '#333' }}>
+                {backendMessage}. Vui lòng kiểm tra và chỉnh sửa lại giỏ hàng.
+              </div>
+              <button 
+                onClick={() => {
+                  toast.dismiss(t.id); 
+                  navigate('/cart'); 
+                }}
+                style={{
+                  marginTop: '10px',
+                  padding: '5px 12px',
+                  backgroundColor: '#0d6efd',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              >
+                Quay về giỏ hàng chỉnh sửa
+              </button>
+            </div>
+          ),
+          { 
+            duration: 7000, 
+            id: 'stock-error-toast',
+            style: {
+              maxWidth: '350px',
+              borderLeft: '5px solid #ec1c24' 
+            }
+          }
+        );
 
-      toast.error(
-        'Đặt hàng thất bại'
-      );
+      } else {
+        toast.error(backendMessage || 'Đặt hàng thất bại. Vui lòng thử lại!');
+      }
 
     } finally {
-
       setSubmitting(false);
     }
   };
