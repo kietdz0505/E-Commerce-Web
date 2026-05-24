@@ -246,7 +246,7 @@ export default function AdminProductsPage() {
       )}
 
       {/* PAGINATION */}
-      <div className="text-center mt-3">
+      <div className="text-center mt-3 mb-5">
         {Array.from({ length: totalPages }, (_, i) => (
           <Button
             key={i}

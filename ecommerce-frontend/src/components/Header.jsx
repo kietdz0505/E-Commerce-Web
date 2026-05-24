@@ -44,17 +44,30 @@ function Header({ onLoginClick }) {
     <nav className={`navbar navbar-expand-lg az-navbar ${isAdminPath ? "admin-mode" : ""}`}>
       <div className="container az-container">
 
-        {/* ===== BRAND ===== */}
+     
         <Link className="navbar-brand az-brand" to="/">
           AZStore<span className="brand-dot" />
         </Link>
 
-        <div className="collapse navbar-collapse">
+        
+        <button 
+          className="navbar-toggler az-toggler" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#azNavbarContent" 
+          aria-controls="azNavbarContent" 
+          aria-expanded="false" 
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+  
+        <div className="collapse navbar-collapse" id="azNavbarContent">
 
           {/* ===== MENU ===== */}
           {!isAdminPath && (
             <ul className="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
-
               <li className="nav-item">
                 <Link className="nav-link az-nav-link" to="/">
                   Trang chủ
@@ -87,23 +100,20 @@ function Header({ onLoginClick }) {
                   Liên hệ
                 </button>
               </li>
-
             </ul>
           )}
 
-          {/* ===== RIGHT ===== */}
-          <div className="d-flex align-items-center gap-2 ms-auto">
+          <div className="d-flex align-items-center gap-2 ms-auto az-right-menu">
 
             {currentUser ? (
               <>
-                {/* USER */}
                 <div className="dropdown az-user-dropdown">
                   <button
                     className="az-user-btn dropdown-toggle"
                     data-bs-toggle="dropdown"
                   >
                     <img
-                      src={currentUser?.picture || "/default-avatar.png"}
+                      src={currentUser?.picture || "https://placehold.co/60x60?text=No+Image"}
                       className="az-user-avatar"
                       alt="avatar"
                     />

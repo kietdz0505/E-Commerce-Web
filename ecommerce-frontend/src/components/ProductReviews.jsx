@@ -40,9 +40,7 @@ const ProductReviews = ({
       );
 
       const data = res.data;
-
-      console.log('REVIEW API DATA = ', data);
-
+      
       setHasPurchased(data.hasPurchased);
       setMyReview(data.myReview);
       setHasMore(!data.last);

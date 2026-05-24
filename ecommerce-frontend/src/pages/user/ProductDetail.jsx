@@ -62,20 +62,17 @@ const ProductDetail = () => {
   const handleAddToCart = async (e) => {
     e.preventDefault();
 
-    // ❌ chưa login
     if (!currentUser) {
       setShowLogin(true);
       warning('Vui lòng đăng nhập để thêm vào giỏ');
       return;
     }
 
-    // ❌ hết hàng
     if (!product.stock || product.stock <= 0) {
       error('Sản phẩm đã hết hàng');
       return;
     }
 
-    // 🔥 loading toast
     const toastId = toast.loading("Đang thêm vào giỏ...");
 
     try {
