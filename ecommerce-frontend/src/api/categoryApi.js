@@ -1,6 +1,6 @@
-import axios from 'axios';
+import apiClient from "../api/axiosInstance";
 import { getApiUrl } from '../config/apiConfig';
 
 export const getAllCategories = () => {
-  return axios.get(getApiUrl('CATEGORIES'));
+  return apiClient.get(getApiUrl('CATEGORIES'));
 };
