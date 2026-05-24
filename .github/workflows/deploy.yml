@@ -27,7 +27,7 @@ jobs:
         mvn clean package -DskipTests
 
     - name: Kích hoạt Render Deploy Hook
-      if: success()
+      if: success() && contains(github.event.head_commit.message, 'ci:')
       run: |
         curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
 
