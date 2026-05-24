@@ -4,6 +4,7 @@ import { API_CONFIG } from '../config/apiConfig';
 import { useNavigate } from 'react-router-dom';
 import '../styles/registerPopup.css';
 import { getOAuthUrl } from '../config/apiConfig';
+import { toast } from 'react-hot-toast';
 
 function RegisterPopup({ open, onClose, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
@@ -86,12 +87,14 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
         body: fd,
       });
 
-      if (!res.ok) {
+     if (!res.ok) {
         const data = await res.json();
         throw new Error(data.message || 'Đăng ký thất bại.');
       }
 
       await res.json();
+
+      toast.success('Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
 
       setFormData({
         name: '',
@@ -102,7 +105,6 @@ function RegisterPopup({ open, onClose, onSwitchToLogin }) {
         confirmPassword: '',
       });
       setAvatarFile(null);
-
       navigate('/');
       onSwitchToLogin();
 

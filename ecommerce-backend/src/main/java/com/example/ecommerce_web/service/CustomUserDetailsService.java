@@ -53,7 +53,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                         )
                         .collect(Collectors.toSet());
 
-        // Trong file CustomUserDetailsService.java
         return new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
