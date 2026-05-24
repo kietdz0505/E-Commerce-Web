@@ -26,6 +26,11 @@ jobs:
         cd ecommerce-backend
         mvn clean package -DskipTests
 
+    - name: Kích hoạt Render Deploy Hook
+      if: success()
+      run: |
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
   # 2. KIỂM TRA FRONTEND (REACTJS)
   frontend-ci:
     runs-on: ubuntu-latest
