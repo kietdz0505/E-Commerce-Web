@@ -8,15 +8,15 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-
   if (token && token !== "null" && token !== "undefined") {
     config.headers.Authorization = `Bearer ${token}`;
   } else {
     delete config.headers.Authorization;
   }
-
   return config;
 });
+
+let isToastShowing = false;
 
 apiClient.interceptors.response.use(
   (res) => res,
@@ -26,16 +26,19 @@ apiClient.interceptors.response.use(
 
       localStorage.removeItem("token");
 
-      if (!toast.isActive("session-expired")) {
+      if (!isToastShowing) {
+        isToastShowing = true;
+        
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!", {
-          id: "session-expired",
-          duration: 3000, 
+          id: "session-expired", 
+          duration: 3000,
         });
-      }
 
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1200); 
+        setTimeout(() => {
+          isToastShowing = false; 
+          window.location.href = "/";
+        }, 1200);
+      }
     }
     
     return Promise.reject(err);
