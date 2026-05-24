@@ -24,7 +24,7 @@ jobs:
     - name: Biên dịch và Kiểm tra Backend với Maven
       run: |
         cd ecommerce-backend
-        mvn clean package -DskipTests
+        mvn clean package
 
     - name: Kích hoạt Render Deploy Hook
       if: success() && contains(github.event.head_commit.message, 'ci:')
