@@ -51,9 +51,8 @@ This project provides a complete online shopping experience including authentica
 ```bash
 E-Commerce-Web/
 │
-├── frontend/          # ReactJS client
-├── backend/           # Spring Boot server
-├── database/          # SQL scripts / schema
+├── ecommerce-frontend/          # ReactJS client
+├── ecommerce-backend/           # Spring Boot server
 └── README.md
 ```
 
@@ -75,7 +74,7 @@ cd E-Commerce-Web
 ## 2️⃣ Navigate to Backend
 
 ```bash
-cd backend
+cd ecommerce-backend
 ```
 
 ## 3️⃣ Configure Database
@@ -107,7 +106,7 @@ http://localhost:8080
 ## 5️⃣ Navigate to Frontend
 
 ```bash
-cd frontend
+cd ecommerce-frontend
 ```
 
 ## 6️⃣ Install Dependencies
@@ -119,13 +118,13 @@ npm install
 ## 7️⃣ Start Frontend
 
 ```bash
-npm start
+npm run dev
 ```
 
 Frontend runs at:
 
 ```bash
-http://localhost:3000
+http://localhost:5173
 ```
 
 ---
