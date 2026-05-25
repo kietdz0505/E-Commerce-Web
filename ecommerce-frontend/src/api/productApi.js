@@ -10,10 +10,6 @@ export const getProductsByCategory = (categoryId, page = PaginationConfig.DEFAUL
   return apiClient.get(getApiUrl('CATEGORY_PRODUCTS', categoryId, page, size));
 };
 
-export const getBrandsByCategory = (categoryId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) => {
-  return apiClient.get(getApiUrl('BRANDS_BY_CATEGORY', categoryId, page, size));
-};
-
 export const getProductsByBrand = (brandId, page = PaginationConfig.DEFAULT_PAGE, size = PaginationConfig.DEFAULT_PAGE_SIZE) => {
   return apiClient.get(getApiUrl('PRODUCTS_BY_BRAND', brandId, page, size));
 };
@@ -32,5 +28,5 @@ export const searchProducts = (filters) => {
     Object.entries(params).filter(([_, v]) => v !== null && v !== undefined && v !== '')
   );
 
-  return apiClient.get(getApiUrl('SEARCH', filteredParams));
+  return apiClient.get(getApiUrl('SEARCH'), { params: filteredParams });
 };

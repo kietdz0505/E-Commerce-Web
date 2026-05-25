@@ -18,9 +18,11 @@ const ProductList = ({ products, selectedCategoryId, currentPage, totalPages, on
         </div>
 
         {loading ? (
-          <div className="az-loading-wrap">
+          <div className="az-loading-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '50px 0' }}>
             <div className="az-spinner" />
-            <span className="az-loading-text">Đang tải sản phẩm...</span>
+            <span className="az-loading-text" style={{ marginTop: '12px', color: '#666' }}>
+              Hệ thống đang khởi động, vui lòng đợi trong giây lát...
+            </span>
           </div>
         ) : (!products || !Array.isArray(products) || products.length === 0) ? (
           <div className="az-empty-wrap">
@@ -41,7 +43,7 @@ const ProductList = ({ products, selectedCategoryId, currentPage, totalPages, on
           </div>
         )}
 
-        {totalPages > 1 && (
+        {!loading && totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

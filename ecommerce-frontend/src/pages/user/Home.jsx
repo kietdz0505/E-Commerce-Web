@@ -30,20 +30,21 @@ function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState(null);
   const [selectedRating, setSelectedRating] = useState(null);
-
   const [searchKeyword, setSearchKeyword] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  const [loading, setLoading] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   const location = useLocation();
 
   // ===== LOAD INIT =====
   useEffect(() => {
+    setLoadingCategories(true);
     getAllCategories()
       .then(res => setCategories(Array.isArray(res.data) ? res.data : []))
-      .catch(err => console.error("Error loading categories:", err));
+      .catch(err => console.error("Error loading categories:", err))
+      .finally(() => setLoadingCategories(false));
 
     loadProducts(0);
   }, []);
@@ -57,7 +58,7 @@ function Home() {
   }, [location]);
 
   const loadProducts = (page = PaginationConfig.DEFAULT_PAGE) => {
-    setLoading(true);
+    setLoadingProducts(true);
     getAllProducts(page, PaginationConfig.DEFAULT_PAGE_SIZE)
       .then(res => {
         const data = res.data;
@@ -69,11 +70,11 @@ function Home() {
         console.error("Error loading products:", err);
         setProducts([]);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingProducts(false));
   };
 
   const loadProductsByCategory = (categoryId, page = 0) => {
-    setLoading(true);
+    setLoadingProducts(true);
     setSelectedCategoryId(categoryId);
     setSelectedBrandId(null);
     setSelectedPriceRange(null);
@@ -94,11 +95,11 @@ function Home() {
         console.error("Error loading category products:", err);
         setProducts([]);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingProducts(false));
   };
 
   const fetchProductsByCategoryAndBrand = async (categoryId, brandId, page = 0) => {
-    setLoading(true);
+    setLoadingProducts(true);
     try {
       const url = getApiUrl('PRODUCTS_BY_CATEGORY_AND_BRAND', categoryId, brandId, page, PaginationConfig.DEFAULT_PAGE_SIZE);
       const res = await apiClient.get(url);
@@ -111,12 +112,12 @@ function Home() {
       console.error("Error loading by category and brand:", err);
       setProducts([]);
     } finally {
-      setLoading(false);
+      setLoadingProducts(false);
     }
   };
 
   const handleSearch = (filters) => {
-    setLoading(true);
+    setLoadingProducts(true);
     setSearchKeyword(filters.keyword || '');
     setSelectedPriceRange(filters);
     setSelectedRating(filters.minRating || null);
@@ -135,7 +136,7 @@ function Home() {
         console.error("Search failed:", err);
         setProducts([]);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingProducts(false));
   };
 
   const handlePageChange = (page) => {
@@ -213,12 +214,19 @@ function Home() {
       <section id="products-section" className="az-catalog-section">
         <div className="container">
           <h2 className="az-section-title">Danh mục sản phẩm</h2>
+          
           <section id="product-list-section">
-            <CategoryList
-              categories={categories}
-              selectedCategoryId={selectedCategoryId}
-              onCategoryClick={loadProductsByCategory}
-            />
+            {loadingCategories ? (
+              <div className="az-category-loading" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
+                <span className="az-spinner-small" style={{ marginRight: '8px' }} /> Đang tải danh mục...
+              </div>
+            ) : (
+              <CategoryList
+                categories={categories}
+                selectedCategoryId={selectedCategoryId}
+                onCategoryClick={loadProductsByCategory}
+              />
+            )}
           </section>
 
           <BrandList
@@ -234,7 +242,7 @@ function Home() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        loading={loading}
+        loading={loadingProducts}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
-  timeout: 120000
+  timeout: 0
 });
 
 apiClient.interceptors.request.use((config) => {
