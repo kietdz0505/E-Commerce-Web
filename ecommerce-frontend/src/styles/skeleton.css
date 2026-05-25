@@ -13,11 +13,14 @@
 .az-skeleton-scroll-wrapper {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    margin-top: 2rem;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 15px;
     padding-bottom: 10px;
 }
+
 
 .az-skeleton-category-item {
     flex: 0 0 auto;
