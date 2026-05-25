@@ -203,9 +203,9 @@ const OrderCheckoutPage = () => {
       console.error("Chi tiết lỗi đặt hàng tại giao diện:", err);
 
       const backendMessage = err.response?.data?.message || '';
-      
+
       if (backendMessage.includes("hết hàng") || backendMessage.includes("hết số lượng")) {
-        
+
         toast.error(
           (t) => (
             <div style={{ lineHeight: '1.6', padding: '2px' }}>
@@ -213,10 +213,10 @@ const OrderCheckoutPage = () => {
               <div style={{ fontSize: '13px', marginTop: '4px', color: '#333' }}>
                 {backendMessage}. Vui lòng kiểm tra và chỉnh sửa lại giỏ hàng.
               </div>
-              <button 
+              <button
                 onClick={() => {
-                  toast.dismiss(t.id); 
-                  navigate('/cart'); 
+                  toast.dismiss(t.id);
+                  navigate('/cart');
                 }}
                 style={{
                   marginTop: '10px',
@@ -235,12 +235,12 @@ const OrderCheckoutPage = () => {
               </button>
             </div>
           ),
-          { 
-            duration: 7000, 
+          {
+            duration: 7000,
             id: 'stock-error-toast',
             style: {
               maxWidth: '350px',
-              borderLeft: '5px solid #ec1c24' 
+              borderLeft: '5px solid #ec1c24'
             }
           }
         );
@@ -259,16 +259,13 @@ const OrderCheckoutPage = () => {
   }
 
   return (
-    <div className="az-checkout-container">
-
+    <div className="container-fluid az-checkout-container">
       <div className="az-checkout-header">
         <HiOutlineShoppingCart />
         <h2>Xác nhận đơn hàng</h2>
       </div>
-
       <div className="row g-4">
-
-        <div className="col-lg-7">
+        <div className="col-12 col-lg-7">
           <div className="az-checkout-card">
             <OrderForm
               form={{ ...form, deliveryAddress: fullAddress }}
@@ -288,7 +285,7 @@ const OrderCheckoutPage = () => {
           </div>
         </div>
 
-        <div className="col-lg-5">
+        <div className="col-12 col-lg-5">
           <div className="az-checkout-summary">
             <CartSummary
               cartItems={cartItems}
@@ -299,7 +296,6 @@ const OrderCheckoutPage = () => {
             />
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -146,15 +146,6 @@
         width: max-content !important;
     }
 
-    .az-skeleton-category-item {
-        flex-shrink: 0 !important;
-        width: 90px !important;
-        min-width: 90px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
-    
     .az-section-title {
         text-align: center !important;
         padding-left: 16px;
