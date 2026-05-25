@@ -1,0 +1,136 @@
+ .admin-products-container {
+          max-width: 1200px;
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+
+        .az-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .az-responsive-table th {
+          background-color: #f8f9fa;
+          font-weight: 600;
+          color: #374151;
+          white-space: nowrap;
+        }
+
+        .az-responsive-table td {
+          vertical-align: middle;
+          color: #4b5563;
+        }
+
+        .az-img-container {
+          width: 50px;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          border-radius: 6px;
+          border: 1px solid #e5e7eb;
+          background: #f9fafb;
+        }
+
+        .az-img-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        .az-td-name {
+          font-weight: 500;
+          color: #111827;
+          min-width: 180px;
+        }
+
+        .az-td-price {
+          font-weight: 600;
+          color: #22c55e;
+          white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+          .az-btn-add {
+            width: 100%;
+            padding: 10px;
+            height: auto;
+            font-size: 0.95rem;
+          }
+
+          .az-table-wrapper {
+            box-shadow: none;
+            background: transparent;
+          }
+
+          .az-responsive-table, 
+          .az-responsive-table thead, 
+          .az-responsive-table tbody, 
+          .az-responsive-table th, 
+          .az-responsive-table td, 
+          .az-responsive-table tr {
+            display: block;
+            width: 100%;
+          }
+
+          .az-responsive-table thead {
+            display: none;
+          }
+
+          .az-responsive-table tbody tr {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-sizing: border-box;
+          }
+
+          .az-responsive-table td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border: none;
+            border-bottom: 1px dashed #f3f4f6;
+            text-align: right !important;
+          }
+
+          .az-responsive-table td:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 8px;
+          }
+
+          .az-responsive-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #6b7280;
+            text-align: left;
+            font-size: 0.85rem;
+          }
+
+          .az-td-img {
+            justify-content: space-between;
+          }
+
+          .az-td-actions {
+            justify-content: flex-end !important;
+            gap: 8px;
+          }
+
+          .az-td-actions button {
+            flex: 1;
+            margin: 0 !important;
+          }
+
+          .az-admin-modal {
+            max-width: calc(100vw - 24px) !important;
+            margin: 12px auto;
+          }
+        }

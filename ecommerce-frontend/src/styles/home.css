@@ -3,7 +3,7 @@
 .az-homepage {
     background: #0e0d1f;
     min-height: 100vh;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Kanit', sans-serif;
 }
 
 .az-catalog-section {
@@ -23,6 +23,8 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(100, 120, 255, 0.4), rgba(249, 200, 70, 0.3), transparent);
 }
+
+
 
 .az-section-label {
     font-size: 0.68rem;
@@ -50,7 +52,6 @@
 .center-list {
     display: flex;
     justify-content: center;
-    /* căn giữa ngang */
 }
 
 .az-section-bar {
@@ -65,4 +66,98 @@
     height: 3px;
     background: linear-gradient(90deg, #6478ff, #f9c846);
     border-radius: 3px;
+}
+
+@media (max-width: 767.98px) {
+    .az-mobile-scroll-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+        scroll-snap-type: x mandatory !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: 12px !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
+
+    .az-mobile-scroll-container::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .az-mobile-scroll-container {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+
+    .az-mobile-scroll-container,
+    .az-mobile-scroll-container *,
+    .az-mobile-scroll-container div,
+    .az-mobile-scroll-container ul,
+    .az-mobile-scroll-container .ant-space,
+    .az-mobile-scroll-container .ant-row {
+        overflow-x: visible !important;
+    }
+
+    .az-mobile-scroll-container > div,
+    .az-mobile-scroll-container > ul,
+    .az-mobile-scroll-container div.row,
+    .az-mobile-scroll-container .ant-space-inner,
+    .az-mobile-scroll-container .ant-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: max-content !important;
+        min-width: max-content !important;
+        max-width: none !important;
+        gap: 16px !important;
+        padding: 0 !important;
+        margin-top: 1rem !important;
+    }
+
+    .az-mobile-scroll-container > div > *,
+    .az-mobile-scroll-container > ul > *,
+    .az-mobile-scroll-container div.row > *,
+    .az-mobile-scroll-container .ant-space-item,
+    .az-mobile-scroll-container .ant-row > *,
+    .az-mobile-scroll-container a,
+    .az-mobile-scroll-container li {
+        scroll-snap-align: start !important;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        width: 90px !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .az-skeleton-scroll-wrapper {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 16px !important;
+        width: max-content !important;
+    }
+
+    .az-skeleton-category-item {
+        flex-shrink: 0 !important;
+        width: 90px !important;
+        min-width: 90px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .az-section-title {
+        text-align: center !important;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
 }

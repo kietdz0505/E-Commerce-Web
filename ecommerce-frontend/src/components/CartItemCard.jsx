@@ -79,7 +79,6 @@ const CartItemCard = ({ item }) => {
 
         {/* QUANTITY */}
         <div className="az-cart-qty">
-
           <button onClick={handleDecrement} disabled={inputQty <= 1}>
             -
           </button>
@@ -95,13 +94,13 @@ const CartItemCard = ({ item }) => {
           <button onClick={handleIncrement} disabled={inputQty >= stock}>
             +
           </button>
-
         </div>
       </div>
 
       {/* ACTION */}
       <div className="az-cart-action">
         <div className="az-cart-total">
+          <span>Tổng: </span>
           {(item.price * item.quantity).toLocaleString('vi-VN')}₫
         </div>
 

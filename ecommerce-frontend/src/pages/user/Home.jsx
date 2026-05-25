@@ -17,6 +17,7 @@ import CategoryList from "../../components/CategoryList";
 import BrandList from "../../components/BrandList";
 
 import '../../styles/home.css';
+import '../../styles/skeleton.css';
 
 function Home() {
   const [brands, setBrands] = useState([]);
@@ -212,28 +213,39 @@ function Home() {
       <SearchBar onSearch={handleSearch} onResetAll={resetAllFilters} />
 
       <section id="products-section" className="az-catalog-section">
-        <div className="container">
-          <h2 className="az-section-title">Danh mục sản phẩm</h2>
-          
-          <section id="product-list-section">
+        <div className="container px-md-3 px-0"> 
+          <h2 className="az-section-title px-3 px-md-0">Danh mục sản phẩm</h2>
+
+          <div id="product-list-section">
             {loadingCategories ? (
-              <div className="az-category-loading" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
-                <span className="az-spinner-small" style={{ marginRight: '8px' }} /> Đang tải danh mục...
+              <div className="az-mobile-scroll-container az-skeleton-scroll-wrapper">
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className="az-skeleton-category-item">
+                    <div className="az-skeleton az-skeleton-category-circle"></div>
+                    <div className="az-skeleton az-skeleton-category-text"></div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <CategoryList
-                categories={categories}
-                selectedCategoryId={selectedCategoryId}
-                onCategoryClick={loadProductsByCategory}
-              />
+              <div className="az-mobile-scroll-container">
+                <CategoryList
+                  categories={categories}
+                  selectedCategoryId={selectedCategoryId}
+                  onCategoryClick={loadProductsByCategory}
+                />
+              </div>
             )}
-          </section>
+          </div>
 
-          <BrandList
-            brands={brands}
-            selectedBrandId={selectedBrandId}
-            onBrandClick={handleBrandClick}
-          />
+          {brands.length > 0 && (
+            <div className="az-mobile-scroll-container">
+              <BrandList
+                brands={brands}
+                selectedBrandId={selectedBrandId}
+                onBrandClick={handleBrandClick}
+              />
+            </div>
+          )}
         </div>
       </section>
 

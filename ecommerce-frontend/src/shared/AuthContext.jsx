@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (!token || token === "null" || token === "undefined") {
+    
+    if (!token || token === "null" || token === "undefined" || token.trim() === "") {
+      localStorage.removeItem("token"); 
       setCurrentUser(null);
       setLoading(false);
       return;
@@ -34,9 +36,10 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(res.data);
     } catch (err) {
       console.error("Fetch user failed:", err);
-      if (err.response?.status === 401) {
+      if (!err.response || err.response.status === 401 || err.response.status === 403) {
         localStorage.removeItem("token");
       }
+      
       setCurrentUser(null);
     } finally {
       setLoading(false);
@@ -62,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       localStorage.removeItem("token");
       setCurrentUser(null);
+      setLoading(false); 
       throw err;
     } finally {
       setLoading(false);

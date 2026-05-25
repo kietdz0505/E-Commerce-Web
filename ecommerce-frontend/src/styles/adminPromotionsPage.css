@@ -1,0 +1,130 @@
+.admin-promotions-container {
+    max-width: 1200px;
+    margin-top: 20px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    color: #111827;
+}
+
+.az-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    width: 100%;
+}
+
+.az-promo-percent {
+    font-weight: 600;
+    color: #ef4444;
+    background-color: #fef2f2;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #fee2e2;
+}
+
+.az-promo-actions {
+    display: flex;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .admin-promotions-container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .az-btn-add {
+        width: 100%;
+        padding: 10px;
+        height: auto;
+        font-size: 0.95rem;
+    }
+
+    .az-table-wrapper {
+        box-shadow: none;
+        background: transparent;
+    }
+
+    /* Vô hiệu hóa tính năng cuộn ngang của antd table để xếp đè Layout dạng Card */
+    .az-custom-table .ant-table-container,
+    .az-custom-table .ant-table-content {
+        overflow-x: visible !important;
+    }
+
+    /* Ẩn hoàn toàn thanh Header của table */
+    .az-custom-table thead {
+        display: none !important;
+    }
+
+    /* Chuyển đổi các thẻ table HTML thành dạng khối xếp dọc */
+    .az-custom-table table,
+    .az-custom-table tbody,
+    .az-custom-table tr,
+    .az-custom-table td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Tạo khối Card cho từng mục chương trình khuyến mãi */
+    .az-custom-table tbody tr.ant-table-row {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Thiết lập dòng thông tin trái-phải linh hoạt */
+    .az-custom-table tbody td.ant-table-cell {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #f3f4f6 !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    .az-custom-table tbody td.ant-table-cell:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-top: 12px !important;
+    }
+
+    /* Đọc text từ trường thuộc tính data-label */
+    .az-custom-table tbody td.ant-table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    /* Cân chỉnh lại vị trí nút hành động trên Mobile */
+    .az-promo-actions {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .az-promo-actions button,
+    .az-promo-actions .ant-popover-open {
+        flex: 1;
+    }
+
+    .az-custom-pagination {
+        margin-top: 10px !important;
+    }
+
+    .az-admin-modal {
+        max-width: calc(100vw - 20px) !important;
+        margin: 10px auto;
+    }
+}

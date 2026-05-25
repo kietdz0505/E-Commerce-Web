@@ -10,6 +10,7 @@ import {
   Tag,
 } from 'antd';
 import adminOrderService from '../../services/admin/adminOrderService';
+import '../../styles/adminOrdersPage.css';
 
 const { Option } = Select;
 
@@ -21,10 +22,8 @@ export default function AdminOrdersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
-  // Delete Modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
-
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -77,7 +76,6 @@ export default function AdminOrdersPage() {
       await adminOrderService.deleteOrder(deleteOrderId);
       message.success('Xóa đơn hàng thành công');
       setShowDeleteModal(false);
-      // Nếu xóa đơn cuối trang, có thể cần lùi page
       if (orders.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
@@ -104,27 +102,34 @@ export default function AdminOrdersPage() {
       dataIndex: 'id',
       key: 'id',
       width: 100,
+      className: 'az-col-id',
+      onCell: () => ({ 'data-label': 'Mã đơn:' }),
     },
     {
       title: 'Người đặt',
       dataIndex: 'receiverName',
       key: 'receiverName',
+      className: 'az-col-name',
+      onCell: () => ({ 'data-label': 'Người đặt:' }),
     },
     {
       title: 'Tổng tiền',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
-      render: (value) => `${Number(value).toLocaleString('vi-VN')} VND`,
-      width: 200,
+      className: 'az-col-amount',
+      onCell: () => ({ 'data-label': 'Tổng tiền:' }),
+      render: (value) => <span className="az-order-amount">{Number(value).toLocaleString('vi-VN')} ₫</span>,
+      width: 160,
     },
-
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
       width: 130,
+      className: 'az-col-status',
+      onCell: () => ({ 'data-label': 'Trạng thái:' }),
       render: (status) => (
-        <Tag color={getTagColor(status)} style={{ fontWeight: 'bold' }}>
+        <Tag color={getTagColor(status)} style={{ fontWeight: 'bold', margin: 0 }}>
           {status}
         </Tag>
       ),
@@ -133,13 +138,17 @@ export default function AdminOrdersPage() {
       title: 'Ngày tạo',
       dataIndex: 'orderDate',
       key: 'orderDate',
-      render: (date) => new Date(date).toLocaleString(),
+      className: 'az-col-date',
+      onCell: () => ({ 'data-label': 'Ngày tạo:' }),
+      render: (date) => new Date(date).toLocaleString('vi-VN'),
       width: 180,
     },
     {
       title: 'Hành động',
       key: 'action',
       width: 220,
+      className: 'az-col-action',
+      onCell: () => ({ 'data-label': 'Hành động:' }),
       render: (_, record) => {
         const disabled =
           record.status === 'COMPLETED' ||
@@ -147,10 +156,10 @@ export default function AdminOrdersPage() {
           record.status === 'CANCELLED';
 
         return (
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="az-action-buttons">
             <Select
-              size="small"
-              style={{ width: 160 }}
+              size="middle"
+              className="az-status-select"
               value={record.status}
               onChange={(value) => handleUpdateStatus(record.id, value)}
               disabled={disabled || loading}
@@ -163,13 +172,13 @@ export default function AdminOrdersPage() {
               <Option value="CANCELLED">CANCELLED</Option>
             </Select>
             <Button
-              size="small"
               danger
               onClick={() => {
                 setDeleteOrderId(record.id);
                 setShowDeleteModal(true);
               }}
               disabled={loading}
+              className="az-delete-btn"
             >
               Xóa
             </Button>
@@ -180,27 +189,29 @@ export default function AdminOrdersPage() {
   ];
 
   return (
-    <div className="container" style={{ marginTop: 40 }}>
-      <h2 className="mt-4" style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý đơn hàng</h2>
+    <div className="container admin-orders-container">
+      <h2 className="admin-page-title">Quản lý đơn hàng</h2>
 
       <Spin spinning={loading}>
-        <Table
-          columns={columns}
-          dataSource={orders}
-          rowKey="id"
-          pagination={false}
-          locale={{ emptyText: 'Không có đơn hàng' }}
-          scroll={{ x: 'max-content' }}
-        />
+        <div className="az-table-wrapper">
+          <Table
+            columns={columns}
+            dataSource={orders}
+            rowKey="id"
+            pagination={false}
+            locale={{ emptyText: 'Không có đơn hàng' }}
+            scroll={{ x: 'max-content' }}
+            className="az-custom-table"
+          />
+        </div>
 
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
+        <div className="az-pagination-wrapper">
           <Pagination
             current={page}
             pageSize={pageSize}
             total={total}
             onChange={(p) => setPage(p)}
             showSizeChanger={false}
-            className='d-flex justify-content-center mb-4'
           />
         </div>
       </Spin>
@@ -215,8 +226,9 @@ export default function AdminOrdersPage() {
         okButtonProps={{ danger: true, loading: loading }}
         cancelButtonProps={{ disabled: loading }}
         centered
+        className="az-admin-modal"
       >
-        <p>Bạn có chắc muốn xóa đơn hàng này?</p>
+        <p className="mb-0">Bạn có chắc muốn xóa đơn hàng này? Thao tác này không thể hoàn tác.</p>
       </Modal>
     </div>
   );

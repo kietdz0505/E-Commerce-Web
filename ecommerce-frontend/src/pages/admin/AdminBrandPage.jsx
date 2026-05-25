@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Pagination, Spin } from 'antd'; // import Antd components
+import { Table, Button, Pagination, Spin, Popconfirm, message } from 'antd'; 
 import adminBrandService from '../../services/admin/adminBrandService';
+import '../../styles/adminBrandPage.css'; 
 
 export default function AdminBrandPage() {
   const [brands, setBrands] = useState([]);
@@ -32,19 +33,19 @@ export default function AdminBrandPage() {
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error('Lỗi tải brand:', error);
+      message.error('Lỗi khi tải danh sách thương hiệu');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa thương hiệu này?')) {
-      try {
-        await adminBrandService.deleteBrand(id);
-        loadBrands();
-      } catch (error) {
-        alert('Lỗi khi xóa thương hiệu');
-      }
+    try {
+      await adminBrandService.deleteBrand(id);
+      message.success('Xóa thương hiệu thành công');
+      loadBrands();
+    } catch (error) {
+      message.error('Lỗi khi xóa thương hiệu');
     }
   };
 
@@ -73,13 +74,15 @@ export default function AdminBrandPage() {
     try {
       if (editingBrand) {
         await adminBrandService.updateBrand(editingBrand.id, brandData);
+        message.success('Cập nhật thương hiệu thành công');
       } else {
         await adminBrandService.createBrand(brandData);
+        message.success('Thêm thương hiệu mới thành công');
       }
       setShowForm(false);
       loadBrands();
     } catch (error) {
-      alert('Lỗi khi lưu thương hiệu');
+      message.error('Lỗi khi lưu thương hiệu');
     }
   };
 
@@ -93,108 +96,119 @@ export default function AdminBrandPage() {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      className: 'az-col-brand-id',
+      onCell: () => ({ 'data-label': 'ID:' }),
     },
     {
       title: 'Tên thương hiệu',
       dataIndex: 'name',
       key: 'name',
+      className: 'az-col-brand-name',
+      onCell: () => ({ 'data-label': 'Tên thương hiệu:' }),
+      render: (text) => <span className="az-brand-name-text">{text}</span>
     },
     {
       title: 'Logo',
       dataIndex: 'logoUrl',
       key: 'logoUrl',
       width: 120,
+      className: 'az-col-brand-logo',
+      onCell: () => ({ 'data-label': 'Logo:' }),
       render: (url, record) =>
         url ? (
-          <img
-            src={url}
-            alt={record.name}
-            style={{ maxHeight: 50, maxWidth: 100, objectFit: 'contain' }}
-            onError={(e) => (e.target.src = '/placeholder-image.png')}
-          />
+          <div className="az-brand-img-container">
+            <img
+              src={url}
+              alt={record.name}
+              onError={(e) => (e.target.src = '/placeholder-image.png')}
+            />
+          </div>
         ) : (
-          <span className="text-muted">Không có</span>
+          <span className="text-muted text-sm">Không có</span>
         ),
     },
     {
       title: 'Hành động',
       key: 'action',
       width: 180,
+      className: 'az-col-brand-actions',
+      onCell: () => ({ 'data-label': 'Hành động:' }),
       render: (_, record) => (
-        <>
+        <div className="az-brand-action-btns">
           <Button
             type="primary"
             size="small"
-            className="me-2"
             onClick={() => openEditForm(record)}
+            className="az-btn-edit"
           >
             Sửa
           </Button>
-          <Button
-            danger
-            size="small"
-            onClick={() => handleDelete(record.id)}
+          <Popconfirm
+            title="Bạn có chắc muốn xóa thương hiệu này?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Có"
+            cancelText="Không"
           >
-            Xóa
-          </Button>
-        </>
+            <Button danger size="small" className="az-btn-delete">
+              Xóa
+            </Button>
+          </Popconfirm>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="container mt-4" style={{ maxWidth: 900 }}>
-      <h2 className="mb-4 mt-4 text-center">Quản lý thương hiệu (Brand)</h2>
+    <div className="container admin-brand-container">
+      <h2 className="text-center d-flex justify-content-center mb-4 mt-4 fw-bold admin-page-title">
+        Quản lý thương hiệu (Brand)
+      </h2>
 
-      <Button type="primary" className="mb-3" onClick={openCreateForm}>
-        Thêm thương hiệu mới
-      </Button>
+      <div className="d-flex mb-3">
+        <Button type="primary" onClick={openCreateForm} className="az-btn-add-brand">
+          Thêm thương hiệu mới
+        </Button>
+      </div>
 
-      {loading ? (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{ height: 200 }}
-        >
-          <Spin size="large" tip="Đang tải..." />
-        </div>
-      ) : (
-        <>
+      <Spin spinning={loading} size="large" tip="Đang tải...">
+        <div className="az-table-wrapper">
           <Table
             columns={columns}
             dataSource={brands}
             rowKey="id"
             pagination={false}
             bordered
-            loading={loading}
+            className="az-custom-table"
           />
+        </div>
 
-          {/* Pagination */}
-          <div className="d-flex justify-content-center mt-3" style={{ marginBottom: '20px' }}>
-            <Pagination
-              current={page + 1}
-              pageSize={size}
-              total={totalPages * size}
-              onChange={(p) => setPage(p - 1)}
-              showSizeChanger={false}
-            />
-          </div>
-        </>
-      )}
+        {/* Pagination */}
+        <div className="az-pagination-wrapper">
+          <Pagination
+            current={page + 1}
+            pageSize={size}
+            total={totalPages * size}
+            onChange={(p) => setPage(p - 1)}
+            showSizeChanger={false}
+            className="d-flex justify-content-center"
+          />
+        </div>
+      </Spin>
 
       {/* Form thêm/sửa */}
       {showForm && (
         <div
-          className="modal show d-block"
+          className="modal show d-block az-custom-modal"
           tabIndex="-1"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={(e) =>
             e.target.classList.contains('modal') && setShowForm(false)
           }
         >
-          <div className="modal-dialog">
-            <form className="modal-content" onSubmit={handleFormSubmit}>
+          <div className="modal-dialog modal-dialog-centered">
+            <form className="modal-content az-modal-content" onSubmit={handleFormSubmit}>
               <div className="modal-header">
-                <h5 className="modal-title">
+                <h5 className="modal-title fw-bold">
                   {editingBrand ? 'Sửa thương hiệu' : 'Thêm thương hiệu mới'}
                 </h5>
                 <button
@@ -205,17 +219,18 @@ export default function AdminBrandPage() {
               </div>
               <div className="modal-body">
                 <div className="mb-3">
-                  <label className="form-label">Tên thương hiệu</label>
+                  <label className="form-label fw-semibold">Tên thương hiệu</label>
                   <input
                     type="text"
                     className="form-control"
                     value={brandName}
                     onChange={(e) => setBrandName(e.target.value)}
                     required
+                    placeholder="Nhập tên thương hiệu..."
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Logo URL</label>
+                  <label className="form-label fw-semibold">Logo URL</label>
                   <input
                     type="url"
                     className="form-control"
@@ -224,25 +239,26 @@ export default function AdminBrandPage() {
                     placeholder="https://example.com/logo.png"
                   />
                   {brandLogoUrl && (
-                    <img
-                      src={brandLogoUrl}
-                      alt="Preview logo"
-                      style={{ maxHeight: 80, marginTop: 10, objectFit: 'contain' }}
-                      onError={(e) => (e.target.style.display = 'none')}
-                    />
+                    <div className="az-modal-img-preview mt-2">
+                      <img
+                        src={brandLogoUrl}
+                        alt="Preview logo"
+                        onError={(e) => (e.target.style.display = 'none')}
+                      />
+                    </div>
                   )}
-                  <small className="form-text text-muted">Không bắt buộc</small>
+                  <small className="form-text text-muted d-block mt-1">Không bắt buộc</small>
                 </div>
               </div>
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary px-4"
                   onClick={() => setShowForm(false)}
                 >
                   Hủy
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary px-4">
                   Lưu
                 </button>
               </div>

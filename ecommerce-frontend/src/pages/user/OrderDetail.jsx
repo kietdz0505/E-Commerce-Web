@@ -211,7 +211,7 @@ const OrderDetail = () => {
 
                 return (
                   <tr key={i}>
-                    {/* Cột sản phẩm có chứa ảnh và tên */}
+                    {/* Cột sản phẩm chứa ảnh và tên */}
                     <td className="az-col-product">
                       <div className="az-product-thumb">
                         <img
@@ -227,26 +227,26 @@ const OrderDetail = () => {
                     </td>
 
                     {/* Cột Số lượng */}
-                    <td className="text-center az-col-qty">
+                    <td className="text-center az-col-qty" data-label="Số lượng:">
                       <span className="az-badge-qty">x{item.quantity}</span>
                     </td>
 
                     {/* Cột Giá gốc */}
-                    <td className="text-right az-col-original-price">
+                    <td className="text-right az-col-original-price" data-label="Giá gốc:">
                       <span className={`az-price-original ${hasDiscount ? "strikethrough" : ""}`}>
                         {Number(item.unitPrice).toLocaleString("vi-VN")}₫
                       </span>
                     </td>
 
                     {/* Cột Giá KM */}
-                    <td className="text-right az-col-discount-price">
+                    <td className="text-right az-col-discount-price" data-label="Giá sau khi giảm:">
                       <span className="az-price-discount">
                         {Number(item.discountedUnitPrice).toLocaleString("vi-VN")}₫
                       </span>
                     </td>
 
                     {/* Cột Thành tiền */}
-                    <td className="text-right az-col-total">
+                    <td className="text-right az-col-total" data-label="Thành tiền:">
                       <span className="az-price-total">
                         {(item.discountedUnitPrice * item.quantity).toLocaleString("vi-VN")}₫
                       </span>

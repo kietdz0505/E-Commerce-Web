@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Select, Pagination, Spin, Popconfirm, message } from 'antd';
 import AdminUserService from '../../services/admin/adminUserService';
+import '../../styles/adminUsersPage.css';
 
 const { Option } = Select;
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(1); // antd pagination page bắt đầu từ 1
+  const [page, setPage] = useState(1); 
   const [size] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -16,9 +17,9 @@ export default function AdminUsersPage() {
     document.title = "Quản lý người dùng"; 
 
     return () => {
-        document.title = previousTitle; 
+      document.title = previousTitle; 
     };
-}, []);
+  }, []);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -83,28 +84,38 @@ export default function AdminUsersPage() {
       dataIndex: 'id',
       key: 'id',
       width: 70,
+      className: 'az-col-user-id',
+      onCell: () => ({ 'data-label': 'ID:' }),
     },
     {
       title: 'Tên',
       dataIndex: 'name',
       key: 'name',
+      className: 'az-col-user-name',
+      onCell: () => ({ 'data-label': 'Tên:' }),
+      render: (text) => <span className="az-user-name-text">{text}</span>
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      className: 'az-col-user-email',
+      onCell: () => ({ 'data-label': 'Email:' }),
+      render: (text) => <span className="az-user-email-text">{text}</span>
     },
     {
       title: 'Role',
       dataIndex: 'roles',
       key: 'roles',
       width: 150,
+      className: 'az-col-user-role',
+      onCell: () => ({ 'data-label': 'Role:' }),
       render: (roles, record) => (
         <Select
-          size="small"
-          value={roles[0]}
+          size="middle"
+          value={roles?.[0]}
           onChange={(value) => handleChangeRole(record.id, value)}
-          style={{ width: '100%' }}
+          className="az-role-select"
         >
           <Option value="ROLE_CUSTOMER">USER</Option>
           <Option value="ROLE_ADMIN">ADMIN</Option>
@@ -116,25 +127,28 @@ export default function AdminUsersPage() {
       dataIndex: 'locked',
       key: 'locked',
       width: 120,
+      className: 'az-col-user-status',
+      onCell: () => ({ 'data-label': 'Trạng thái:' }),
       render: locked =>
         locked ? (
-          <Tag color="red">Bị khóa</Tag>
+          <Tag color="red" style={{ margin: 0, fontWeight: '500' }}>Bị khóa</Tag>
         ) : (
-          <Tag color="green">Hoạt động</Tag>
+          <Tag color="green" style={{ margin: 0, fontWeight: '500' }}>Hoạt động</Tag>
         ),
     },
     {
       title: 'Hành động',
       key: 'actions',
       width: 180,
+      className: 'az-col-user-actions',
+      onCell: () => ({ 'data-label': 'Hành động:' }),
       render: (_, record) => (
-        <>
+        <div className="az-user-action-btns">
           <Button
-            size="small"
             type={record.locked ? 'primary' : 'default'}
             danger={!record.locked}
             onClick={() => handleLock(record.id, !record.locked)}
-            style={{ marginRight: 8 }}
+            className="az-btn-lock"
           >
             {record.locked ? 'Mở khóa' : 'Khóa'}
           </Button>
@@ -145,43 +159,44 @@ export default function AdminUsersPage() {
             okText="Có"
             cancelText="Không"
           >
-            <Button size="small" danger>
+            <Button danger className="az-btn-delete">
               Xóa
             </Button>
           </Popconfirm>
-        </>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="container" style={{ padding: '40px 20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Quản lý người dùng</h2>
+    <div className="container admin-users-container">
+      <h2 className="text-center d-flex justify-content-center mb-4 mt-4 fw-bold admin-page-title">
+        Quản lý người dùng
+      </h2>
 
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 50 }}>
-          <Spin size="large" />
-        </div>
-      ) : (
-        <>
+      <Spin spinning={loading} size="large">
+        <div className="az-table-wrapper">
           <Table
             columns={columns}
             dataSource={users}
             rowKey="id"
             pagination={false}
             locale={{ emptyText: 'Không có dữ liệu người dùng' }}
+            className="az-custom-table"
           />
+        </div>
 
+        <div className="az-pagination-wrapper">
           <Pagination
             current={page}
             total={totalPages * size}
             pageSize={size}
             onChange={setPage}
-            style={{ marginTop: 16, textAlign: 'center' }}
             className="d-flex justify-content-center"
+            showSizeChanger={false}
           />
-        </>
-      )}
+        </div>
+      </Spin>
     </div>
   );
 }

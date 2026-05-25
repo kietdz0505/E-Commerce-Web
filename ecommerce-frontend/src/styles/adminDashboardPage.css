@@ -1,12 +1,169 @@
-.fw-bold{
+.admin-dashboard-container {
+    max-width: 1200px;
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
+}
+
+.admin-main-title {
+    text-align: center;
+    margin-top: 40px;
+    color: #111827;
+}
+
+.admin-sub-title {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #4b5563;
+}
+
+.az-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.az-stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     text-align: center;
 }
 
-.lead{
-    text-align: center;
-    margin-bottom: 40px;
+.az-stat-icon {
+    margin-bottom: 8px;
+    opacity: 0.9;
 }
 
-.g-4{
-    margin: 0 auto;
+.az-admin-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.az-admin-link-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px 16px;
+    text-decoration: none !important;
+    color: #1f2937 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease-in-out;
+    min-height: 120px;
+}
+
+.az-admin-link-card:hover {
+    background-color: #f0f7ff;
+    border-color: #3b82f6;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    transform: translateY(-4px);
+}
+
+.az-link-icon-box {
+    color: #3b82f6;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+}
+
+.az-admin-link-card:hover .az-link-icon-box {
+    transform: scale(1.1);
+}
+
+.az-link-label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+@media (max-width: 991px) {
+    .az-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .az-admin-links-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-main-title {
+        font-size: 1.75rem;
+    }
+
+    .admin-sub-title {
+        font-size: 0.95rem;
+    }
+
+    .az-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .az-stat-card {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 12px;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .az-stat-icon {
+        margin-bottom: 0;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .az-stat-info h4 {
+        font-size: 1.15rem !important;
+    }
+
+    .az-stat-info p {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    .az-admin-links-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .az-admin-link-card {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 16px;
+        gap: 16px;
+        min-height: auto;
+    }
+
+    .az-link-icon-box {
+        margin-bottom: 0;
+    }
+
+    .az-link-label {
+        font-size: 0.95rem;
+        text-align: left;
+    }
 }

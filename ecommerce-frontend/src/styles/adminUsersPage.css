@@ -1,0 +1,142 @@
+.admin-users-container {
+    max-width: 1200px;
+    margin-top: 20px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    color: #111827;
+}
+
+.az-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    width: 100%;
+}
+
+.az-user-name-text {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.az-user-email-text {
+    color: #4b5563;
+    word-break: break-all;
+}
+
+.az-role-select {
+    width: 120px !important;
+}
+
+.az-user-action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.az-pagination-wrapper {
+    margin-top: 24px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .admin-users-container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .admin-page-title {
+        font-size: 1.5rem;
+    }
+
+    .az-table-wrapper {
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+    }
+
+    /* Vô hiệu hóa chế độ cuộn ngang nguyên bản của antd table */
+    .az-custom-table .ant-table-container,
+    .az-custom-table .ant-table-content {
+        overflow-x: visible !important;
+    }
+
+    /* Ẩn hoàn toàn thanh tiêu đề (thead) của bảng */
+    .az-custom-table thead {
+        display: none !important;
+    }
+
+    /* Biến các thẻ cấu trúc table của antd thành khối block xếp dọc */
+    .az-custom-table table,
+    .az-custom-table tbody,
+    .az-custom-table tr,
+    .az-custom-table td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Biến mỗi hàng thành một chiếc Card độc lập, bo góc mềm mại */
+    .az-custom-table tbody tr.ant-table-row {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Định hình các ô thông tin thành hàng ngang Left - Right */
+    .az-custom-table tbody td.ant-table-cell {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #f3f4f6 !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    /* Thẻ cuối cùng (Hành động) xóa bỏ viền đứt đoạn */
+    .az-custom-table tbody td.ant-table-cell:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-top: 10px !important;
+    }
+
+    /* Đọc nội dung tự động từ data-label để làm nhãn bên trái */
+    .az-custom-table tbody td.ant-table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    /* Cân chỉnh và kéo dãn các phần tử trên mobile */
+    .az-role-select {
+        width: 140px !important;
+    }
+
+    .az-user-action-btns {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .az-btn-lock,
+    .az-btn-delete {
+        flex: 1;
+        max-width: 120px;
+    }
+}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm, message, Rate, Spin } from 'antd';
 import adminProductService from '../../services/admin/adminProductService';
 import adminReviewService from '../../services/admin/adminReviewService';
+import '../../styles/adminReviewsPage.css';
 
 const AdminReviewsPage = () => {
   const [products, setProducts] = useState([]);
@@ -18,17 +19,15 @@ const AdminReviewsPage = () => {
   const [reviewsPageSize, setReviewsPageSize] = useState(5);
   const [reviewsTotal, setReviewsTotal] = useState(0);
 
-
   useEffect(() => {
     const previousTitle = document.title; 
     document.title = "Quản lý đánh giá sản phẩm"; 
 
     return () => {
-        document.title = previousTitle; 
+      document.title = previousTitle; 
     };
-}, []);
+  }, []);
 
-  // Lấy danh sách sản phẩm kèm số lượng review (bạn backend phải trả về hoặc gọi API riêng)
   const fetchProducts = async (page = productsPage) => {
     try {
       setLoadingProducts(true);
@@ -44,7 +43,6 @@ const AdminReviewsPage = () => {
     }
   };
 
-  // Lấy danh sách review cho sản phẩm được chọn
   const fetchReviews = async (productId, page = reviewsPage) => {
     try {
       setLoadingReviews(true);
@@ -64,14 +62,12 @@ const AdminReviewsPage = () => {
     fetchProducts();
   }, []);
 
-  // Khi đổi trang sản phẩm
   const handleProductsPageChange = (page) => {
     fetchProducts(page);
-    setSelectedProduct(null); // reset review khi đổi trang sản phẩm
+    setSelectedProduct(null); 
     setReviews([]);
   };
 
-  // Khi admin chọn xem review sản phẩm
   const handleSelectProduct = (product) => {
     setSelectedProduct(product);
     fetchReviews(product.id, 1);
@@ -81,7 +77,6 @@ const AdminReviewsPage = () => {
     if (selectedProduct) fetchReviews(selectedProduct.id, page);
   };
 
-  // Xóa review
   const handleDeleteReview = async (reviewId) => {
     try {
       await adminReviewService.deleteReview(selectedProduct.id, reviewId);
@@ -93,14 +88,35 @@ const AdminReviewsPage = () => {
   };
 
   const productsColumns = [
-    { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Tên sản phẩm', dataIndex: 'name', key: 'name' },
-    { title: 'Số lượng đánh giá', dataIndex: 'reviewCount', key: 'reviewCount' }, // backend cần trả về trường này
+    { 
+      title: 'ID', 
+      dataIndex: 'id', 
+      key: 'id',
+      className: 'az-col-prod-id',
+      onCell: () => ({ 'data-label': 'ID:' })
+    },
+    { 
+      title: 'Tên sản phẩm', 
+      dataIndex: 'name', 
+      key: 'name',
+      className: 'az-col-prod-name',
+      onCell: () => ({ 'data-label': 'Tên sản phẩm:' }),
+      render: (text) => <span className="az-product-title-text">{text}</span>
+    },
+    { 
+      title: 'Số lượng đánh giá', 
+      dataIndex: 'reviewCount', 
+      key: 'reviewCount',
+      className: 'az-col-prod-count',
+      onCell: () => ({ 'data-label': 'Số lượng đánh giá:' })
+    },
     {
       title: 'Hành động',
       key: 'action',
+      className: 'az-col-prod-action',
+      onCell: () => ({ 'data-label': 'Hành động:' }),
       render: (_, record) => (
-        <Button type="primary" onClick={() => handleSelectProduct(record)}>
+        <Button type="primary" onClick={() => handleSelectProduct(record)} className="az-btn-view-review">
           Xem đánh giá
         </Button>
       ),
@@ -108,34 +124,49 @@ const AdminReviewsPage = () => {
   ];
 
   const reviewsColumns = [
-    { title: 'Người dùng', dataIndex: 'userName', key: 'userName' },
+    { 
+      title: 'Người dùng', 
+      dataIndex: 'userName', 
+      key: 'userName',
+      className: 'az-col-rev-user',
+      onCell: () => ({ 'data-label': 'Người dùng:' })
+    },
     {
       title: 'Đánh giá',
       dataIndex: 'rating',
       key: 'rating',
-      render: (rating) => <Rate disabled defaultValue={rating} />,
+      className: 'az-col-rev-rate',
+      onCell: () => ({ 'data-label': 'Đánh giá:' }),
+      render: (rating) => <Rate disabled defaultValue={rating} className="az-custom-rate" />,
     },
-    { title: 'Nội dung', dataIndex: 'comment', key: 'comment' },
+    { 
+      title: 'Nội dung', 
+      dataIndex: 'comment', 
+      key: 'comment',
+      className: 'az-col-rev-comment',
+      onCell: () => ({ 'data-label': 'Nội dung:' })
+    },
     {
       title: 'Ảnh',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
+      className: 'az-col-rev-img',
+      onCell: () => ({ 'data-label': 'Ảnh:' }),
       render: (url) =>
         url ? (
-          <img
-            src={url}
-            alt="Review"
-            style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4 }}
-          />
+          <div className="az-review-img-container">
+            <img src={url} alt="Review" />
+          </div>
         ) : (
-          <span>Không có ảnh</span>
+          <span className="text-muted text-sm">Không có ảnh</span>
         ),
     },
-
     {
       title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      className: 'az-col-rev-date',
+      onCell: () => ({ 'data-label': 'Ngày tạo:' }),
       render: (value) => {
         if (!value) return '';
         const date = new Date(value);
@@ -147,11 +178,12 @@ const AdminReviewsPage = () => {
           minute: '2-digit',
         });
       }
-
     },
     {
       title: 'Hành động',
       key: 'action',
+      className: 'az-col-rev-action',
+      onCell: () => ({ 'data-label': 'Hành động:' }),
       render: (_, record) => (
         <Popconfirm
           title="Bạn có chắc muốn xóa đánh giá này?"
@@ -159,48 +191,59 @@ const AdminReviewsPage = () => {
           okText="Có"
           cancelText="Không"
         >
-          <Button danger>Xóa</Button>
+          <Button danger className="az-btn-delete-review">Xóa</Button>
         </Popconfirm>
       ),
     },
   ];
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-center mb-4 mt-4">Quản lý đánh giá</h2>
+    <div className="container admin-reviews-container">
+      <h2 className="text-center d-flex justify-content-center mb-4 mt-4 fw-bold admin-page-title">
+        Quản lý đánh giá
+      </h2>
+
       <Spin spinning={loadingProducts}>
-        <Table
-          rowKey="id"
-          columns={productsColumns}
-          dataSource={products}
-          pagination={{
-            current: productsPage,
-            pageSize: productsPageSize,
-            total: productsTotal,
-            onChange: handleProductsPageChange,
-            className: 'd-flex justify-content-center',
-          }}
-        />
+        <div className="az-table-wrapper mb-5">
+          <Table
+            rowKey="id"
+            columns={productsColumns}
+            dataSource={products}
+            pagination={{
+              current: productsPage,
+              pageSize: productsPageSize,
+              total: productsTotal,
+              onChange: handleProductsPageChange,
+              className: 'd-flex justify-content-center py-3 m-0 az-custom-pagination',
+            }}
+            className="az-custom-table"
+          />
+        </div>
       </Spin>
 
       {selectedProduct && (
-        <>
-          <h4>Đánh giá cho sản phẩm: {selectedProduct.name}</h4>
+        <div className="az-review-section-wrapper mt-4">
+          <h4 className="az-review-section-title mb-3">
+            Đánh giá cho sản phẩm: <span className="text-primary">{selectedProduct.name}</span>
+          </h4>
           <Spin spinning={loadingReviews}>
-            <Table
-              rowKey="id"
-              columns={reviewsColumns}
-              dataSource={reviews}
-              pagination={{
-                current: reviewsPage,
-                pageSize: reviewsPageSize,
-                total: reviewsTotal,
-                onChange: handleReviewsPageChange,
-                className: 'd-flex justify-content-center',
-              }}
-            />
+            <div className="az-table-wrapper">
+              <Table
+                rowKey="id"
+                columns={reviewsColumns}
+                dataSource={reviews}
+                pagination={{
+                  current: reviewsPage,
+                  pageSize: reviewsPageSize,
+                  total: reviewsTotal,
+                  onChange: handleReviewsPageChange,
+                  className: 'd-flex justify-content-center py-3 m-0 az-custom-pagination',
+                }}
+                className="az-custom-table"
+              />
+            </div>
           </Spin>
-        </>
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,175 @@
+.admin-chatbot-container {
+    max-width: 1000px;
+    margin-top: 20px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    color: #111827;
+}
+
+.az-btn-add-question {
+    height: 38px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+}
+
+/* Định hình Table bọc wrapper chống giật */
+.az-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    width: 100%;
+    border: 1px solid #e5e7eb;
+}
+
+.az-bot-text-highlight {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.az-bot-text-muted {
+    color: #4b5563;
+    white-space: pre-line;
+}
+
+.az-bot-action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.az-btn-bot-edit {
+    border-radius: 6px !important;
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+}
+.az-btn-bot-edit:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+.az-btn-bot-delete {
+    border-radius: 6px !important;
+}
+
+.az-pagination-wrapper {
+    margin-top: 24px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.az-modal-input {
+    border-radius: 8px !important;
+}
+
+/* Cấu trúc responsive biến đổi giao diện dọc thông minh cho Mobile */
+@media (max-width: 768px) {
+    .admin-chatbot-container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .admin-page-title {
+        font-size: 1.5rem;
+    }
+
+    .az-btn-add-question {
+        width: 100%;
+        height: 40px !important;
+    }
+
+    .az-table-wrapper {
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+        border: none;
+    }
+
+    /* Khóa chế độ cuộn ngang cố định nguyên bản của Antd */
+    .az-custom-table .ant-table-container,
+    .az-custom-table .ant-table-content {
+        overflow-x: visible !important;
+    }
+
+    /* Ẩn dải tiêu đề header gốc */
+    .az-custom-table thead {
+        display: none !important;
+    }
+
+    /* Ép tất cả các thành phần bảng chuyển thành dạng block dồn dòng */
+    .az-custom-table table,
+    .az-custom-table tbody,
+    .az-custom-table tr,
+    .az-custom-table td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Tạo cấu trúc Card độc lập cho từng hàng câu hỏi */
+    .az-custom-table tbody tr.ant-table-row {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Thiết kế bố cục hai bên Left - Right tách biệt */
+    .az-custom-table tbody td.ant-table-cell {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        padding: 10px 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #f3f4f6 !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    /* Nội dung text bên phải thu hẹp bớt để nhường chỗ nhãn bên trái */
+    .az-custom-table tbody td.ant-table-cell > span,
+    .az-custom-table tbody td.ant-table-cell .az-bot-action-group {
+        max-width: 65%;
+        text-align: right;
+    }
+
+    .az-custom-table tbody td.ant-table-cell:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-top: 10px !important;
+    }
+
+    /* Render nhãn dữ liệu từ thuộc tính data-label */
+    .az-custom-table tbody td.ant-table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+        font-size: 0.85rem;
+        padding-right: 10px;
+        white-space: nowrap;
+    }
+
+    .az-bot-action-group {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .az-btn-bot-edit,
+    .az-btn-bot-delete {
+        flex: 1;
+        max-width: 100px;
+        height: 32px;
+    }
+}

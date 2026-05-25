@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_CONFIG } from "../config/apiConfig";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-toastify"; 
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
-  timeout: 0
+  timeout: 10000 
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -31,14 +31,14 @@ apiClient.interceptors.response.use(
         isToastShowing = true;
         
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!", {
-          id: "session-expired", 
-          duration: 3000,
+          toastId: "session-expired", 
+          autoClose: 3000,
         });
 
+  
         setTimeout(() => {
           isToastShowing = false; 
-          window.location.href = "/";
-        }, 1200);
+        }, 3000);
       }
     }
     

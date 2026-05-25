@@ -18,11 +18,15 @@ const ProductList = ({ products, selectedCategoryId, currentPage, totalPages, on
         </div>
 
         {loading ? (
-          <div className="az-loading-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '50px 0' }}>
-            <div className="az-spinner" />
-            <span className="az-loading-text" style={{ marginTop: '12px', color: '#666' }}>
-              Hệ thống đang khởi động, vui lòng đợi trong giây lát...
-            </span>
+          <div className="product-wrapper">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="az-skeleton-product-card">
+                <div className="az-skeleton az-skeleton-product-img"></div>
+                <div className="az-skeleton az-skeleton-product-title"></div>
+                <div className="az-skeleton az-skeleton-product-price"></div>
+                <div className="az-skeleton az-skeleton-product-btn"></div>
+              </div>
+            ))}
           </div>
         ) : (!products || !Array.isArray(products) || products.length === 0) ? (
           <div className="az-empty-wrap">

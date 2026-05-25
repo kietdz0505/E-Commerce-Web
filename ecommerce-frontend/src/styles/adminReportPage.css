@@ -1,0 +1,171 @@
+.admin-report-container {
+    max-width: 1200px;
+    margin-top: 20px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    color: #111827;
+}
+
+/* Bộ lọc tìm kiếm */
+.az-filter-wrapper {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+}
+
+.az-range-picker {
+    height: 40px !important;
+    border-radius: 8px !important;
+}
+
+.az-btn-filter {
+    height: 40px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+}
+
+/* Thẻ chỉ số tổng quan (Stat Cards) */
+.az-stat-card {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+    border: 1px solid #f3f4f6 !important;
+}
+
+.az-stat-card .ant-card-body {
+    display: flex !important;
+    align-items: center !important;
+    padding: 24px !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.az-stat-icon {
+    font-size: 32px;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+}
+
+.az-stat-info {
+    flex: 1;
+}
+
+.az-stat-label {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.az-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+}
+
+/* Màu sắc chủ đề cho từng loại Card chỉ số */
+.az-card-orders {
+    background: linear-gradient(135deg, #ffffff, #f0f7ff) !important;
+}
+
+.az-card-orders .az-stat-icon {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.az-card-revenue {
+    background: linear-gradient(135deg, #ffffff, #f0fdf4) !important;
+}
+
+.az-card-revenue .az-stat-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.az-card-stock {
+    background: linear-gradient(135deg, #ffffff, #fef3c7) !important;
+}
+
+.az-card-stock .az-stat-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* Giao diện biểu đồ (Chart Cards) */
+.az-chart-card {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #f3f4f6 !important;
+    overflow: hidden;
+}
+
+.az-chart-card .ant-card-head {
+    border-bottom: 1px solid #f3f4f6 !important;
+    padding: 0 20px !important;
+}
+
+.az-chart-card .ant-card-head-title {
+    font-weight: 600 !important;
+    color: #374151 !important;
+    font-size: 16px !important;
+}
+
+.az-chart-wrapper {
+    padding-top: 10px;
+    width: 100%;
+}
+
+.az-stat-card .ant-card-body {
+    @media (max-width: 768px) {
+        .admin-report-container {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .admin-page-title {
+            font-size: 1.5rem;
+        }
+
+        .az-filter-wrapper {
+            padding: 12px;
+        }
+
+
+        padding: 16px !important;
+    }
+
+    .az-stat-icon {
+        font-size: 26px;
+        width: 50px;
+        height: 50px;
+        margin-right: 12px;
+    }
+
+    .az-stat-value {
+        font-size: 20px;
+    }
+
+    /* Thu nhỏ kích cỡ chữ của nhãn trục biểu đồ tránh đè chữ */
+    .az-chart-tick-text {
+        font-size: 9px !important;
+    }
+}

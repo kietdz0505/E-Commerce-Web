@@ -1,0 +1,141 @@
+.admin-orders-container {
+    max-width: 1200px;
+    margin-top: 40px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.az-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.az-order-amount {
+    font-weight: 600;
+    color: #22c55e;
+}
+
+.az-action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.az-status-select {
+    width: 140px;
+}
+
+.az-pagination-wrapper {
+    margin-top: 24px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .admin-orders-container {
+        margin-top: 20px;
+    }
+
+    .admin-page-title {
+        font-size: 1.5rem;
+        margin-top: 20px;
+        margin-bottom: 16px;
+    }
+
+    .az-table-wrapper {
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+    }
+
+    /* Vô hiệu hóa chế độ cuộn ngang nguyên bản của antd table để xử lý giao diện card */
+    .az-custom-table .ant-table-container,
+    .az-custom-table .ant-table-content {
+        overflow-x: visible !important;
+    }
+
+    /* Ẩn hoàn toàn thanh tiêu đề của bảng */
+    .az-custom-table thead {
+        display: none !important;
+    }
+
+    /* Biến các thẻ cấu trúc table của antd thành khối block */
+    .az-custom-table table,
+    .az-custom-table tbody,
+    .az-custom-table tr,
+    .az-custom-table td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Biến mỗi hàng đơn hàng thành một chiếc Card độc lập */
+    .az-custom-table tbody tr.ant-table-row {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+        box-sizing: border-box !important;
+        transition: transform 0.2s;
+    }
+
+    /* Định hình các ô thông tin thành hàng ngang Left - Right */
+    .az-custom-table tbody td.ant-table-cell {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 8px 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #f3f4f6 !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    /* Dòng cuối cùng của Card (Hành động) sẽ xóa bỏ viền đứt đoạn */
+    .az-custom-table tbody td.ant-table-cell:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-top: 10px !important;
+    }
+
+    /* Đọc nội dung tự động từ data-label để làm nhãn bên trái */
+    .az-custom-table tbody td.ant-table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    /* Điều chỉnh khối hành động và nút bấm tràn đều chiều ngang trên mobile */
+    .az-action-buttons {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .az-status-select {
+        flex: 1 !important;
+        width: auto !important;
+    }
+
+    .az-delete-btn {
+        padding: 4px 16px !important;
+        height: 32px !important;
+    }
+
+    .az-admin-modal {
+        max-width: calc(100vw - 24px) !important;
+        margin: 12px auto;
+    }
+}

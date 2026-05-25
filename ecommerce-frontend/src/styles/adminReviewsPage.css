@@ -1,0 +1,154 @@
+.admin-reviews-container {
+    max-width: 1200px;
+    margin-top: 20px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.admin-page-title {
+    text-align: center !important;
+    justify-content: center !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    color: #111827;
+}
+
+.az-table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    width: 100%;
+}
+
+.az-product-title-text {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.az-review-section-title {
+    font-weight: 600;
+    color: #374151;
+    border-left: 4px solid #1677ff;
+    padding-left: 10px;
+}
+
+.az-review-img-container {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.az-review-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.az-custom-rate {
+    font-size: 16px !important;
+}
+
+@media (max-width: 768px) {
+    .admin-reviews-container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .admin-page-title {
+        font-size: 1.5rem;
+    }
+
+    .az-review-section-title {
+        font-size: 1.15rem;
+    }
+
+    .az-table-wrapper {
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+    }
+
+    /* Vô hiệu hóa chế độ trượt ngang mặc định của Ant Design Table */
+    .az-custom-table .ant-table-container,
+    .az-custom-table .ant-table-content {
+        overflow-x: visible !important;
+    }
+
+    /* Ẩn thanh đầu mục bảng (Header) */
+    .az-custom-table thead {
+        display: none !important;
+    }
+
+    /* Chuyển cấu trúc bảng sang dạng hiển thị khối (Block) */
+    .az-custom-table table,
+    .az-custom-table tbody,
+    .az-custom-table tr,
+    .az-custom-table td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Định dạng mỗi hàng thành một Card độc lập bo tròn */
+    .az-custom-table tbody tr.ant-table-row {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Cân chỉnh các phần tử cột thành mô hình hai phía (Left - Right) */
+    .az-custom-table tbody td.ant-table-cell {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #f3f4f6 !important;
+        text-align: right !important;
+        background: transparent !important;
+    }
+
+    .az-custom-table tbody td.ant-table-cell:last-child {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-top: 10px !important;
+    }
+
+    /* Trích xuất tên cột từ thuộc tính data-label gán ở phía component */
+    .az-custom-table tbody td.ant-table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    /* Nới rộng nút hành động kích thước đầy đủ trên thiết bị di động */
+    .az-btn-view-review,
+    .az-btn-delete-review {
+        width: 100%;
+    }
+
+    /* Xử lý căn lề riêng cho khối chứa ngôi sao đánh giá và hình ảnh review */
+    .az-col-rev-rate, .az-col-rev-img {
+        justify-content: space-between !important;
+    }
+
+    .az-custom-pagination {
+        margin-top: 10px !important;
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+}

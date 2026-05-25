@@ -3,6 +3,8 @@ import adminProductService from '../../services/admin/adminProductService';
 import adminBrandService from '../../services/admin/adminBrandService';
 import adminCategoryService from '../../services/admin/adminCategoryService';
 import { Modal, Button, Input, Checkbox, Select, Form, message, Spin } from 'antd';
+import '../../styles/adminProductsPage.css';
+
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -21,14 +23,12 @@ export default function AdminProductsPage() {
 
   const [form] = Form.useForm();
 
-  // ===== TITLE =====
   useEffect(() => {
     const prev = document.title;
     document.title = "Quản lý sản phẩm";
     return () => (document.title = prev);
   }, []);
 
-  // ===== LOAD PRODUCTS =====
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -42,7 +42,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // ===== LOAD BRANDS =====
   const loadBrands = async () => {
     try {
       let all = [];
@@ -62,7 +61,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // ===== LOAD CATEGORIES =====
   const loadCategories = async () => {
     try {
       const data = await adminCategoryService.getCategories(0, 1000);
@@ -81,7 +79,6 @@ export default function AdminProductsPage() {
     loadCategories();
   }, []);
 
-  // ===== FIX FORM LIFECYCLE (QUAN TRỌNG) =====
   useEffect(() => {
     if (!modalVisible) return;
 
@@ -101,7 +98,6 @@ export default function AdminProductsPage() {
     }
   }, [modalVisible, editingProduct, form]);
 
-  // ===== MODAL =====
   const openModal = (product = null) => {
     setEditingProduct(product);
     setModalVisible(true);
@@ -111,7 +107,6 @@ export default function AdminProductsPage() {
     setModalVisible(false);
   };
 
-  // ===== SUBMIT =====
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -144,7 +139,6 @@ export default function AdminProductsPage() {
       if (err.response?.data) {
         const data = err.response.data;
 
-        // case: { field: message }
         if (typeof data === 'object') {
           const fieldErrors = Object.entries(data).map(([field, msg]) => ({
             name: field,
@@ -152,15 +146,12 @@ export default function AdminProductsPage() {
           }));
 
           form.setFields(fieldErrors);
-
-          // fallback toast
           Object.values(data).forEach(msg => message.error(msg));
         } else {
           message.error('Lỗi hệ thống');
         }
-
       } else if (err.errorFields) {
-        // lỗi validate phía client (antd)
+        // Lỗi validate client
       } else {
         message.error('Không thể lưu sản phẩm');
       }
@@ -169,7 +160,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // ===== DELETE =====
   const handleDelete = async (id) => {
     Modal.confirm({
       title: 'Bạn có chắc muốn xóa?',
@@ -195,63 +185,72 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 style={{ marginTop: '2rem' }} className="text-center mb-4">Quản lý sản phẩm</h2>
+    <div className="container admin-products-container mt-4">
+      <h2 style={{ marginTop: '2rem' }} className="text-center mb-4 fw-bold">Quản lý sản phẩm</h2>
 
-      <Button type="primary" onClick={() => openModal()}>
-        Thêm sản phẩm
-      </Button>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <Button type="primary" onClick={() => openModal()} className="az-btn-add">
+          Thêm sản phẩm
+        </Button>
+      </div>
 
       {loading ? (
-        <div className="d-flex justify-content-center" style={{ height: 200 }}>
+        <div className="d-flex justify-content-center align-items-center" style={{ height: 200 }}>
           <Spin size="large" />
         </div>
       ) : (
-        <table className="table table-bordered mt-3">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Ảnh</th>
-              <th>Tên</th>
-              <th>Giá</th>
-              <th>SL</th>
-              <th>Brand</th>
-              <th>Category</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {products.map(p => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>
-                  {p.imageUrl
-                    ? <img src={p.imageUrl} width={50} />
-                    : 'N/A'}
-                </td>
-                <td>{p.name}</td>
-                <td>{p.price.toLocaleString()} đ</td>
-                <td>{p.stock}</td>
-                <td>{brands.find(b => b.id === p.brandId)?.name || 'N/A'}</td>
-                <td>{categories.find(c => c.id === p.categoryId)?.name || 'N/A'}</td>
-                <td>
-                  <Button onClick={() => openModal(p)}>Sửa</Button>
-                  <Button danger onClick={() => handleDelete(p.id)}>Xóa</Button>
-                </td>
+        <div className="az-table-wrapper">
+          <table className="table table-bordered az-responsive-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Ảnh</th>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>SL</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th className="text-center">Hành động</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {products.map(p => (
+                <tr key={p.id}>
+                  <td data-label="ID:">{p.id}</td>
+                  <td data-label="Ảnh:" className="az-td-img">
+                    {p.imageUrl ? (
+                      <div className="az-img-container">
+                        <img src={p.imageUrl} alt={p.name} />
+                      </div>
+                    ) : (
+                      <span className="text-muted">N/A</span>
+                    )}
+                  </td>
+                  <td data-label="Tên:" className="az-td-name">{p.name}</td>
+                  <td data-label="Giá:" className="az-td-price">{p.price.toLocaleString()} đ</td>
+                  <td data-label="Số lượng:">{p.stock}</td>
+                  <td data-label="Thương hiệu:">{brands.find(b => b.id === p.brandId)?.name || 'N/A'}</td>
+                  <td data-label="Danh mục:">{categories.find(c => c.id === p.categoryId)?.name || 'N/A'}</td>
+                  <td data-label="Hành động:" className="az-td-actions">
+                    <Button onClick={() => openModal(p)} type="default" className="me-2">Sửa</Button>
+                    <Button danger onClick={() => handleDelete(p.id)}>Xóa</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* PAGINATION */}
-      <div className="text-center mt-3 mb-5">
+      <div className="d-flex justify-content-center flex-wrap gap-2 mt-4 mb-5">
         {Array.from({ length: totalPages }, (_, i) => (
           <Button
             key={i}
             type={i === page ? 'primary' : 'default'}
             onClick={() => onChangePage(i)}
+            className="az-page-btn"
           >
             {i + 1}
           </Button>
@@ -265,46 +264,60 @@ export default function AdminProductsPage() {
         onOk={handleSubmit}
         onCancel={closeModal}
         confirmLoading={submitLoading}
-        destroyOnHidden
+        destroyOnClose
+        centered
+        style={{ top: 30 }}
+        className="az-admin-modal"
+        width={600}
       >
-        <Form form={form} layout="vertical" initialValues={{ available: true }}>
-
-          <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
+        <Form form={form} layout="vertical" initialValues={{ available: true }} className="mt-3">
+          <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}>
             <Input />
           </Form.Item>
 
-          <Form.Item name="price" label="Giá" rules={[{ required: true }]}>
-            <Input type="number" />
+          <div className="row">
+            <div className="col-12 col-md-6">
+              <Form.Item name="price" label="Giá bán (đ)" rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}>
+                <Input type="number" min={0} style={{ width: '100%' }} />
+              </Form.Item>
+            </div>
+            <div className="col-12 col-md-6">
+              <Form.Item name="stock" label="Số lượng kho" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+                <Input type="number" min={0} style={{ width: '100%' }} />
+              </Form.Item>
+            </div>
+          </div>
+
+          <Form.Item name="description" label="Mô tả" rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
+            <Input.TextArea rows={3} />
           </Form.Item>
 
-          <Form.Item name="description" label="Mô tả" rules={[{ required: true }]}>
-            <Input.TextArea />
-          </Form.Item>
-
-          <Form.Item name="imageUrl" label="Ảnh">
+          <Form.Item name="imageUrl" label="Đường dẫn ảnh sản phẩm">
             <Input />
           </Form.Item>
 
-          <Form.Item name="stock" label="Số lượng" rules={[{ required: true }]}>
-            <Input type="number" />
-          </Form.Item>
+          <div className="row">
+            <div className="col-12 col-md-6">
+              <Form.Item name="brandId" label="Thương hiệu" rules={[{ required: true, message: 'Chọn thương hiệu!' }]}>
+                <Select
+                  options={brands.map(b => ({ label: b.name, value: b.id }))}
+                  placeholder="Chọn thương hiệu"
+                />
+              </Form.Item>
+            </div>
+            <div className="col-12 col-md-6">
+              <Form.Item name="categoryId" label="Danh mục" rules={[{ required: true, message: 'Chọn danh mục!' }]}>
+                <Select
+                  options={categories.map(c => ({ label: c.name, value: c.id }))}
+                  placeholder="Chọn danh mục"
+                />
+              </Form.Item>
+            </div>
+          </div>
 
-          <Form.Item name="available" valuePropName="checked">
-            <Checkbox>Còn hàng</Checkbox>
+          <Form.Item name="available" valuePropName="checked" className="mb-0">
+            <Checkbox>Kích hoạt hiển thị (Còn hàng)</Checkbox>
           </Form.Item>
-
-          <Form.Item name="brandId" label="Brand" rules={[{ required: true }]}>
-            <Select
-              options={brands.map(b => ({ label: b.name, value: b.id }))}
-            />
-          </Form.Item>
-
-          <Form.Item name="categoryId" label="Category" rules={[{ required: true }]}>
-            <Select
-              options={categories.map(c => ({ label: c.name, value: c.id }))}
-            />
-          </Form.Item>
-
         </Form>
       </Modal>
     </div>
