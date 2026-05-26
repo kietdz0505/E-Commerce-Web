@@ -50,10 +50,22 @@ This project provides a complete online shopping experience including authentica
 
 ```bash
 E-Commerce-Web/
-│
-├── ecommerce-frontend/          # ReactJS client
-├── ecommerce-backend/           # Spring Boot server
-└── README.md
+├── .github/
+│   └── workflows/
+│       └── deploy.yml         
+├── ecommerce-backend/         
+│   ├── src/
+│   ├── Dockerfile            
+│   └── ...
+├── ecommerce-frontend/       
+│   ├── src/
+│   ├── Dockerfile              
+│   ├── nginx.conf            
+│   ├── .gitignore            
+│   └── ...
+├── docker-compose.yml         
+├── .gitignore                 
+└── README.md         
 ```
 
 ---
