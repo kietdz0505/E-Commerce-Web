@@ -67,6 +67,21 @@ git clone https://github.com/kietdz0505/E-Commerce-Web.git
 cd E-Commerce-Web
 ```
 
+# 🐳 Docker Setup
+
+This project supports Docker, allowing you to run the entire environment (Backend, Frontend, and Database) with a single command, eliminating the need for complex manual installations.
+
+## 📋 Prerequisites
+- Make sure you have Docker Desktop installed on your machine. (https://www.docker.com/products/docker-desktop/) 
+
+## 🚀 How to run with Docker
+
+### 1. Launch the entire system
+From the project's root directory, run the following command:
+
+```bash
+docker-compose up -d
+```
 ---
 
 # 🔧 Backend Setup (Spring Boot)
@@ -172,17 +187,6 @@ Add screenshots here:
 ![Product Detail](./screenshots/product-detail.png)
 ![Cart](./screenshots/cart.png)
 ```
-
----
-
-# 🎯 Future Improvements
-
-- 💳 Online Payment Integration
-- 📦 Order Tracking
-- ⭐ Product Reviews & Ratings
-- 📊 Admin Dashboard
-- ☁️ Cloud Deployment
-- 🐳 Docker Support
 
 ---
 
