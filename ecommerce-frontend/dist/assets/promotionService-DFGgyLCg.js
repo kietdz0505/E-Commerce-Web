@@ -1,1 +1,0 @@
-import{B as e,F as t}from"./index-BWiyaQ-b.js";var n=async n=>{try{return(await t.get(e.API.PROMOTIONS_BY_PRODUCTS(n))).data}catch(e){return console.error(`Failed to fetch promotions`,e),[]}},r=async(n=0,r)=>(await t.get(e.API.GET_MY_PROMOTIONS,{params:r?{page:n,size:r}:{page:n}})).data;export{n,r as t};

@@ -1,0 +1,53 @@
+services:
+  # Database
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: azstore
+      MYSQL_ROOT_PASSWORD: password123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend
+  api:
+    build: ./ecommerce-backend
+    ports:
+      - "8081:8080"
+    env_file:
+      - ./ecommerce-backend/.env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/azstore?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=yes&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - FRONTEND_URL=http://localhost
+      - MOMO_REDIRECT_URL=http://localhost:8081/api/payment/momo-return
+      - MOMO_IPN_URL=http://localhost:8081/api/payment/momo-notify
+      - APP_BASE_URL=http://localhost:8081
+
+
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Frontend
+  client:
+    build: 
+      context: ./ecommerce-frontend
+      args:
+        - VITE_API_BASE_URL=http://localhost:8081 
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  mysql_data:
