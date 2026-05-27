@@ -1,6 +1,5 @@
 package com.example.ecommerce_web.service.impl;
 
-import com.example.ecommerce_web.dto.BrandDTO;
 import com.example.ecommerce_web.dto.CategoryDTO;
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.mapper.CategoryMapper;
@@ -53,7 +52,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(CategoryMapper::toCategoryDTO);
     }
 
-
     @Override
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         return categoryRepository.findById(id).map(existingCategory -> {
@@ -71,7 +69,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return false;
     }
-
 
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {

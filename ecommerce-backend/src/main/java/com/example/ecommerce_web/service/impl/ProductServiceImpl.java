@@ -18,8 +18,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 @Service
+@CacheConfig(cacheNames = "products")
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
@@ -51,12 +57,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(key = "'category_' + #categoryId + '_page_' + #pageable.pageNumber")
     public Page<ProductDTO> getProductsByCategory(Long categoryId, Pageable pageable) {
         return productRepository.findProductsByCategoryId(categoryId, pageable)
                 .map(ProductMapper::toDTO);
     }
 
     @Override
+    @Cacheable(key = "#id", unless = "#result == null")
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(this::enrichProductWithReview)
@@ -69,6 +77,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true)
+    })
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = ProductMapper.toEntity(dto);
         product.setBrand(brandRepository.findById(dto.getBrandId()).orElse(null));
@@ -84,6 +95,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(key = "#id"),
+            @CacheEvict(value = "products", allEntries = true)
+    })
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new RuntimeException("Product not found with id: " + id);
@@ -144,6 +159,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Caching(
+            put = @CachePut(key = "#id"),
+            evict = @CacheEvict(value = "products", allEntries = true, beforeInvocation = false)
+    )
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));

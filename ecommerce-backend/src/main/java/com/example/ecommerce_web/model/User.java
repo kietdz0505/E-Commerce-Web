@@ -2,6 +2,7 @@ package com.example.ecommerce_web.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,9 +15,14 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(exclude = {"roles", "userPromotions"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "users",
+        uniqueConstraints = {@UniqueConstraint(columnNames = "email")},
+        indexes = {
+                @Index(name = "idx_user_username", columnList = "username"),
+                @Index(name = "idx_user_created_at", columnList = "created_at"),
+                @Index(name = "idx_user_reset_otp", columnList = "reset_otp")
+        }
+)
 public class User {
 
     @Id
@@ -46,11 +52,7 @@ public class User {
     private AuthProvider authProvider;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "users_id"),
-            inverseJoinColumns = @JoinColumn(name = "roles_id")
-    )
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "users_id"), inverseJoinColumns = @JoinColumn(name = "roles_id"))
     private Set<Role> roles = new HashSet<>();
 
     @Column(name = "is_locked")

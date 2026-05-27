@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.cache.annotation.Cacheable;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -26,6 +26,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @Cacheable(value = "products", key = "'page_' + (#page != null ? #page : 0) + '_' + (#size != null ? #size : 5)")
     public Map<String, Object> getAll(@RequestParam(required = false) Integer page,
                                       @RequestParam(required = false) Integer size) {
         int currentPage = (page != null) ? page : paginationProperties.getDefaultPage();
@@ -39,7 +40,7 @@ public class ProductController {
         response.put("totalElements", productPage.getTotalElements());
         response.put("totalPages", productPage.getTotalPages());
         response.put("size", productPage.getSize());
-        response.put("number", productPage.getNumber());  // current page number (zero-based)
+        response.put("number", productPage.getNumber());
 
         return response;
     }

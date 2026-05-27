@@ -30,13 +30,14 @@ services:
       - FRONTEND_URL=http://localhost
       - MOMO_REDIRECT_URL=http://localhost:8081/api/payment/momo-return
       - MOMO_IPN_URL=http://localhost:8081/api/payment/momo-notify
+      - VNPAY_RETURN_URL=http://localhost:8081/api/payment/vnpay-return
       - APP_BASE_URL=http://localhost:8081
-
-
-
+      - REDIS_HOST=redis 
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   # Frontend
   client:
@@ -48,6 +49,15 @@ services:
       - "80:80"
     depends_on:
       - api
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: ecommerce-redis
+    ports:
+      - "6379:6379"  
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: always
 
 volumes:
   mysql_data:
