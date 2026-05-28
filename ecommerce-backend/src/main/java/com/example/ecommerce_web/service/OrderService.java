@@ -61,9 +61,17 @@ public class OrderService {
 
             Product product = productRepository.findById(itemReq.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
 
+            if (!product.isAvailable()) {
+                throw new RuntimeException("Product is not available: " + product.getName());
+            }
+
             int currentStock = product.getStock();
 
             int buyQuantity = itemReq.getQuantity();
+
+            if (buyQuantity < 1) {
+                throw new RuntimeException("Quantity must be at least 1");
+            }
 
             if (currentStock < buyQuantity) {
 
@@ -137,6 +145,22 @@ public class OrderService {
 
     public String getOrderPaymentMethod(Long orderId) {
         return getOrderEntity(orderId).getPaymentMethod().name();
+    }
+
+    public void validateOrderForPayment(Long orderId, String userId, PaymentMethod paymentMethod) {
+        Order order = getOrderEntity(orderId);
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new RuntimeException("Order is not ready for payment");
+        }
+
+        if (order.getPaymentMethod() != paymentMethod) {
+            throw new RuntimeException("Order is not set to pay with " + paymentMethod.name());
+        }
     }
 
     public Long getOrderAmount(Long orderId) {

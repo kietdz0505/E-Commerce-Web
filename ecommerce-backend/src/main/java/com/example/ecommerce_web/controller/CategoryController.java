@@ -6,6 +6,7 @@ import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.service.BrandService;
 import com.example.ecommerce_web.service.CategoryService;
 import com.example.ecommerce_web.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -80,7 +82,8 @@ public class CategoryController {
 
     @PostMapping
     @CacheEvict(key = "'all_list'")
-    public CategoryDTO create(@RequestBody CategoryDTO categoryDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoryDTO create(@Valid @RequestBody CategoryDTO categoryDTO) {
         return categoryService.saveCategory(categoryDTO);
     }
 
@@ -89,7 +92,8 @@ public class CategoryController {
             @CacheEvict(key = "'all_list'"),
             @CacheEvict(key = "#id")
     })
-    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO updated = categoryService.updateCategory(id, categoryDTO);
         if (updated != null) {
             return ResponseEntity.ok(updated);
@@ -103,6 +107,7 @@ public class CategoryController {
             @CacheEvict(key = "'all_list'"),
             @CacheEvict(key = "#id")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();

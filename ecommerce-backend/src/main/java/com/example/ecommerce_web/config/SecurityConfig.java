@@ -6,10 +6,10 @@ import com.example.ecommerce_web.service.CustomOAuth2UserService;
 import com.example.ecommerce_web.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -70,15 +70,21 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
 
                                 "/",
-                                "/api/products/**",
-                                "/api/categories/**",
-                                "/api/brands/**",
-                                "/api/products/search",
-
                                 "/api/payment/vnpay-return",
                                 "/api/payment/momo-return",
                                 "/api/payment/momo-notify"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/products",
+                                "/api/products/**",
+                                "/api/categories",
+                                "/api/categories/**",
+                                "/api/brands",
+                                "/api/brands/**"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/chatbot/ask").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 

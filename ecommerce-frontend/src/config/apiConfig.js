@@ -94,10 +94,10 @@ export const API_CONFIG = {
     },
 
     CHAT_BOT: {
-      CREATE_QUESTION: `/api/chatbot/contents`, // POST
-      GET_ALL_QUESTIONS: `/api/chatbot/contents`, // GET
-      UPDATE_QUESTION: (id) => `/api/chatbot/contents/${id}`, // PUT
-      DELETE_QUESTION: (id) => `/api/chatbot/contents/${id}`, // DELETE
+      CREATE_QUESTION: `/api/admin/chatbot`, // POST
+      GET_ALL_QUESTIONS: `/api/admin/chatbot`, // GET
+      UPDATE_QUESTION: (id) => `/api/admin/chatbot/${id}`, // PUT
+      DELETE_QUESTION: (id) => `/api/admin/chatbot/${id}`, // DELETE
       ANSWER_QUESTION: (ask) => `/api/chatbot/ask?question=${encodeURIComponent(ask)}` // POST
     },
 

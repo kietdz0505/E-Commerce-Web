@@ -4,8 +4,10 @@ import com.example.ecommerce_web.dto.MomoPaymentResponse;
 import com.example.ecommerce_web.dto.PaymentResponse;
 import com.example.ecommerce_web.model.OrderStatus;
 import com.example.ecommerce_web.model.PaymentStatus;
+import com.example.ecommerce_web.model.PaymentMethod;
 import com.example.ecommerce_web.model.PaymentTransaction;
 import com.example.ecommerce_web.repository.PaymentTransactionRepository;
+import com.example.ecommerce_web.security.CustomUserDetails;
 import com.example.ecommerce_web.service.MomoPaymentService;
 import com.example.ecommerce_web.service.OrderService;
 import com.example.ecommerce_web.service.VNPaymentService;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,14 +41,13 @@ public class PaymentController {
     // ===================== MOMO ===================== //
 
     @PostMapping("/momo")
-    public ResponseEntity<PaymentResponse> createMomoPayment(@RequestParam Long orderId, HttpServletRequest request) {
+    public ResponseEntity<PaymentResponse> createMomoPayment(
+            @RequestParam Long orderId,
+            HttpServletRequest request,
+            Authentication authentication
+    ) {
 
-        String paymentMethod = orderService.getOrderPaymentMethod(orderId);
-
-        if (!"MOMO".equalsIgnoreCase(paymentMethod)) {
-
-            return ResponseEntity.badRequest().body(PaymentResponse.error("Order is not set to pay with MoMo"));
-        }
+        orderService.validateOrderForPayment(orderId, getCurrentUserId(authentication), PaymentMethod.MOMO);
 
         String orderInfo = "Thanh_toan_don_hang_" + orderId;
 
@@ -62,7 +64,9 @@ public class PaymentController {
     @PostMapping("/momo-notify")
     public ResponseEntity<String> momoNotify(@RequestBody Map<String, Object> payload) {
 
-        log.info("===== MOMO NOTIFY ===== {}", payload);
+        log.info("===== MOMO NOTIFY orderId={}, resultCode={} =====",
+                payload.get("orderId"),
+                payload.get("resultCode"));
 
         momoPaymentService.handleMomoNotification(payload);
 
@@ -72,7 +76,9 @@ public class PaymentController {
     @GetMapping("/momo-return")
     public void momoReturn(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
 
-        log.info("===== MOMO RETURN ===== {}", params);
+        log.info("===== MOMO RETURN orderId={}, resultCode={} =====",
+                params.get("orderId"),
+                params.get("resultCode"));
 
         try {
 
@@ -88,6 +94,25 @@ public class PaymentController {
             }
 
             Long orderId = Long.valueOf(momoOrderId.split("-")[0]);
+
+            if (!momoPaymentService.verifySignature(params)) {
+
+                log.warn("MoMo invalid return signature for order {}", orderId);
+
+                response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
+
+                return;
+            }
+
+            if (!momoPaymentService.isValidAmount(orderId, params.get("amount"))) {
+
+                log.warn("MoMo amount mismatch for order {}", orderId);
+
+                response.sendRedirect(frontendUrl + "/my-orders?payment=failed");
+
+                return;
+            }
+
             PaymentTransaction transaction =
                     paymentTransactionRepository.findByTxnRef(momoOrderId)
                             .orElse(null);
@@ -138,12 +163,13 @@ public class PaymentController {
     }
 
     @PostMapping("/vnpay")
-    public ResponseEntity<PaymentResponse> createVNPay(@RequestParam Long orderId, HttpServletRequest request) throws JsonProcessingException {
-        String paymentMethod = orderService.getOrderPaymentMethod(orderId);
+    public ResponseEntity<PaymentResponse> createVNPay(
+            @RequestParam Long orderId,
+            HttpServletRequest request,
+            Authentication authentication
+    ) throws JsonProcessingException {
 
-        if (!"VNPAY".equalsIgnoreCase(paymentMethod)) {
-            return ResponseEntity.badRequest().body(PaymentResponse.error("Order is not set to pay with VNPay"));
-        }
+        orderService.validateOrderForPayment(orderId, getCurrentUserId(authentication), PaymentMethod.VNPAY);
 
 
         String ipAddr = getClientIp(request);
@@ -203,5 +229,13 @@ public class PaymentController {
             return ip;
         }
         return request.getRemoteAddr();
+    }
+
+    private String getCurrentUserId(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        return userDetails.getUserId();
     }
 }

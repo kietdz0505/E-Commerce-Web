@@ -3,6 +3,7 @@ package com.example.ecommerce_web.controller;
 import com.example.ecommerce_web.dto.ChatbotContentDTO;
 import com.example.ecommerce_web.service.ChatbotService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +22,13 @@ public class ChatbotController {
     // ================= CRUD cho Admin =================
 
     @PostMapping("/contents")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ChatbotContentDTO> addContent(@RequestBody ChatbotContentDTO dto) {
         return ResponseEntity.ok(chatbotService.addContent(dto));
     }
 
     @PutMapping("/contents/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ChatbotContentDTO> updateContent(@PathVariable Long id,
                                                            @RequestBody ChatbotContentDTO dto) {
         ChatbotContentDTO updated = chatbotService.updateContent(id, dto);
@@ -36,6 +39,7 @@ public class ChatbotController {
     }
 
     @DeleteMapping("/contents/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteContent(@PathVariable Long id) {
         boolean deleted = chatbotService.deleteContent(id);
         if (!deleted) {
@@ -45,6 +49,7 @@ public class ChatbotController {
     }
 
     @GetMapping("/contents")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ChatbotContentDTO>> getAllContents() {
         return ResponseEntity.ok(chatbotService.getAllContents());
     }

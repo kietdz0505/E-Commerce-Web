@@ -86,7 +86,7 @@ public class MomoPaymentService {
         String signature = MomoSignatureUtil.signHmacSHA256(rawSignature, secretKey);
         requestBody.put("signature", signature);
 
-        log.info("MOMO REQUEST = {}", requestBody);
+        log.debug("MOMO REQUEST orderId={}, txnRef={}, amount={}", orderId, uniqueOrderId, amount);
 
         MomoPaymentResponse response = null;
         String responseJson;
@@ -100,7 +100,7 @@ public class MomoPaymentService {
             responseJson = "{\"error\":\"" + e.getMessage() + "\"}";
         }
 
-        log.info("MOMO RESPONSE = {}", responseJson);
+        log.debug("MOMO RESPONSE orderId={}, txnRef={}, response={}", orderId, uniqueOrderId, responseJson);
 
         // ===== SAVE TRANSACTION =====
         PaymentTransaction transaction = PaymentTransaction.builder()
@@ -139,32 +139,12 @@ public class MomoPaymentService {
 
     @Transactional
     public void handleMomoNotification(Map<String, Object> payload) {
-        log.error("========== MOMO CALLBACK HIT ==========");
+        log.info("========== MOMO CALLBACK HIT ==========");
         try {
-            log.info("MOMO IPN PAYLOAD = {}", payload);
+            log.debug("MOMO IPN PAYLOAD = {}", payload);
 
             // ===== 1. VERIFY SIGNATURE =====
-            String receivedSignature = (String) payload.get("signature");
-
-            String rawSignature =
-                    "accessKey=" + accessKey +
-                            "&amount=" + payload.get("amount") +
-                            "&extraData=" + payload.get("extraData") +
-                            "&message=" + payload.get("message") +
-                            "&orderId=" + payload.get("orderId") +
-                            "&orderInfo=" + payload.get("orderInfo") +
-                            "&orderType=" + payload.get("orderType") +
-                            "&partnerCode=" + payload.get("partnerCode") +
-                            "&payType=" + payload.get("payType") +
-                            "&requestId=" + payload.get("requestId") +
-                            "&responseTime=" + payload.get("responseTime") +
-                            "&resultCode=" + payload.get("resultCode") +
-                            "&transId=" + payload.get("transId");
-
-            String calculatedSignature =
-                    MomoSignatureUtil.signHmacSHA256(rawSignature, secretKey);
-
-            if (receivedSignature == null || !calculatedSignature.equals(receivedSignature)) {
+            if (!verifySignature(payload)) {
                 log.error("MOMO INVALID SIGNATURE");
                 return;
             }
@@ -175,6 +155,18 @@ public class MomoPaymentService {
             Long orderId = Long.parseLong(orderIdStr);
 
             log.info("ORDER ID = {}, RESULT = {}", orderId, resultCode);
+
+            if (!isValidAmount(orderId, payload.get("amount"))) {
+                log.error("MOMO AMOUNT MISMATCH orderId={}, amount={}", orderId, payload.get("amount"));
+                updateTransaction(
+                        orderId,
+                        momoOrderId,
+                        "AMOUNT_MISMATCH",
+                        objectMapper.writeValueAsString(payload),
+                        "Amount mismatch"
+                );
+                return;
+            }
 
             boolean success = "0".equals(resultCode);
             OrderStatus currentStatus = orderService.getOrderStatus(orderId);
@@ -244,5 +236,52 @@ public class MomoPaymentService {
         }
 
         return "MoMo payment failed: " + momoMessage;
+    }
+
+    public boolean verifySignature(Map<String, ?> payload) {
+        Object receivedSignature = payload.get("signature");
+
+        if (receivedSignature == null) {
+            return false;
+        }
+
+        String rawSignature =
+                "accessKey=" + accessKey +
+                        "&amount=" + value(payload, "amount") +
+                        "&extraData=" + value(payload, "extraData") +
+                        "&message=" + value(payload, "message") +
+                        "&orderId=" + value(payload, "orderId") +
+                        "&orderInfo=" + value(payload, "orderInfo") +
+                        "&orderType=" + value(payload, "orderType") +
+                        "&partnerCode=" + value(payload, "partnerCode") +
+                        "&payType=" + value(payload, "payType") +
+                        "&requestId=" + value(payload, "requestId") +
+                        "&responseTime=" + value(payload, "responseTime") +
+                        "&resultCode=" + value(payload, "resultCode") +
+                        "&transId=" + value(payload, "transId");
+
+        String calculatedSignature = MomoSignatureUtil.signHmacSHA256(rawSignature, secretKey);
+
+        return calculatedSignature.equalsIgnoreCase(receivedSignature.toString());
+    }
+
+    public boolean isValidAmount(Long orderId, Object amountValue) {
+        if (amountValue == null) {
+            return false;
+        }
+
+        try {
+            long expectedAmount = orderService.getOrderAmount(orderId);
+            long returnedAmount = Long.parseLong(amountValue.toString());
+
+            return expectedAmount == returnedAmount;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private String value(Map<String, ?> payload, String key) {
+        Object value = payload.get(key);
+        return value == null ? "" : value.toString();
     }
 }

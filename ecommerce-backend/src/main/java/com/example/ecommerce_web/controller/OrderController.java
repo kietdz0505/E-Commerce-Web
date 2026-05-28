@@ -6,9 +6,11 @@ import com.example.ecommerce_web.model.OrderStatus;
 import com.example.ecommerce_web.security.CustomUserDetails;
 import com.example.ecommerce_web.service.OrderService;
 import com.example.ecommerce_web.service.VNPaymentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +23,7 @@ public class OrderController {
     private final VNPaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest orderRequest, Authentication authentication) {
+    public ResponseEntity<OrderResponse> placeOrder(@Valid @RequestBody OrderRequest orderRequest, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getUserId();
 
@@ -40,6 +42,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
         try {
             OrderStatus orderStatus = OrderStatus.valueOf(status.trim().toUpperCase());
@@ -54,7 +57,7 @@ public class OrderController {
     @PutMapping("/{id}/detail")
     public ResponseEntity<?> updateOrderDetail(
             @PathVariable Long id,
-            @RequestBody OrderRequest orderRequest,
+            @Valid @RequestBody OrderRequest orderRequest,
             Authentication authentication
     ) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();

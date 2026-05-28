@@ -3,10 +3,12 @@ package com.example.ecommerce_web.controller;
 import com.example.ecommerce_web.config.PaginationProperties;
 import com.example.ecommerce_web.dto.ProductDTO;
 import com.example.ecommerce_web.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -51,7 +53,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductDTO create(@RequestBody ProductDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ProductDTO create(@Valid @RequestBody ProductDTO dto) {
         return productService.createProduct(dto);
     }
 
@@ -61,6 +64,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable Long id) {
         productService.deleteProduct(id);
     }
