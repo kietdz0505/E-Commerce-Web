@@ -117,50 +117,56 @@ function Home() {
     }
   };
 
-  const handleSearch = (filters) => {
-    setLoadingProducts(true);
-    setSearchKeyword(filters.keyword || '');
-    setSelectedPriceRange(filters);
-    setSelectedRating(filters.minRating || null);
+const handleSearch = (filters) => {
+  setLoadingProducts(true);
+  setSearchKeyword(filters?.keyword || '');
+  
+  setSelectedPriceRange({
+    min: filters?.minPrice ?? null,
+    max: filters?.maxPrice ?? null
+  });
+  
+  setSelectedRating(filters?.minRating || null);
 
-    searchProducts(filters)
-      .then(res => {
-        setProducts(res.data?.content || []);
-        setCurrentPage(filters.page || 0);
-        setTotalPages(res.data?.totalPages || 0);
-        setSelectedCategoryId(null);
-        setSelectedBrandId(null);
-        setBrands([]);
-        scrollToProductList();
-      })
-      .catch(err => {
-        console.error("Search failed:", err);
-        setProducts([]);
-      })
-      .finally(() => setLoadingProducts(false));
-  };
-
-  const handlePageChange = (page) => {
-    if (searchKeyword || selectedPriceRange || selectedRating) {
-      handleSearch({
-        keyword: searchKeyword,
-        minPrice: selectedPriceRange?.min,
-        maxPrice: selectedPriceRange?.max,
-        minRating: selectedRating,
-        page,
-        size: PaginationConfig.DEFAULT_PAGE_SIZE
-      });
-    } else if (selectedBrandId && selectedCategoryId) {
-      fetchProductsByCategoryAndBrand(selectedCategoryId, selectedBrandId, page);
-    } else if (selectedCategoryId) {
-      loadProductsByCategory(selectedCategoryId, page);
-    } else {
-      loadProducts(page);
-    }
-  };
+  searchProducts(filters)
+    .then(res => {
+      setProducts(res.data?.content || []);
+      setCurrentPage(filters?.page || 0);
+      setTotalPages(res.data?.totalPages || 0);
+      setSelectedCategoryId(null);
+      setSelectedBrandId(null);
+      setBrands([]);
+      scrollToProductList();
+    })
+    .catch(err => {
+      console.error("Search failed:", err);
+      setProducts([]);
+    })
+    .finally(() => setLoadingProducts(false));
+};
+const handlePageChange = (page) => {
+  if (searchKeyword || selectedPriceRange || selectedRating) {
+    const safePriceRange = selectedPriceRange || {};
+    
+    handleSearch({
+      keyword: searchKeyword || '',
+      minPrice: safePriceRange.min ?? null,
+      maxPrice: safePriceRange.max ?? null,
+      minRating: selectedRating ?? null,
+      page,
+      size: PaginationConfig.DEFAULT_PAGE_SIZE
+    });
+  } else if (selectedBrandId && selectedCategoryId) {
+    fetchProductsByCategoryAndBrand(selectedCategoryId, selectedBrandId, page);
+  } else if (selectedCategoryId) {
+    loadProductsByCategory(selectedCategoryId, page);
+  } else {
+    loadProducts(page);
+  }
+};
 
   const handleBuyNowClick = () => {
-    const el = document.getElementById("product-list-section");
+    const el = document.getElementById("product-wrapper");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 

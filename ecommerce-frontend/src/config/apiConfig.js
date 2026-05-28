@@ -81,10 +81,10 @@ export const API_CONFIG = {
     PAYMENT_RETURN_VNPAY: '/payment/vnpay-return',
     CANCEL_ORDER: (orderId) => `/api/orders/${orderId}/cancel`, // DELETE request
     UPDATE_ORDER_INFO: (orderId) => `/api/orders/${orderId}/detail`,
-    SEARCH: (filters) => {
+    SEARCH: (filters = {}) => {
       const params = new URLSearchParams();
-
-      Object.entries(filters).forEach(([key, value]) => {
+      
+      Object.entries(filters || {}).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, value);
         }
